@@ -2,9 +2,6 @@
 
 **File Structure**
 
-
-Explanation:
-
 1. controllers: Contains your backend controller files.
 2. data: Contains your data files like accounts.json.
 3. routes: Contains your backend route files.
