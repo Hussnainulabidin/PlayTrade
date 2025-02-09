@@ -2,10 +2,14 @@
 
 **File Structure**
 
-├── controllers/\n
+├── controllers/
+
 │   ├── valorantController.js
+
 ├── data/
+
 │   ├── accounts.json
+
 ├── routes/
 │   ├── valorantRoutes.js
 ├── public/
