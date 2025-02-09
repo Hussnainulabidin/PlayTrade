@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "username": "user1",
+    "password": "pass1",
+    "email": "user1@example.com",
+    "skins": ["skin1", "skin2"],
+    "description": "This is user1"
+  },
+  {
+    "id": 2,
+    "username": "user2",
+    "password": "pass2",
+    "email": "user2@example.com",
+    "skins": ["skin3", "skin4"],
+    "description": "This is user2"
+  },
+  {
+    "id": 3,
+    "username": "user3",
+    "password": "pass3",
+    "email": "user3@example.com",
+    "skins": ["skin5", "skin6"],
+    "description": "This is user3"
+  },
+  {
+    "id": 5,
+    "username": "user5",
+    "password": "pass5",
+    "email": "user5@example.com",
+    "skins": ["skin9", "skin10"],
+    "description": "This is user5"
+  },
+  {
+    "id": 6,
+    "username": "user6",
+    "password": "pass6",
+    "email": "user6@example.com",
+    "skins": ["skin1", "skin2"],
+    "description": "This is user6"
+  },
+  {
+    "username": "newuser7",
+    "password": "pass7",
+    "email": "user7@example.com",
+    "skins": ["skin1", "skin2"],
+    "description": "This is user7",
+    "id": 7
+  }
+]

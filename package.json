@@ -1,0 +1,15 @@
+{
+  "name": "gameboostclone",
+  "version": "1.0.0",
+  "description": "Web Development project",
+  "main": "app.js",
+  "scripts": {
+    "start" : "nodemon server.js"
+  },
+  "author": "Hussnain",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2",
+    "morgan": "^1.10.0"
+  }
+}

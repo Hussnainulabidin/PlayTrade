@@ -1,0 +1,43 @@
+const app = require("./app");
+
+console.log(app.get("env"));
+
+const port = 3000;
+app.listen(port, () => {
+  console.log(`App running on port ${port}...`);
+});
+
+
+/*
+├── controllers/
+│   ├── valorantController.js
+├── data/
+│   ├── accounts.json
+├── routes/
+│   ├── valorantRoutes.js
+├── public/
+│   ├── index.html
+├── src/
+│   ├── components/
+│   │   ├── AccountList.js
+│   │   ├── AccountDetail.js
+│   ├── App.js
+│   ├── index.js
+├── app.js
+├── package.json
+├── package-lock.json
+
+Explanation:
+
+1. controllers: Contains your backend controller files.
+2. data: Contains your data files like accounts.json.
+3. routes: Contains your backend route files.
+4. public/: Contains static files like index.html which is the entry point for your React application.
+5. src/: Contains your React application source files.
+    -> components/: Contains your React components like AccountList.js and AccountDetail.js.
+    ->App.js: The main React component.
+    ->index.js: The entry point for your React application.
+6. app.js: Your Express application file.
+7. package.json: Contains your project dependencies and scripts.
+8. package-lock.json: Contains the exact versions of your project dependencies.
+*/
