@@ -2,30 +2,6 @@
 
 **File Structure**
 
-├── controllers/
-│   ├── valorantController.js
-
-├── data/
-│   ├── accounts.json
-
-├── routes/
-│   ├── valorantRoutes.js
-
-├── public/
-│   ├── index.html
-
-├── src/
-│   ├── components/
-│   │   ├── AccountList.js
-│   │   ├── AccountDetail.js
-│   ├── App.js
-│   ├── index.js
-
-├── app.js
-
-├── package.json
-
-├── package-lock.json
 
 Explanation:
 
