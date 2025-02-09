@@ -3,7 +3,6 @@
 **File Structure**
 
 ├── controllers/
-
 │   ├── valorantController.js
 
 ├── data/
