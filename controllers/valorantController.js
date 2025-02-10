@@ -1,35 +1,10 @@
-const fs = require("fs");
+const valorant = require("./../models/valorant");
 
-const accounts = JSON.parse(
-  fs.readFileSync(`${__dirname}/../data/accounts.json`)
-);
-
-// middleware to check if the id is valid before proceeding to the routes
-exports.checkID = (req, res, next, val) => {
-    const account = accounts.find((el) => el.id === Number(val));
-  
-    if (!account) {
-      return res.status(404).json({
-        status: "fail",
-        requestedAt: req.requestTime,
-        message: "Invalid ID",
-      });
-    }
-    next();
-};
+// const accounts = JSON.parse(
+//   fs.readFileSync(`${__dirname}/../data/accounts.json`)
+// );
 
 
-// middleware to check if the body has all the required fields
-exports.checkBody = (req, res, next) => {
-    const { username, password, email, skins, description } = req.body;
-    if (!username || !password || !email || !skins || !description) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Missing required fields",
-      });
-    }
-    next();
-  };
 
 exports.getTopAccounts = (req, res) => {
   res.status(500).json({
@@ -42,38 +17,45 @@ exports.getAllAccounts = (req, res) => {
   res.status(200).json({
     status: "success",
     requestedAt: req.requestTime,
-    data: {
-      accounts,
-    },
+    // data: {
+    //   accounts,
+    // },
   });
 };
 
-exports.createAccount = (req, res) => {
-  const newAccount = req.body;
-  const newID = accounts[accounts.length - 1].id + 1;
-  newAccount.id = newID;
+exports.createAccount = async (req, res) => {
+  try {
+    const newAccount = await valorant.create(req.body);
 
-  accounts.push(newAccount);
-
-  fs.writeFile(
-    `${__dirname}/data/accounts.json`,
-    JSON.stringify(accounts),
-    (err) => {
-      res.status(201).json({
-        status: "success",
-        requestedAt: req.requestTime,
-        data: {
-          account: newAccount,
-        },
-      });
-    }
-  );
+    res.status(201).json({
+      status: "success",
+      requestedAt: req.requestTime,
+      data: {
+        account: newAccount,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: "fail",
+      message: "Invalid data sent!",
+    });
+  }
 };
 
 exports.getAccount = (req, res) => {
   const id = req.params.id;
-  const account = accounts.find((el) => el.id === Number(id));
+  // const account = accounts.find((el) => el.id === Number(id));
 
+  // res.status(200).json({
+  //   status: "success",
+  //   requestedAt: req.requestTime,
+  //   data: {
+  //     account,
+  //   },
+  // });
+};
+
+exports.updateAccount = (req, res) => {
   res.status(200).json({
     status: "success",
     requestedAt: req.requestTime,
@@ -83,46 +65,10 @@ exports.getAccount = (req, res) => {
   });
 };
 
-exports.updateAccount = (req, res) => {
-  const id = req.params.id;
-  const account = accounts.find((el) => el.id === Number(id));
-
-  Object.keys(req.body).forEach((key) => {
-    account[key] = req.body[key];
-  });
-
-  fs.writeFile(
-    `${__dirname}/data/accounts.json`,
-    JSON.stringify(accounts),
-    (err) => {
-      res.status(200).json({
-        status: "success",
-        requestedAt: req.requestTime,
-        data: {
-          account,
-        },
-      });
-    }
-  );
-};
-
 exports.deleteAccount = (req, res) => {
-  const id = req.params.id;
-
-  const account = accounts.find((el) => el.id === Number(id));
-  const index = accounts.indexOf(account);
-
-  accounts.splice(index, 1);
-
-  fs.writeFile(
-    `${__dirname}/data/accounts.json`,
-    JSON.stringify(accounts),
-    (err) => {
-      res.status(204).json({
-        status: "success",
-        requestedAt: req.requestTime,
-        data: null,
-      });
-    }
-  );
+  res.status(204).json({
+    status: "success",
+    requestedAt: req.requestTime,
+    data: null,
+  });
 };

@@ -9,7 +9,10 @@ const userRouter = require("./routes/userRoutes");
 const app = express();
 
 // 1) Middleware
-app.use(morgan("dev")); // gets the information about the request and logs it to the console e.g GET /valorant/accounts 200 3.000 ms - 43
+console.log(process.env.NODE_ENV)
+if(process.env.NODE_ENV === "development") {
+  app.use(morgan("dev")); // gets the information about the request and logs it to the console e.g GET /valorant/accounts 200 3.000 ms - 43
+}
 app.use(express.json());
 
 app.use((req, res, next) => {

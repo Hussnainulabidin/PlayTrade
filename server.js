@@ -1,12 +1,27 @@
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+dotenv.config({ path: "./config.env" });
+
 const app = require("./app");
+const { getAllAccounts } = require("./controllers/valorantController");
 
-console.log(app.get("env"));
+const DB = process.env.DATABASE.replace(
+  "<PASSWORD>",
+  process.env.DATABASE_PASSWORD
+);
 
-const port = 3000;
+mongoose.connect(DB , {
+}).then(() => {
+  console.log("DB connection successful");
+}).catch(err => {
+  console.error("DB connection error:", err);
+})
+
+
+const port = 3000 || process.env.PORT;
 app.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
-
 
 /*
 ├── controllers/

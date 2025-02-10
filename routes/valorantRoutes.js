@@ -4,14 +4,14 @@ const valorantController = require("./../controllers/valorantController");
 const router = express.Router();
 
 // middleware to check if the id is valid before proceeding to the routes
-router.param("id",valorantController.checkID);
+// router.param("id",valorantController.checkID);
 
 
 
 router
   .route("/")
   .get(valorantController.getTopAccounts)
-  .post(valorantController.checkBody,valorantController.createAccount);
+  .post(valorantController.createAccount);
 
 router
     .route("/accounts")
