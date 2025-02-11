@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+.app {
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: #1f2937;
+}
+
+.app.dark {
+  background-color: #111827;
+  color: #f3f4f6;
+}
+
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.top-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+  .top-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
