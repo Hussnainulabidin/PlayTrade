@@ -1,10 +1,38 @@
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+dotenv.config({ path: "./config.env" });
+
+
+process.on('uncaughtException' , err => {
+  console.log("UNCAUGHT REJECTION ..... Shutting Down");
+  console.error(err.name, err.message);
+  process.exit(1);
+})
+
 const app = require("./app");
+const { getAllAccounts } = require("./controllers/valorantController");
 
-console.log(app.get("env"));
+const DB = process.env.DATABASE.replace(
+  "<PASSWORD>",
+  process.env.DATABASE_PASSWORD
+);
 
-const port = 3000;
-app.listen(port, () => {
+mongoose.connect(DB , {
+}).then(() => {
+  console.log("DB connection successful");
+})
+
+const port = 3003 || process.env.PORT;
+const server = app.listen(port, () => {
   console.log(`App running on port ${port}...`);
+});
+
+process.on('unhandledRejection', err => {
+  console.log("UNHANDLED REJECTION ..... Shutting Down");
+  console.error(err.name, err.message);
+  server.close(() => {
+    process.exit(1);
+  });
 });
 
 

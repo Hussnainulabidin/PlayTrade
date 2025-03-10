@@ -1,17 +1,18 @@
 const express = require("express");
 const valorantController = require("./../controllers/valorantController");
+const authController = require("./../controllers/authController");
 
 const router = express.Router();
 
 // middleware to check if the id is valid before proceeding to the routes
-router.param("id",valorantController.checkID);
+// router.param("id",valorantController.checkID);
 
 
 
 router
   .route("/")
   .get(valorantController.getTopAccounts)
-  .post(valorantController.checkBody,valorantController.createAccount);
+  .post(authController.protect , valorantController.createAccount);
 
 router
     .route("/accounts")
@@ -20,7 +21,7 @@ router
 router
   .route("/accounts/:id")
   .get(valorantController.getAccount)
-  .patch(valorantController.updateAccount)
-  .delete(valorantController.deleteAccount);
+  .patch(authController.protect , valorantController.updateAccount)
+  .delete(authController.protect , valorantController.deleteAccount);
 
 module.exports = router;
