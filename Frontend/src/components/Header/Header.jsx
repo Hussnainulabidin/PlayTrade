@@ -1,11 +1,30 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import "./Header.css"
 import { LoginModal } from "../LoginModal/LoginModal"
+import { SignupModal } from "../SignupModal/SignupModal"
+import { UserMenu } from "../UserMenu/UserMenu"
 
-function Header({ darkMode, setDarkMode }) {
+function Header({ darkMode, setDarkMode, isLoggedIn, userRole, onLogout, onLoginSuccess }) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const userMenuRef = useRef(null)
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
   return (
     <header className="header">
@@ -38,12 +57,49 @@ function Header({ darkMode, setDarkMode }) {
             <span className="divider">/</span>
             <span>USD</span>
           </div>
-          <button className="login-btn" onClick={() => setIsLoginModalOpen(true)}>
-            Log in
-          </button>
+
+          {isLoggedIn ? (
+            <div className="user-profile-container" ref={userMenuRef}>
+              <button
+                className="profile-icon-btn"
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                aria-label="User menu"
+              >
+                <div className="profile-icon">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                {userRole === "admin" && <span className="admin-badge">Admin</span>}
+              </button>
+
+              {isUserMenuOpen && <UserMenu onLogout={onLogout} userRole={userRole} />}
+            </div>
+          ) : (
+            <button className="login-btn" onClick={() => setIsLoginModalOpen(true)}>
+              Log in
+            </button>
+          )}
         </div>
       </div>
-      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        switchToSignup={() => {
+          setIsLoginModalOpen(false)
+          setIsSignupModalOpen(true)
+        }}
+        onLoginSuccess={onLoginSuccess}
+      />
+      <SignupModal
+        isOpen={isSignupModalOpen}
+        onClose={() => setIsSignupModalOpen(false)}
+        switchToLogin={() => {
+          setIsSignupModalOpen(false)
+          setIsLoginModalOpen(true)
+        }}
+        onLoginSuccess={onLoginSuccess}
+      />
     </header>
   )
 }

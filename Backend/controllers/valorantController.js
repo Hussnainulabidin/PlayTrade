@@ -38,7 +38,11 @@ exports.getAllAccounts = catchAsync(async (req, res , next) => {
 });
 
 exports.createAccount = catchAsync(async (req, res, next) => {
-  const newAccount = await valorant.create(req.body);
+  const newAccount = await valorant.create({
+    ...req.body, // Spread existing data from request body
+    user: req.user._id, // Add user ID from `authController.protect`
+  });
+
   console.log("Account created successfully:", newAccount);
 
   res.status(201).json({
@@ -49,6 +53,7 @@ exports.createAccount = catchAsync(async (req, res, next) => {
     },
   });
 });
+
 
 exports.getAccount = catchAsync(async (req, res, next) => {
   const account = await valorant.findById(req.params.id);
