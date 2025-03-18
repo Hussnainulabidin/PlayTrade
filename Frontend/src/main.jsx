@@ -1,18 +1,11 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
-import './index.css'
+import React from "react"
+import ReactDOM from "react-dom/client"
+import "./index.css"
+import App from "./App"
 
-// Wait for the DOM to be fully loaded before rendering
-document.addEventListener('DOMContentLoaded', () => {
-  const rootElement = document.getElementById('root')
-  if (rootElement) {
-    ReactDOM.createRoot(rootElement).render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    )
-  } else {
-    console.error('Root element not found')
-  }
-})
+const root = ReactDOM.createRoot(document.getElementById("root"))
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
