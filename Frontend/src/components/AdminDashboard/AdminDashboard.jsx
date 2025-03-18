@@ -16,6 +16,7 @@ import {
   RefreshCw,
   Eye,
   EyeOff,
+  ArrowLeft,
 } from "lucide-react"
 import axios from "axios"
 import { Button } from "../ui/button"
@@ -24,6 +25,7 @@ import { Dialog, DialogContent } from "../ui/dialog"
 import UserForm from "./UserForm"
 import GameForm from "./GameForm"
 import StatsCard from "./StatsCard"
+import { Link } from "react-router-dom"
 //import { toast } from "../ui/toast"
 
 const API_URL = "http://localhost:3003/api"
@@ -420,11 +422,11 @@ function AdminDashboard() {
           prevUsers.map((user) => (user.id === selectedUser.id ? { ...user, ...userData } : user)),
         )
 
-        toast({
-          title: "Success",
-          description: "User updated successfully",
-          variant: "success",
-        })
+        // toast({
+        //   title: "Success",
+        //   description: "User updated successfully",
+        //   variant: "success",
+        // })
       } else {
         // Create new user
         const response = await axios.post(`${API_URL}/admin/users`, userData, {
@@ -434,22 +436,22 @@ function AdminDashboard() {
         // Update local state
         setUsers((prevUsers) => [...prevUsers, response.data])
 
-        toast({
-          title: "Success",
-          description: "User created successfully",
-          variant: "success",
-        })
+        // toast({
+        //   title: "Success",
+        //   description: "User created successfully",
+        //   variant: "success",
+        // })
       }
 
       setIsUserFormOpen(false)
       setSelectedUser(null)
     } catch (error) {
       console.error("Error saving user:", error)
-      toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to save user",
-        variant: "destructive",
-      })
+      // toast({
+      //   title: "Error",
+      //   description: error.response?.data?.message || "Failed to save user",
+      //   variant: "destructive",
+      // })
     }
   }
 
@@ -469,11 +471,11 @@ function AdminDashboard() {
           prevGames.map((game) => (game.id === selectedGame.id ? { ...game, ...gameData } : game)),
         )
 
-        toast({
-          title: "Success",
-          description: "Game updated successfully",
-          variant: "success",
-        })
+        // toast({
+        //   title: "Success",
+        //   description: "Game updated successfully",
+        //   variant: "success",
+        // })
       } else {
         // Create new game
         const response = await axios.post(`${API_URL}/admin/games`, gameData, {
@@ -483,22 +485,22 @@ function AdminDashboard() {
         // Update local state
         setGames((prevGames) => [...prevGames, response.data])
 
-        toast({
-          title: "Success",
-          description: "Game created successfully",
-          variant: "success",
-        })
+        // toast({
+        //   title: "Success",
+        //   description: "Game created successfully",
+        //   variant: "success",
+        // })
       }
 
       setIsGameFormOpen(false)
       setSelectedGame(null)
     } catch (error) {
       console.error("Error saving game:", error)
-      toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to save game",
-        variant: "destructive",
-      })
+      // toast({
+      //   title: "Error",
+      //   description: error.response?.data?.message || "Failed to save game",
+      //   variant: "destructive",
+      // })
     }
   }
 
@@ -513,18 +515,18 @@ function AdminDashboard() {
       // Update local state
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId))
 
-      toast({
-        title: "Success",
-        description: "User deleted successfully",
-        variant: "success",
-      })
+      // toast({
+      //   title: "Success",
+      //   description: "User deleted successfully",
+      //   variant: "success",
+      // })
     } catch (error) {
       console.error("Error deleting user:", error)
-      toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to delete user",
-        variant: "destructive",
-      })
+      // toast({
+      //   title: "Error",
+      //   description: error.response?.data?.message || "Failed to delete user",
+      //   variant: "destructive",
+      // })
     }
   }
 
@@ -539,18 +541,18 @@ function AdminDashboard() {
       // Update local state
       setGames((prevGames) => prevGames.filter((game) => game.id !== gameId))
 
-      toast({
-        title: "Success",
-        description: "Game deleted successfully",
-        variant: "success",
-      })
+      // toast({
+      //   title: "Success",
+      //   description: "Game deleted successfully",
+      //   variant: "success",
+      // })
     } catch (error) {
       console.error("Error deleting game:", error)
-      toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to delete game",
-        variant: "destructive",
-      })
+      // toast({
+      //   title: "Error",
+      //   description: error.response?.data?.message || "Failed to delete game",
+      //   variant: "destructive",
+      // })
     }
   }
 
@@ -571,18 +573,18 @@ function AdminDashboard() {
       // Update local state
       setUsers((prevUsers) => prevUsers.map((user) => (user.id === userId ? { ...user, status: newStatus } : user)))
 
-      toast({
-        title: "Success",
-        description: `User ${newStatus === "active" ? "activated" : "deactivated"} successfully`,
-        variant: "success",
-      })
+      // toast({
+      //   title: "Success",
+      //   description: `User ${newStatus === "active" ? "activated" : "deactivated"} successfully`,
+      //   variant: "success",
+      // })
     } catch (error) {
       console.error("Error toggling user status:", error)
-      toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to update user status",
-        variant: "destructive",
-      })
+      // toast({
+      //   title: "Error",
+      //   description: error.response?.data?.message || "Failed to update user status",
+      //   variant: "destructive",
+      // })
     }
   }
 
@@ -603,18 +605,18 @@ function AdminDashboard() {
       // Update local state
       setGames((prevGames) => prevGames.map((game) => (game.id === gameId ? { ...game, status: newStatus } : game)))
 
-      toast({
-        title: "Success",
-        description: `Game ${newStatus === "active" ? "activated" : "deactivated"} successfully`,
-        variant: "success",
-      })
+      // toast({
+      //   title: "Success",
+      //   description: `Game ${newStatus === "active" ? "activated" : "deactivated"} successfully`,
+      //   variant: "success",
+      // })
     } catch (error) {
       console.error("Error toggling game status:", error)
-      toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to update game status",
-        variant: "destructive",
-      })
+      // toast({
+      //   title: "Error",
+      //   description: error.response?.data?.message || "Failed to update game status",
+      //   variant: "destructive",
+      // })
     }
   }
 
@@ -1018,6 +1020,10 @@ function AdminDashboard() {
             <Settings size={20} />
             <span>Settings</span>
           </button>
+          <Link to="/dashboard" className="admin-nav-item">
+            <ArrowLeft size={20} />
+            <span>Back to Site</span>
+          </Link>
         </nav>
       </div>
 

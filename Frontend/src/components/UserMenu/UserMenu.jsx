@@ -2,6 +2,7 @@
 
 import "./UserMenu.css"
 import { Settings, User, LogOut, Shield } from "lucide-react"
+import { Link } from "react-router-dom"
 
 export function UserMenu({ onLogout, userRole }) {
   return (
@@ -28,10 +29,10 @@ export function UserMenu({ onLogout, userRole }) {
           <span>Settings</span>
         </a>
         {userRole === "admin" && (
-          <a href="#" className="user-menu-item">
+          <Link to="/admin" className="user-menu-item">
             <Shield size={16} />
             <span>Admin Dashboard</span>
-          </a>
+          </Link>
         )}
         <button className="user-menu-item logout" onClick={onLogout}>
           <LogOut size={16} />
