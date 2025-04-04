@@ -1,154 +1,136 @@
-"use client"
+import React, { useState, useEffect } from 'react';
+import { Users, Zap, Package, Coins, CreditCard, User, Gift, Gamepad2, ShoppingCart, Search, Crown, ChevronDown, PlayCircle, CheckCircle, ChevronUp } from 'lucide-react';
+import './PlayTradeLanding.css';
 
-import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import {
-  Crown,
-  Search,
-  User,
-  ShoppingCart,
-  CreditCard,
-  PlayCircle,
-  CheckCircle,
-  Users,
-  Package,
-  Gamepad2,
-  Gift,
-  Coins,
-  Zap,
-} from "lucide-react"
-import { Button } from "../components/ui/landing-button"
-import { Input } from "../components/ui/landing-input"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../components/ui/landing-accordion"
-import LandingNav from "../components/LandingNav/LandingNav"
-import "./landingPage.css"
-
-function LandingPage() {
-  const [activeServiceIndex, setActiveServiceIndex] = useState(0)
-  const [activeStatIndex, setActiveStatIndex] = useState(0)
-  const [activeProcessIndex, setActiveProcessIndex] = useState(0)
-  const [activeFaqIndex, setActiveFaqIndex] = useState(0)
+function PlayTradeLanding() {
+  const [activeServiceIndex, setActiveServiceIndex] = useState(0);
+  const [activeStatIndex, setActiveStatIndex] = useState(0);
+  const [activeProcessIndex, setActiveProcessIndex] = useState(0);
+  const [activeFaqIndex, setActiveFaqIndex] = useState(0);
+  const [openFaqItem, setOpenFaqItem] = useState(null);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      setActiveServiceIndex((prevIndex) => (prevIndex + 1) % 7)
-      setActiveStatIndex((prevIndex) => (prevIndex + 1) % 4)
-      setActiveProcessIndex((prevIndex) => (prevIndex + 1) % 4)
-      setActiveFaqIndex((prevIndex) => (prevIndex + 1) % 5)
-    }, 2000)
+      setActiveServiceIndex((prevIndex) => (prevIndex + 1) % 7);
+      setActiveStatIndex((prevIndex) => (prevIndex + 1) % 3);
+      setActiveProcessIndex((prevIndex) => (prevIndex + 1) % 4);
+      setActiveFaqIndex((prevIndex) => (prevIndex + 1) % 5);
+    }, 2000);
 
-    return () => clearInterval(intervalId)
-  }, [])
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const toggleFaqItem = (index) => {
+    setOpenFaqItem(openFaqItem === index ? null : index);
+  };
 
   return (
-    <div className="min-h-screen bg-[#0d1524] text-white">
+    <div className="playtrade-landing">
       {/* Header */}
-      <LandingNav />
+      <header className="pt-header">
+        <div className="pt-container">
+          <div className="pt-logo">
+            <Crown className="pt-crown-icon" />
+            <span className="pt-logo-text">
+              <span className="pt-blue">PLAY</span>TRADE
+            </span>
+          </div>
+          <div className="pt-user-icon">
+            <User className="pt-icon" />
+          </div>
+        </div>
+      </header>
 
       {/* Hero Section */}
-      <section
-        className="py-16 md:py-24 bg-cover bg-center bg-no-repeat relative"
-        style={{ backgroundImage: "url(https://via.placeholder.com/1600x800)" }}
-      >
-        <div className="absolute inset-0 bg-[#0d1524]/80"></div>
-        <div className="container mx-auto px-4 relative z-10 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            The <span className="text-blue-500">All-In-One</span> Platform for Gamers
+      <section className="pt-hero">
+        <div className="pt-container pt-text-center">
+          <h1 className="pt-hero-title">
+            The <span className="pt-blue">All-In-One</span> Platform for Gamers
           </h1>
-          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+          <p className="pt-hero-subtitle">
             High-Quality Accounts · Premium Gaming Services · In-Game Currencies
           </p>
-          <div className="max-w-2xl mx-auto relative mb-12">
-            <Input
+
+          <div className="pt-search-container">
+            <Search className="pt-search-icon" />
+            <input
               type="text"
               placeholder="Search for games..."
-              className="w-full h-12 pl-12 pr-4 bg-[#1a2234] border-none rounded-lg text-white"
+              className="pt-search-input"
             />
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           </div>
-          {/* Service Icons */}
-          {(() => {
-            const services = [
-              { icon: Users, label: "Accounts" },
-              { icon: Zap, label: "Boosting" },
-              { icon: Package, label: "Items" },
-              { icon: Coins, label: "Currencies" },
-              { icon: CreditCard, label: "Top Ups" },
-              { icon: User, label: "Buddy" },
-              { icon: Gift, label: "Gift Cards" },
-            ]
 
-            return (
-              <div className="grid grid-cols-3 md:grid-cols-7 gap-4 max-w-4xl mx-auto">
-                {services.map((service, index) => (
-                  <div key={service.label} className="flex flex-col items-center">
-                    <div
-                      className={`w-12 h-12 ${index === activeServiceIndex ? "bg-blue-600" : "bg-[#1a2234]"} rounded-lg flex items-center justify-center mb-2 transition-colors duration-300`}
-                    >
-                      <service.icon
-                        className={`h-6 w-6 ${index === activeServiceIndex ? "text-white" : "text-blue-500"}`}
-                      />
-                    </div>
-                    <span className="text-sm">{service.label}</span>
-                  </div>
-                ))}
+          {/* Service Icons */}
+          <div className="pt-services-grid">
+            {[
+              { icon: Users, label: 'Accounts' },
+              { icon: Zap, label: 'Boosting' },
+              { icon: Package, label: 'Items' },
+              { icon: Coins, label: 'Currencies' },
+              { icon: CreditCard, label: 'Top Ups' },
+              { icon: User, label: 'Buddy' },
+              { icon: Gift, label: 'Gift Cards' }
+            ].map((service, index) => (
+              <div key={service.label} className="pt-service-item">
+                <div className={`pt-service-icon ${index === activeServiceIndex ? 'pt-active' : ''}`}>
+                  <service.icon className="pt-icon" />
+                </div>
+                <span className="pt-service-label">{service.label}</span>
               </div>
-            )
-          })()}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">What are you waiting for?</h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+      <section className="pt-cta">
+        <div className="pt-container pt-text-center">
+          <h2 className="pt-section-title">What are you waiting for?</h2>
+          <p className="pt-section-subtitle">
             Step up your game now! Let our pros boost your level and guide you to the higher ranks you deserve.
           </p>
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 h-auto text-lg rounded-md"
-          >
-            <Gamepad2 className="mr-2 h-5 w-5" />
-            Get Started
-          </Link>
+          <button className="pt-button">
+            <Gamepad2 className="pt-button-icon" />
+            Select Game
+          </button>
         </div>
       </section>
 
       {/* Trust Section */}
-      <section className="py-16 bg-[#0a101c]">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-start justify-between mb-12">
+      <section className="pt-trust">
+        <div className="pt-container">
+          <div className="pt-trust-header">
             <div>
-              <h2 className="text-3xl md:text-5xl font-bold mb-2">
-                More Than 85,000+
-                <br />
+              <h2 className="pt-section-title">
+                More Than 85,000+<br />
                 Gamers Trust Us
               </h2>
             </div>
-            <div className="mt-4 md:mt-0 bg-[#1a2234] p-4 rounded-lg flex items-center">
-              <img src="https://via.placeholder.com/120x32" width={120} height={32} alt="Trustpilot" className="mr-4" />
+            <div className="pt-trustpilot">
+              <img
+                src="https://via.placeholder.com/120x32?text=Trustpilot"
+                alt="Trustpilot"
+                className="pt-trustpilot-logo"
+              />
               <div>
-                <div className="font-bold">Excellent 4.8 out of 5.0</div>
-                <div className="text-sm text-gray-400">Based on 9,450 reviews</div>
+                <div className="pt-trustpilot-rating">Excellent 4.8 out of 5.0</div>
+                <div className="pt-trustpilot-reviews">Based on 9,450 reviews</div>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="pt-reviews-grid">
             {[1, 2, 3].map((item) => (
-              <div key={item} className="bg-[#1a2234] p-6 rounded-lg">
-                <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 rounded-full bg-gray-700 mr-3"></div>
+              <div key={item} className="pt-review-card">
+                <div className="pt-review-header">
+                  <div className="pt-avatar"></div>
                   <div>
-                    <div className="font-bold">Username</div>
-                    <div className="text-sm text-gray-400">Country</div>
+                    <div className="pt-username">Username</div>
+                    <div className="pt-country">Country</div>
                   </div>
-                  <div className="ml-auto">
-                    <div className="text-green-500">★★★★★</div>
-                  </div>
+                  <div className="pt-stars">★★★★★</div>
                 </div>
-                <p className="text-gray-300">
+                <p className="pt-review-text">
                   Was very satisfied with the account. Instant delivery to my email with recovery email and password and
                   the email and password to the email to change password as well. Will definitely purchase again.
                 </p>
@@ -159,18 +141,17 @@ function LandingPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between">
-            <div className="mb-8 md:mb-0">
-              <h2 className="text-3xl md:text-5xl font-bold mb-4">
-                PlayTrade in
-                <br />
+      <section className="pt-stats">
+        <div className="pt-container">
+          <div className="pt-stats-header">
+            <div>
+              <h2 className="pt-section-title">
+                PlayTrade in<br />
                 Numbers
               </h2>
             </div>
-            <div className="max-w-xl">
-              <p className="text-xl text-gray-300">
+            <div className="pt-stats-description">
+              <p>
                 Our team has united the most experienced people in the gaming industry, from all over the world, with
                 one mission: "To truly change the life of every day gamers."
               </p>
@@ -178,184 +159,134 @@ function LandingPage() {
           </div>
 
           {/* Stats Grid */}
-          {(() => {
-            const stats = [
+          <div className="pt-stats-grid">
+            {[
               {
                 icon: Users,
-                number: "250,000+",
-                label: "Gamers we Empowered",
-                description: "Proudly serving a thriving community of passionate gamers worldwide!",
+                number: '250,000+',
+                label: 'Gamers we Empowered',
+                description: 'Proudly serving a thriving community of passionate gamers worldwide!'
               },
               {
                 icon: ShoppingCart,
-                number: "320,000+",
-                label: "Orders Completed",
-                description: "Accounts, Boosting, Coaching and we're just getting started.",
+                number: '320,000+',
+                label: 'Orders Completed',
+                description: 'Accounts, Boosting, Coaching and we\'re just getting started.'
               },
               {
                 icon: Gamepad2,
-                number: "2022",
-                label: "Operating Since",
-                description: "That's all it took us to revolutionize the game services industry.",
-              },
-              {
-                icon: Users,
-                number: "1200+",
-                label: "Partners",
-                description: "The very best partners stand ready to fulfill your orders.",
-              },
-            ]
-
-            return (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-12">
-                {stats.map((stat, index) => (
-                  <div
-                    key={stat.label}
-                    className={`${
-                      index === activeStatIndex ? "bg-blue-600" : "bg-[#1a2234]"
-                    } p-6 rounded-lg transition-colors duration-300`}
-                  >
-                    <div
-                      className={`flex items-center justify-center h-12 w-12 ${
-                        index === activeStatIndex ? "bg-blue-700" : "bg-[#0d1524]"
-                      } rounded-full mb-4`}
-                    >
-                      <stat.icon className={`h-6 w-6 ${index === activeStatIndex ? "text-white" : "text-gray-400"}`} />
-                    </div>
-                    <h3 className="text-3xl md:text-4xl font-bold mb-1">{stat.number}</h3>
-                    <p className={`${index === activeStatIndex ? "text-gray-200" : "text-gray-400"} mb-4`}>
-                      {stat.label}
-                    </p>
-                    <p className={`text-sm ${index === activeStatIndex ? "text-white" : "text-gray-300"}`}>
-                      {stat.description}
-                    </p>
-                  </div>
-                ))}
+                number: '2022',
+                label: 'Operating Since',
+                description: 'That\'s all it took us to revolutionize the game services industry.'
+              }
+            ].map((stat, index) => (
+              <div
+                key={stat.label}
+                className={`pt-stat-card ${index === activeStatIndex ? 'pt-active' : ''}`}
+              >
+                <div className="pt-stat-icon">
+                  <stat.icon className="pt-icon" />
+                </div>
+                <h3 className="pt-stat-number">{stat.number}</h3>
+                <p className="pt-stat-label">{stat.label}</p>
+                <p className="pt-stat-description">{stat.description}</p>
               </div>
-            )
-          })()}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section
-        className="py-16 md:py-24 bg-cover bg-center bg-no-repeat relative"
-        style={{ backgroundImage: "url(https://via.placeholder.com/1600x800)" }}
-      >
-        <div className="absolute inset-0 bg-[#0d1524]/90"></div>
-        <div className="container mx-auto px-4 relative z-10">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 text-center">Gaming Services Just Got Better</h2>
-          <p className="text-xl text-gray-300 mb-16 text-center">
+      <section className="pt-features">
+        <div className="pt-container pt-text-center">
+          <h2 className="pt-section-title">Gaming Services Just Got Better</h2>
+          <p className="pt-section-subtitle">
             We are setting the new standard in the gaming industry.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="relative">
-              <div className="bg-[#1a2234]/80 p-8 rounded-lg h-full">
-                <img
-                  src="https://via.placeholder.com/400x300"
-                  width={400}
-                  height={300}
-                  alt="Support"
-                  className="mb-8 rounded-lg w-full"
-                />
-                <h3 className="text-2xl font-bold mb-4">24/7 Live Support</h3>
-                <p className="text-gray-300">
-                  Our team is always available to help you with any questions or issues you might have.
-                </p>
-              </div>
+          <div className="pt-features-grid">
+            <div className="pt-feature-card">
+              <img
+                src="https://via.placeholder.com/400x300"
+                alt="Support"
+                className="pt-feature-image"
+              />
+              <h3 className="pt-feature-title">24/7 Live Support</h3>
+              <p className="pt-feature-description">
+                Our team is always available to help you with any questions or issues you might have.
+              </p>
             </div>
-            <div className="relative">
-              <div className="bg-[#1a2234]/80 p-8 rounded-lg h-full">
-                <img
-                  src="https://via.placeholder.com/400x300"
-                  width={400}
-                  height={300}
-                  alt="Cashback"
-                  className="mb-8 rounded-lg w-full"
-                />
-                <h3 className="text-2xl font-bold mb-4">3-6% Cashback on all purchases</h3>
-                <p className="text-gray-300">Earn rewards with every purchase you make on our platform.</p>
-              </div>
+            <div className="pt-feature-card">
+              <img
+                src="https://via.placeholder.com/400x300"
+                alt="Cashback"
+                className="pt-feature-image"
+              />
+              <h3 className="pt-feature-title">3-6% Cashback on all purchases</h3>
+              <p className="pt-feature-description">
+                Earn rewards with every purchase you make on our platform.
+              </p>
             </div>
-            <div className="relative">
-              <div className="bg-[#1a2234]/80 p-8 rounded-lg h-full">
-                <img
-                  src="https://via.placeholder.com/400x300"
-                  width={400}
-                  height={300}
-                  alt="Privacy"
-                  className="mb-8 rounded-lg w-full"
-                />
-                <h3 className="text-2xl font-bold mb-4">Full Privacy & Anonymity</h3>
-                <p className="text-gray-300">Who are you? We don't know. Your privacy is our top priority.</p>
-              </div>
+            <div className="pt-feature-card">
+              <img
+                src="https://via.placeholder.com/400x300"
+                alt="Privacy"
+                className="pt-feature-image"
+              />
+              <h3 className="pt-feature-title">Full Privacy & Anonymity</h3>
+              <p className="pt-feature-description">
+                Who are you? We don't know. Your privacy is our top priority.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Process Section */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div>
-              {(() => {
-                const processSteps = [
-                  {
-                    icon: Gamepad2,
-                    title: "Select Service",
-                  },
-                  {
-                    icon: CreditCard,
-                    title: "Secure Payment",
-                  },
-                  {
-                    icon: PlayCircle,
-                    title: "Order Starts",
-                    description: "Sit back, relax and enjoy - We will take care of everything for you",
-                  },
-                  {
-                    icon: CheckCircle,
-                    title: "Order Completed",
-                  },
-                ]
-
-                return (
-                  <div className="space-y-6">
-                    {processSteps.map((step, index) => (
-                      <div
-                        key={step.title}
-                        className={`${
-                          index === activeProcessIndex ? "bg-blue-600" : "bg-[#1a2234]"
-                        } p-6 rounded-lg flex items-center transition-colors duration-300`}
-                      >
-                        <div
-                          className={`w-10 h-10 rounded-full ${
-                            index === activeProcessIndex ? "bg-blue-700" : "bg-[#0d1524]"
-                          } flex items-center justify-center mr-4`}
-                        >
-                          <step.icon
-                            className={`h-5 w-5 ${index === activeProcessIndex ? "text-white" : "text-gray-400"}`}
-                          />
-                        </div>
-                        <div>
-                          <span className="font-bold text-xl">{step.title}</span>
-                          {step.description && <p className="text-sm mt-1">{step.description}</p>}
-                        </div>
-                      </div>
-                    ))}
+      <section className="pt-process">
+        <div className="pt-container">
+          <div className="pt-process-grid">
+            <div className="pt-process-steps">
+              {[
+                {
+                  icon: Gamepad2,
+                  title: 'Select Service'
+                },
+                {
+                  icon: CreditCard,
+                  title: 'Secure Payment'
+                },
+                {
+                  icon: PlayCircle,
+                  title: 'Order Starts',
+                  description: 'Sit back, relax and enjoy - We will take care of everything for you'
+                },
+                {
+                  icon: CheckCircle,
+                  title: 'Order Completed'
+                }
+              ].map((step, index) => (
+                <div
+                  key={step.title}
+                  className={`pt-process-step ${index === activeProcessIndex ? 'pt-active' : ''}`}
+                >
+                  <div className="pt-process-icon">
+                    <step.icon className="pt-icon" />
                   </div>
-                )
-              })()}
+                  <div>
+                    <div className="pt-process-title">{step.title}</div>
+                    {step.description && (
+                      <div className="pt-process-description">{step.description}</div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center justify-center">
+            <div className="pt-process-image">
               <img
                 src="https://via.placeholder.com/500x400"
-                width={500}
-                height={400}
                 alt="Order Process"
-                className="rounded-lg"
+                className="pt-image"
               />
             </div>
           </div>
@@ -363,10 +294,10 @@ function LandingPage() {
       </section>
 
       {/* Popular Games */}
-      <section className="py-16 bg-[#0a101c]">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center">Popular Games</h2>
-          <div className="flex overflow-x-auto pb-6 space-x-4 scrollbar-hide">
+      <section className="pt-games">
+        <div className="pt-container">
+          <h2 className="pt-section-title pt-text-center">Popular Games</h2>
+          <div className="pt-games-slider">
             {[
               "Fortnite",
               "League of Legends",
@@ -374,15 +305,13 @@ function LandingPage() {
               "GTA V",
               "Clash of Clans",
               "Call of Duty",
-              "Brawl Stars",
+              "Brawl Stars"
             ].map((game) => (
-              <div key={game} className="flex-shrink-0 w-48 h-64 rounded-lg overflow-hidden">
+              <div key={game} className="pt-game-card">
                 <img
                   src={`https://via.placeholder.com/192x256?text=${game}`}
-                  width={192}
-                  height={256}
                   alt={game}
-                  className="w-full h-full object-cover"
+                  className="pt-game-image"
                 />
               </div>
             ))}
@@ -391,15 +320,14 @@ function LandingPage() {
       </section>
 
       {/* Fast and Easy */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              We Like To Keep It
-              <br />
+      <section className="pt-fast-easy">
+        <div className="pt-container">
+          <div className="pt-fast-easy-content">
+            <h2 className="pt-section-title">
+              We Like To Keep It<br />
               Fast And Easy
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="pt-fast-easy-text">
               Buying boosting, accounts and coaching has never been this easy. Just select your service, make a payment
               and enjoy!
             </p>
@@ -408,183 +336,130 @@ function LandingPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 bg-[#0a101c]">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div>
-              <h2 className="text-3xl md:text-5xl font-bold mb-4">
-                Frequently Asked
-                <br />
+      <section className="pt-faq">
+        <div className="pt-container">
+          <div className="pt-faq-grid">
+            <div className="pt-faq-header">
+              <h2 className="pt-section-title">
+                Frequently Asked<br />
                 Questions
               </h2>
-              <p className="text-gray-300 mb-4">
+              <p className="pt-faq-subtitle">
                 Got anymore questions? Feel free to contact us on Discord or Live Chat!
               </p>
             </div>
-            <div>
-              {(() => {
-                const faqItems = [
-                  {
-                    question: "What is PlayTrade?",
-                    answer:
-                      "PlayTrade is the ultimate platform for gamers looking to buy game accounts, boost their rankings, or purchase in-game items. We provide secure transactions and guaranteed service quality.",
-                  },
-                  {
-                    question: "When was PlayTrade established?",
-                    answer:
-                      "PlayTrade was established in 2022 and has quickly grown to become a trusted platform in the gaming community.",
-                  },
-                  {
-                    question: "Why should I choose PlayTrade?",
-                    answer:
-                      "We offer competitive prices, 24/7 customer support, secure transactions, and a wide range of services for all popular games. Our team consists of professional gamers who understand your needs.",
-                  },
-                  {
-                    question: "How can I work with you?",
-                    answer:
-                      "If you're a skilled gamer looking to join our team of boosters or account providers, please visit our Partners page or contact us directly through Discord.",
-                  },
-                  {
-                    question: "How can I get help?",
-                    answer:
-                      "Our customer support team is available 24/7 through live chat on our website or through our Discord server. We're always ready to assist you with any questions or concerns.",
-                  },
-                ]
-
-                return (
-                  <Accordion type="single" collapsible className="space-y-4">
-                    {faqItems.map((item, index) => (
-                      <AccordionItem key={item.question} value={`item-${index + 1}`} className="border-b-0">
-                        <AccordionTrigger
-                          className={`${
-                            index === activeFaqIndex ? "bg-blue-600" : "bg-[#1a2234]"
-                          } p-4 rounded-lg hover:no-underline transition-colors duration-300`}
-                        >
-                          {item.question}
-                        </AccordionTrigger>
-                        <AccordionContent className="bg-[#1a2234] p-4 rounded-b-lg mt-[-8px] pt-0 border-t border-gray-700">
-                          {item.answer}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                )
-              })()}
+            <div className="pt-faq-items">
+              {[
+                {
+                  question: 'What is PlayTrade?',
+                  answer: 'PlayTrade is the ultimate platform for gamers looking to buy game accounts, boost their rankings, or purchase in-game items. We provide secure transactions and guaranteed service quality.'
+                },
+                {
+                  question: 'When was PlayTrade established?',
+                  answer: 'PlayTrade was established in 2022 and has quickly grown to become a trusted platform in the gaming community.'
+                },
+                {
+                  question: 'Why should I choose PlayTrade?',
+                  answer: 'We offer competitive prices, 24/7 customer support, secure transactions, and a wide range of services for all popular games. Our team consists of professional gamers who understand your needs.'
+                },
+                {
+                  question: 'How can I work with you?',
+                  answer: 'If you\'re a skilled gamer looking to join our team of boosters or account providers, please visit our Partners page or contact us directly through Discord.'
+                },
+                {
+                  question: 'How can I get help?',
+                  answer: 'Our customer support team is available 24/7 through live chat on our website or through our Discord server. We\'re always ready to assist you with any questions or concerns.'
+                }
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className={`pt-faq-item ${index === activeFaqIndex ? 'pt-active' : ''}`}
+                >
+                  <div
+                    className="pt-faq-question"
+                    onClick={() => toggleFaqItem(index)}
+                  >
+                    {item.question}
+                    {openFaqItem === index ?
+                      <ChevronUp className="pt-faq-icon" /> :
+                      <ChevronDown className="pt-faq-icon" />
+                    }
+                  </div>
+                  <div className={`pt-faq-answer ${openFaqItem === index ? 'pt-open' : ''}`}>
+                    {item.answer}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#0a101c] pt-16 pb-8 border-t border-gray-800">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-            <div>
-              <div className="flex items-center mb-4">
-                <Crown className="h-6 w-6 text-blue-500" />
-                <span className="ml-2 text-xl font-bold">
-                  <span className="text-blue-500">PLAY</span>TRADE
+      <footer className="pt-footer">
+        <div className="pt-container">
+          <div className="pt-footer-grid">
+            <div className="pt-footer-company">
+              <div className="pt-footer-logo">
+                <Crown className="pt-crown-icon" />
+                <span className="pt-logo-text">
+                  <span className="pt-blue">PLAY</span>TRADE
                 </span>
               </div>
-              <p className="text-gray-400 mb-4">The All-In-One Platform for Gamers</p>
-              <p className="text-gray-400 text-sm mb-2">Changing the lives of everyday gamers, one game at a time.</p>
-              <div className="text-xs text-gray-500 space-y-1">
+              <p className="pt-footer-tagline">The All-In-One Platform for Gamers</p>
+              <p className="pt-footer-mission">Changing the lives of everyday gamers, one game at a time.</p>
+              <div className="pt-footer-info">
                 <p>Headquarter: 123 Gaming Street, Gaming City</p>
                 <p>Office: Gaming Tower, 4th floor, Gaming City</p>
                 <p>Registration Number: 12345678</p>
               </div>
             </div>
-            <div>
-              <h3 className="font-bold mb-4">Company</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-blue-500">
-                    Contact us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-500">
-                    Work with us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-500">
-                    Blog
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-500">
-                    Definitions
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-500">
-                    Site Map
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-500">
-                    Help Center
-                  </a>
-                </li>
+            <div className="pt-footer-links">
+              <h3 className="pt-footer-heading">Company</h3>
+              <ul className="pt-footer-list">
+                <li><a href="#">Contact us</a></li>
+                <li><a href="#">Work with us</a></li>
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">Definitions</a></li>
+                <li><a href="#">Site Map</a></li>
+                <li><a href="#">Help Center</a></li>
               </ul>
             </div>
-            <div>
-              <h3 className="font-bold mb-4">Legal</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-blue-500">
-                    Terms of service
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-500">
-                    Privacy policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-500">
-                    Cookies policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-blue-500">
-                    Code of honor
-                  </a>
-                </li>
+            <div className="pt-footer-links">
+              <h3 className="pt-footer-heading">Legal</h3>
+              <ul className="pt-footer-list">
+                <li><a href="#">Terms of service</a></li>
+                <li><a href="#">Privacy policy</a></li>
+                <li><a href="#">Cookies policy</a></li>
+                <li><a href="#">Code of honor</a></li>
               </ul>
             </div>
-            <div>
-              <h3 className="font-bold mb-4">Need Help?</h3>
-              <p className="text-gray-400 mb-4">
+            <div className="pt-footer-help">
+              <h3 className="pt-footer-heading">Need Help?</h3>
+              <p className="pt-footer-help-text">
                 We're here to help. Our expert human-support team is at your service 24/7.
               </p>
-              <div className="flex space-x-4 mb-6">
-                <Button className="bg-[#1a2234] hover:bg-[#232d42] text-white">Let's Chat</Button>
-                <Button className="bg-[#5865F2] hover:bg-[#4752c4] text-white">Join Discord</Button>
+              <div className="pt-footer-buttons">
+                <button className="pt-footer-button pt-chat">Let's Chat</button>
+                <button className="pt-footer-button pt-discord">Join Discord</button>
               </div>
-              <div className="flex items-center">
+              <div className="pt-footer-language">
                 <img
                   src="https://via.placeholder.com/24"
-                  width={24}
-                  height={24}
                   alt="English"
-                  className="rounded-full mr-2"
+                  className="pt-language-flag"
                 />
-                <span className="text-sm">English</span>
-                <span className="mx-2 text-gray-500">/</span>
-                <span className="text-sm">USD</span>
-                <button className="ml-4 text-gray-400">
-                  <span className="sr-only">Toggle dark mode</span>🌙
-                </button>
+                <span>English</span>
+                <span className="pt-divider">/</span>
+                <span>USD</span>
+                <button className="pt-theme-toggle">🌙</button>
               </div>
             </div>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }
 
-export default LandingPage
-
+export default PlayTradeLanding;
