@@ -1,132 +1,235 @@
-.user-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 8px;
-    width: 240px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-    z-index: 50;
-    animation: fadeIn 0.2s ease-out;
-  }
-  
-  .dark .user-menu {
-    background-color: #1f2937;
-    border: 1px solid #374151;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .user-menu-header {
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  
-  .dark .user-menu-header {
-    border-bottom: 1px solid #374151;
-  }
-  
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-    background-color: #3b82f6;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-  }
-  
-  .user-avatar svg {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor;
-    fill: none;
-    stroke-width: 2;
-  }
-  
-  .user-info h3 {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0;
-    color: #1f2937;
-  }
-  
-  .dark .user-info h3 {
-    color: #f3f4f6;
-  }
-  
-  .user-info p {
-    font-size: 14px;
-    color: #6b7280;
-    margin: 0;
-  }
-  
-  .dark .user-info p {
-    color: #9ca3af;
-  }
-  
-  .user-menu-items {
-    padding: 8px;
-  }
-  
-  .user-menu-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    color: #1f2937;
-    text-decoration: none;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-    font-size: 14px;
-  }
-  
-  .dark .user-menu-item {
-    color: #f3f4f6;
-  }
-  
-  .user-menu-item:hover {
-    background-color: #f3f4f6;
-  }
-  
-  .dark .user-menu-item:hover {
-    background-color: #374151;
-  }
-  
-  .user-menu-item.logout {
-    color: #ef4444;
-  }
-  
-  .dark .user-menu-item.logout {
-    color: #f87171;
-  }
-  
-  .user-menu-item.logout:hover {
-    background-color: rgba(239, 68, 68, 0.1);
-  }
-  
-  .dark .user-menu-item.logout:hover {
-    background-color: rgba(248, 113, 113, 0.1);
-  }
-  
-  
+/* UserSidebar.css */
+.pt-user-sidebar {
+  position: fixed;
+  top: 0;
+  right: -350px;
+  width: 320px;
+  height: 100vh;
+  background: #0a0e1a;
+  border-left: 1px solid #141c2f;
+  padding: 1.5rem;
+  transition: right 0.3s ease;
+  z-index: 1000;
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.pt-user-sidebar.open {
+  right: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.sidebar-user-info h2 {
+  color: #fff;
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.user-id {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.close-icon {
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 2rem;
+  height: 3rem;
+
+}
+
+.wallet-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #141c2f;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.wallet-icon {
+  color: #1e88e5;
+}
+
+.wallet-balance {
+  display: flex;
+  flex-direction: column;
+}
+
+.balance {
+  color: #fff;
+  font-weight: 500;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  color: #e2e8f0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: #141c2f;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 2rem;
+}
+
+.offline-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: #e2e8f0;
+}
+
+.switch-client {
+  width: 100%;
+  padding: 0.75rem;
+  background: #1e88e5;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.pt-user-icon {
+  width: 2rem;
+  height: 2rem;
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.pt-user-icon:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+
+.user-initial {
+  width: 32px;
+  height: 32px;
+  background-color: #3B6EF2;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.label {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.user-id {
+  font-family: monospace;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Role-specific styles */
+.admin-item {
+  color: #3B6EF2;
+}
+
+.moderator-item {
+  color: #10B981;
+}
+
+/* ...existing styles... */
+
+/* Role-specific styles */
+.admin-item {
+  color: #3B6EF2;
+}
+
+.admin-item:hover {
+  background: rgba(59, 110, 242, 0.1);
+}
+
+.seller-item {
+  color: #10B981;
+}
+
+.seller-item:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+/* Role badges */
+.sidebar-user-info {
+  position: relative;
+}
+
+.sidebar-user-info h2::after {
+  content: attr(data-role);
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: capitalize;
+}
+
+.sidebar-user-info h2[data-role="admin"]::after {
+  background: rgba(59, 110, 242, 0.1);
+  color: #3B6EF2;
+}
+
+.sidebar-user-info h2[data-role="seller"]::after {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10B981;
+}
+
+.sidebar-user-info h2[data-role="client"]::after {
+  background: rgba(100, 116, 139, 0.1);
+  color: #64748B;
+}
+
+/* Menu item hover effects */
+.menu-item:hover .menu-item-icon {
+  transform: scale(1.1);
+}
+
+.menu-item-icon {
+  transition: transform 0.2s ease;
+}

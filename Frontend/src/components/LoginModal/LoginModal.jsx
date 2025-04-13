@@ -1,93 +1,60 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import axios from "axios"
-import { z } from "zod"
-import { Dialog, DialogContent } from "../ui/dialog"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { X } from "lucide-react"
+import { useState } from "react";
+import { z } from "zod";
+import { Dialog, DialogContent } from "../ui/dialog";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { X } from "lucide-react";
+import AuthService from "../AuthService/AuthService";
+import { useUser } from '../userContext/UserContext';
 
-export function LoginModal({ isOpen, onClose, switchToSignup, onLoginSuccess }) {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
+export function LoginModal({
+  isOpen,
+  onClose,
+  switchToSignup,
+  onLoginSuccess,
+}) {
+  const { login } = useUser();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Validation schema using Zod
   const loginSchema = z.object({
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
-  })
+  });
 
   const handleLogin = async () => {
-    setError(null)
+    setError(null);
 
-    // Validate input
-    const validationResult = loginSchema.safeParse({ email, password })
+    const validationResult = loginSchema.safeParse({ email, password });
     if (!validationResult.success) {
-      setError(validationResult.error.errors[0].message)
-      return
+      setError(validationResult.error.errors[0].message);
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
+
     try {
-      // For demo purposes, we'll still keep the demo accounts
-      if (email === "demo@admin.com" && password === "password123") {
-        localStorage.setItem("token", "admin-demo-token")
-        onLoginSuccess("admin")
-        onClose()
-        return
+      const response = await AuthService.login(email, password);
+      if (response) {
+        await login(response);
+        onLoginSuccess(response);
+        onClose();
       }
-
-      if (email === "demo@user.com" && password === "password123") {
-        localStorage.setItem("token", "user-demo-token")
-        onLoginSuccess("user")
-        onClose()
-        return
-      }
-
-      // Try actual API login
-      try {
-        const { data } = await axios.post("http://localhost:3003/users/login", {
-          email,
-          password,
-        })
-
-        // Store token in localStorage
-        localStorage.setItem("token", data.token)
-
-        // Fetch user role from API
-        try {
-          const userResponse = await axios.get("http://localhost:3003/api/users/me", {
-            headers: {
-              Authorization: `Bearer ${data.token}`,
-            },
-          })
-
-          // Get user role from response
-          const userRole = userResponse.data.role || "user"
-          onLoginSuccess(userRole)
-        } catch (roleError) {
-          // If role fetch fails, default to user role
-          console.error("Error fetching user role:", roleError)
-          onLoginSuccess("user")
-        }
-
-        // Close modal after successful login
-        onClose()
-      } catch (apiError) {
-        // If API call fails, show error
-        setError(
-          "Invalid email or password. Try demo@admin.com / password123 for admin or demo@user.com / password123 for user",
-        )
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || "Login failed")
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Login failed. Please check your credentials.";
+      setError(errorMessage);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -126,19 +93,22 @@ export function LoginModal({ isOpen, onClose, switchToSignup, onLoginSuccess }) 
                 className="bg-[#1f2024] border-0 text-white placeholder:text-gray-400 h-11"
                 disabled={loading}
               />
-              <Button className="w-full bg-[#3B6EF2] hover:bg-[#2C5AD9] h-11" onClick={handleLogin} disabled={loading}>
-                {loading ? "Logging in..." : "Continue with Email"}
+              <Button
+                className="w-full bg-[#3B6EF2] hover:bg-[#2C5AD9] h-11"
+                onClick={handleLogin}
+                disabled={loading}
+              >
+                {loading ? "Logging in..." : "Login"}
               </Button>
+
               <div className="text-center text-gray-400 text-sm mt-4">
                 Don't have an account?{" "}
-                <button className="text-[#3B6EF2] hover:underline" onClick={switchToSignup}>
+                <button
+                  className="text-[#3B6EF2] hover:underline"
+                  onClick={switchToSignup}
+                >
                   Sign up
                 </button>
-              </div>
-              <div className="text-center text-gray-400 text-xs mt-2">
-                Demo accounts: <br />
-                Admin: demo@admin.com / password123 <br />
-                User: demo@user.com / password123
               </div>
             </div>
           </div>
@@ -158,6 +128,5 @@ export function LoginModal({ isOpen, onClose, switchToSignup, onLoginSuccess }) 
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

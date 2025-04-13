@@ -1,0 +1,317 @@
+.order-container {
+  min-height: 100vh;
+  background-color: #1a1b1e;
+  color: white;
+  padding: 1rem;
+}
+
+.order-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .order-wrapper {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.order-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.back-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.back-text {
+  color: #9ca3af;
+}
+
+.order-card {
+  background-color: #24252a;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.order-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.game-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.25rem;
+}
+
+.summary-details {
+  flex: 1;
+}
+
+.item-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.order-id {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+.status-badge {
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+}
+
+.details-box {
+  background-color: #2a2b30;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.status-icon {
+  background-color: #e0f2fe;
+  padding: 0.75rem;
+  border-radius: 9999px;
+}
+
+.chevron-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #3b82f6;
+}
+
+.status-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.status-date {
+  color: #9ca3af;
+}
+
+.account-details {
+  background-color: white;
+  color: black;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.account-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cancel-btn {
+  width: 100%;
+  background-color: #24252a;
+  color: white;
+  padding: 0.5rem 0;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.cancel-btn:hover {
+  background-color: #2a2b30;
+}
+
+.chat-section {
+  background-color: #24252a;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.user-avatar {
+  background-color: #4b5563;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-details {
+  flex: 1;
+}
+
+.user-name {
+  font-weight: 600;
+  margin: 0;
+}
+
+.user-type {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.message-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #9ca3af;
+}
+
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.message {
+  background-color: #2a2b30;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.message-text {
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.chat-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #2a2b30;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+.input-field {
+  background-color: transparent;
+  flex: 1;
+  outline: none;
+  border: none;
+  color: white;
+}
+
+.input-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #9ca3af;
+}
+
+.order-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sidebar-card {
+  background-color: #24252a;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.delivery-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4ade80;
+}
+
+.delivery-icon {
+  font-size: 1.125rem;
+}
+
+.detail-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.detail-label {
+  color: #9ca3af;
+}
+
+.view-description {
+  width: 100%;
+  background-color: transparent;
+  color: #3b82f6;
+  border: none;
+  cursor: pointer;
+  margin-top: 1rem;
+  text-align: left;
+  padding: 0;
+}
+
+.commission-amount {
+  color: #ef4444;
+}
+
+.info-text {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin-top: 1rem;
+}
+
+.margin-top {
+  margin-top: 0.5rem;
+}
+
+.help-box {
+  background-color: #eff6ff;
+  color: #1e3a8a;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.help-text {
+  font-size: 0.875rem;
+  margin: 0;
+}
+  

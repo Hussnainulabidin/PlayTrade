@@ -12,7 +12,7 @@ const router = express.Router();
 router
   .route("/")
   .get(valorantController.getTopAccounts)
-  .post(authController.protect , valorantController.createAccount);
+  .post(authController.protect , authController.restrictTo("seller") , valorantController.createAccount);
 
 router
     .route("/accounts")
@@ -21,7 +21,7 @@ router
 router
   .route("/accounts/:id")
   .get(valorantController.getAccount)
-  .patch(authController.protect , valorantController.updateAccount)
-  .delete(authController.protect , valorantController.deleteAccount);
+  .patch(authController.protect , authController.restrictTo("seller" , "admin") , valorantController.updateAccount)
+  .delete(authController.protect , authController.restrictTo("seller" , "admin") ,  valorantController.deleteAccount);
 
 module.exports = router;

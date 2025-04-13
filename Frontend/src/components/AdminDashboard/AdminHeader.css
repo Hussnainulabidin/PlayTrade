@@ -1,0 +1,32 @@
+.admin-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: #0f0d1d;
+  border-bottom: 1px solid #1f1b31;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-icon-container {
+  background-color: #2563eb;
+  padding: 0.375rem;
+  border-radius: 0.25rem;
+}
+
+.header-icon {
+  width: 1rem;
+  height: 1rem;
+  color: white;
+}
+
+.header-title {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: white;
+} 

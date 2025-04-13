@@ -1,8 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { Users, Zap, Package, Coins, CreditCard, User, Gift, Gamepad2, ShoppingCart, Search, Crown, ChevronDown, PlayCircle, CheckCircle, ChevronUp } from 'lucide-react';
-import './PlayTradeLanding.css';
+import React, { useState, useEffect } from "react";
+import {
+  Users,
+  Zap,
+  Package,
+  Coins,
+  CreditCard,
+  User,
+  Gift,
+  Gamepad2,
+  ShoppingCart,
+  Search,
+  Crown,
+  ChevronDown,
+  PlayCircle,
+  CheckCircle,
+  ChevronUp,
+} from "lucide-react";
+import { LoginModal } from "../components/LoginModal/LoginModal";
+import { SignupModal } from "../components/SignupModal/SignupModal";
+import { UserMenu } from "../components/UserMenu/UserMenu";
+import "./landingPage.css";
+import { useUser } from "../components/userContext/UserContext";
 
 function PlayTradeLanding() {
+  const { user, isAuthenticated, login, logout } = useUser();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const [activeServiceIndex, setActiveServiceIndex] = useState(0);
   const [activeStatIndex, setActiveStatIndex] = useState(0);
   const [activeProcessIndex, setActiveProcessIndex] = useState(0);
@@ -24,9 +49,69 @@ function PlayTradeLanding() {
     setOpenFaqItem(openFaqItem === index ? null : index);
   };
 
+  const handleLoginSuccess = async (userData) => {
+    await login(userData); // This will set user in context and store token/userId in localStorage
+  };
+
+  const handleLogout = () => {
+    logout(); // This will clear context and localStorage
+    setIsSidebarOpen(false);
+  };
+
+  const switchToSignup = () => {
+    setIsLoginModalOpen(false);
+    setIsSignupModalOpen(true);
+  };
+
+  const switchToLogin = () => {
+    setIsSignupModalOpen(false);
+    setIsLoginModalOpen(true);
+  };
+
+  const renderUserMenu = () => {
+    if (isAuthenticated && user) {
+      return (
+        <div className="relative">
+          <div
+            // className="pt-user-icon cursor-pointer"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            {user.username ? (
+              <div className="user-initial pt-user-icon cursor-pointer">
+                {user.username.charAt(0).toUpperCase()}
+              </div>
+            ) : (
+              <User className="pt-icon" />
+            )}
+          </div>
+          <UserMenu
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            userData={{
+              username: user.username,
+              role: user.role,
+              email: user.email,
+              balance: user.balance || 0,
+              id: user._id,
+            }}
+            handleLogout={handleLogout}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <button
+        className="pt-login-button"
+        onClick={() => setIsLoginModalOpen(true)}
+      >
+        Login
+      </button>
+    );
+  };
+
   return (
     <div className="playtrade-landing">
-      {/* Header */}
       <header className="pt-header">
         <div className="pt-container">
           <div className="pt-logo">
@@ -35,12 +120,25 @@ function PlayTradeLanding() {
               <span className="pt-blue">PLAY</span>TRADE
             </span>
           </div>
-          <div className="pt-user-icon">
-            <User className="pt-icon" />
-          </div>
+          {renderUserMenu()}
         </div>
       </header>
 
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        switchToSignup={switchToSignup}
+        onLoginSuccess={handleLoginSuccess}
+      />
+
+      <SignupModal
+        isOpen={isSignupModalOpen}
+        onClose={() => setIsSignupModalOpen(false)}
+        switchToLogin={switchToLogin}
+        onLoginSuccess={handleLoginSuccess}
+      />
+
+      {/* Rest of the component remains the same */}
       {/* Hero Section */}
       <section className="pt-hero">
         <div className="pt-container pt-text-center">
@@ -63,16 +161,20 @@ function PlayTradeLanding() {
           {/* Service Icons */}
           <div className="pt-services-grid">
             {[
-              { icon: Users, label: 'Accounts' },
-              { icon: Zap, label: 'Boosting' },
-              { icon: Package, label: 'Items' },
-              { icon: Coins, label: 'Currencies' },
-              { icon: CreditCard, label: 'Top Ups' },
-              { icon: User, label: 'Buddy' },
-              { icon: Gift, label: 'Gift Cards' }
+              { icon: Users, label: "Accounts" },
+              { icon: Zap, label: "Boosting" },
+              { icon: Package, label: "Items" },
+              { icon: Coins, label: "Currencies" },
+              { icon: CreditCard, label: "Top Ups" },
+              { icon: User, label: "Buddy" },
+              { icon: Gift, label: "Gift Cards" },
             ].map((service, index) => (
               <div key={service.label} className="pt-service-item">
-                <div className={`pt-service-icon ${index === activeServiceIndex ? 'pt-active' : ''}`}>
+                <div
+                  className={`pt-service-icon ${
+                    index === activeServiceIndex ? "pt-active" : ""
+                  }`}
+                >
                   <service.icon className="pt-icon" />
                 </div>
                 <span className="pt-service-label">{service.label}</span>
@@ -87,7 +189,8 @@ function PlayTradeLanding() {
         <div className="pt-container pt-text-center">
           <h2 className="pt-section-title">What are you waiting for?</h2>
           <p className="pt-section-subtitle">
-            Step up your game now! Let our pros boost your level and guide you to the higher ranks you deserve.
+            Step up your game now! Let our pros boost your level and guide you
+            to the higher ranks you deserve.
           </p>
           <button className="pt-button">
             <Gamepad2 className="pt-button-icon" />
@@ -102,7 +205,8 @@ function PlayTradeLanding() {
           <div className="pt-trust-header">
             <div>
               <h2 className="pt-section-title">
-                More Than 85,000+<br />
+                More Than 85,000+
+                <br />
                 Gamers Trust Us
               </h2>
             </div>
@@ -113,8 +217,12 @@ function PlayTradeLanding() {
                 className="pt-trustpilot-logo"
               />
               <div>
-                <div className="pt-trustpilot-rating">Excellent 4.8 out of 5.0</div>
-                <div className="pt-trustpilot-reviews">Based on 9,450 reviews</div>
+                <div className="pt-trustpilot-rating">
+                  Excellent 4.8 out of 5.0
+                </div>
+                <div className="pt-trustpilot-reviews">
+                  Based on 9,450 reviews
+                </div>
               </div>
             </div>
           </div>
@@ -131,8 +239,10 @@ function PlayTradeLanding() {
                   <div className="pt-stars">★★★★★</div>
                 </div>
                 <p className="pt-review-text">
-                  Was very satisfied with the account. Instant delivery to my email with recovery email and password and
-                  the email and password to the email to change password as well. Will definitely purchase again.
+                  Was very satisfied with the account. Instant delivery to my
+                  email with recovery email and password and the email and
+                  password to the email to change password as well. Will
+                  definitely purchase again.
                 </p>
               </div>
             ))}
@@ -146,14 +256,16 @@ function PlayTradeLanding() {
           <div className="pt-stats-header">
             <div>
               <h2 className="pt-section-title">
-                PlayTrade in<br />
+                PlayTrade in
+                <br />
                 Numbers
               </h2>
             </div>
             <div className="pt-stats-description">
               <p>
-                Our team has united the most experienced people in the gaming industry, from all over the world, with
-                one mission: "To truly change the life of every day gamers."
+                Our team has united the most experienced people in the gaming
+                industry, from all over the world, with one mission: "To truly
+                change the life of every day gamers."
               </p>
             </div>
           </div>
@@ -163,26 +275,31 @@ function PlayTradeLanding() {
             {[
               {
                 icon: Users,
-                number: '250,000+',
-                label: 'Gamers we Empowered',
-                description: 'Proudly serving a thriving community of passionate gamers worldwide!'
+                number: "250,000+",
+                label: "Gamers we Empowered",
+                description:
+                  "Proudly serving a thriving community of passionate gamers worldwide!",
               },
               {
                 icon: ShoppingCart,
-                number: '320,000+',
-                label: 'Orders Completed',
-                description: 'Accounts, Boosting, Coaching and we\'re just getting started.'
+                number: "320,000+",
+                label: "Orders Completed",
+                description:
+                  "Accounts, Boosting, Coaching and we're just getting started.",
               },
               {
                 icon: Gamepad2,
-                number: '2022',
-                label: 'Operating Since',
-                description: 'That\'s all it took us to revolutionize the game services industry.'
-              }
+                number: "2022",
+                label: "Operating Since",
+                description:
+                  "That's all it took us to revolutionize the game services industry.",
+              },
             ].map((stat, index) => (
               <div
                 key={stat.label}
-                className={`pt-stat-card ${index === activeStatIndex ? 'pt-active' : ''}`}
+                className={`pt-stat-card ${
+                  index === activeStatIndex ? "pt-active" : ""
+                }`}
               >
                 <div className="pt-stat-icon">
                   <stat.icon className="pt-icon" />
@@ -213,7 +330,8 @@ function PlayTradeLanding() {
               />
               <h3 className="pt-feature-title">24/7 Live Support</h3>
               <p className="pt-feature-description">
-                Our team is always available to help you with any questions or issues you might have.
+                Our team is always available to help you with any questions or
+                issues you might have.
               </p>
             </div>
             <div className="pt-feature-card">
@@ -222,7 +340,9 @@ function PlayTradeLanding() {
                 alt="Cashback"
                 className="pt-feature-image"
               />
-              <h3 className="pt-feature-title">3-6% Cashback on all purchases</h3>
+              <h3 className="pt-feature-title">
+                3-6% Cashback on all purchases
+              </h3>
               <p className="pt-feature-description">
                 Earn rewards with every purchase you make on our platform.
               </p>
@@ -250,25 +370,28 @@ function PlayTradeLanding() {
               {[
                 {
                   icon: Gamepad2,
-                  title: 'Select Service'
+                  title: "Select Service",
                 },
                 {
                   icon: CreditCard,
-                  title: 'Secure Payment'
+                  title: "Secure Payment",
                 },
                 {
                   icon: PlayCircle,
-                  title: 'Order Starts',
-                  description: 'Sit back, relax and enjoy - We will take care of everything for you'
+                  title: "Order Starts",
+                  description:
+                    "Sit back, relax and enjoy - We will take care of everything for you",
                 },
                 {
                   icon: CheckCircle,
-                  title: 'Order Completed'
-                }
+                  title: "Order Completed",
+                },
               ].map((step, index) => (
                 <div
                   key={step.title}
-                  className={`pt-process-step ${index === activeProcessIndex ? 'pt-active' : ''}`}
+                  className={`pt-process-step ${
+                    index === activeProcessIndex ? "pt-active" : ""
+                  }`}
                 >
                   <div className="pt-process-icon">
                     <step.icon className="pt-icon" />
@@ -276,7 +399,9 @@ function PlayTradeLanding() {
                   <div>
                     <div className="pt-process-title">{step.title}</div>
                     {step.description && (
-                      <div className="pt-process-description">{step.description}</div>
+                      <div className="pt-process-description">
+                        {step.description}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -305,7 +430,7 @@ function PlayTradeLanding() {
               "GTA V",
               "Clash of Clans",
               "Call of Duty",
-              "Brawl Stars"
+              "Brawl Stars",
             ].map((game) => (
               <div key={game} className="pt-game-card">
                 <img
@@ -324,12 +449,13 @@ function PlayTradeLanding() {
         <div className="pt-container">
           <div className="pt-fast-easy-content">
             <h2 className="pt-section-title">
-              We Like To Keep It<br />
+              We Like To Keep It
+              <br />
               Fast And Easy
             </h2>
             <p className="pt-fast-easy-text">
-              Buying boosting, accounts and coaching has never been this easy. Just select your service, make a payment
-              and enjoy!
+              Buying boosting, accounts and coaching has never been this easy.
+              Just select your service, make a payment and enjoy!
             </p>
           </div>
         </div>
@@ -341,51 +467,65 @@ function PlayTradeLanding() {
           <div className="pt-faq-grid">
             <div className="pt-faq-header">
               <h2 className="pt-section-title">
-                Frequently Asked<br />
+                Frequently Asked
+                <br />
                 Questions
               </h2>
               <p className="pt-faq-subtitle">
-                Got anymore questions? Feel free to contact us on Discord or Live Chat!
+                Got anymore questions? Feel free to contact us on Discord or
+                Live Chat!
               </p>
             </div>
             <div className="pt-faq-items">
               {[
                 {
-                  question: 'What is PlayTrade?',
-                  answer: 'PlayTrade is the ultimate platform for gamers looking to buy game accounts, boost their rankings, or purchase in-game items. We provide secure transactions and guaranteed service quality.'
+                  question: "What is PlayTrade?",
+                  answer:
+                    "PlayTrade is the ultimate platform for gamers looking to buy game accounts, boost their rankings, or purchase in-game items. We provide secure transactions and guaranteed service quality.",
                 },
                 {
-                  question: 'When was PlayTrade established?',
-                  answer: 'PlayTrade was established in 2022 and has quickly grown to become a trusted platform in the gaming community.'
+                  question: "When was PlayTrade established?",
+                  answer:
+                    "PlayTrade was established in 2022 and has quickly grown to become a trusted platform in the gaming community.",
                 },
                 {
-                  question: 'Why should I choose PlayTrade?',
-                  answer: 'We offer competitive prices, 24/7 customer support, secure transactions, and a wide range of services for all popular games. Our team consists of professional gamers who understand your needs.'
+                  question: "Why should I choose PlayTrade?",
+                  answer:
+                    "We offer competitive prices, 24/7 customer support, secure transactions, and a wide range of services for all popular games. Our team consists of professional gamers who understand your needs.",
                 },
                 {
-                  question: 'How can I work with you?',
-                  answer: 'If you\'re a skilled gamer looking to join our team of boosters or account providers, please visit our Partners page or contact us directly through Discord.'
+                  question: "How can I work with you?",
+                  answer:
+                    "If you're a skilled gamer looking to join our team of boosters or account providers, please visit our Partners page or contact us directly through Discord.",
                 },
                 {
-                  question: 'How can I get help?',
-                  answer: 'Our customer support team is available 24/7 through live chat on our website or through our Discord server. We\'re always ready to assist you with any questions or concerns.'
-                }
+                  question: "How can I get help?",
+                  answer:
+                    "Our customer support team is available 24/7 through live chat on our website or through our Discord server. We're always ready to assist you with any questions or concerns.",
+                },
               ].map((item, index) => (
                 <div
                   key={index}
-                  className={`pt-faq-item ${index === activeFaqIndex ? 'pt-active' : ''}`}
+                  className={`pt-faq-item ${
+                    index === activeFaqIndex ? "pt-active" : ""
+                  }`}
                 >
                   <div
                     className="pt-faq-question"
                     onClick={() => toggleFaqItem(index)}
                   >
                     {item.question}
-                    {openFaqItem === index ?
-                      <ChevronUp className="pt-faq-icon" /> :
+                    {openFaqItem === index ? (
+                      <ChevronUp className="pt-faq-icon" />
+                    ) : (
                       <ChevronDown className="pt-faq-icon" />
-                    }
+                    )}
                   </div>
-                  <div className={`pt-faq-answer ${openFaqItem === index ? 'pt-open' : ''}`}>
+                  <div
+                    className={`pt-faq-answer ${
+                      openFaqItem === index ? "pt-open" : ""
+                    }`}
+                  >
                     {item.answer}
                   </div>
                 </div>
@@ -406,8 +546,12 @@ function PlayTradeLanding() {
                   <span className="pt-blue">PLAY</span>TRADE
                 </span>
               </div>
-              <p className="pt-footer-tagline">The All-In-One Platform for Gamers</p>
-              <p className="pt-footer-mission">Changing the lives of everyday gamers, one game at a time.</p>
+              <p className="pt-footer-tagline">
+                The All-In-One Platform for Gamers
+              </p>
+              <p className="pt-footer-mission">
+                Changing the lives of everyday gamers, one game at a time.
+              </p>
               <div className="pt-footer-info">
                 <p>Headquarter: 123 Gaming Street, Gaming City</p>
                 <p>Office: Gaming Tower, 4th floor, Gaming City</p>
@@ -417,31 +561,54 @@ function PlayTradeLanding() {
             <div className="pt-footer-links">
               <h3 className="pt-footer-heading">Company</h3>
               <ul className="pt-footer-list">
-                <li><a href="#">Contact us</a></li>
-                <li><a href="#">Work with us</a></li>
-                <li><a href="#">Blog</a></li>
-                <li><a href="#">Definitions</a></li>
-                <li><a href="#">Site Map</a></li>
-                <li><a href="#">Help Center</a></li>
+                <li>
+                  <a href="#">Contact us</a>
+                </li>
+                <li>
+                  <a href="#">Work with us</a>
+                </li>
+                <li>
+                  <a href="#">Blog</a>
+                </li>
+                <li>
+                  <a href="#">Definitions</a>
+                </li>
+                <li>
+                  <a href="#">Site Map</a>
+                </li>
+                <li>
+                  <a href="#">Help Center</a>
+                </li>
               </ul>
             </div>
             <div className="pt-footer-links">
               <h3 className="pt-footer-heading">Legal</h3>
               <ul className="pt-footer-list">
-                <li><a href="#">Terms of service</a></li>
-                <li><a href="#">Privacy policy</a></li>
-                <li><a href="#">Cookies policy</a></li>
-                <li><a href="#">Code of honor</a></li>
+                <li>
+                  <a href="#">Terms of service</a>
+                </li>
+                <li>
+                  <a href="#">Privacy policy</a>
+                </li>
+                <li>
+                  <a href="#">Cookies policy</a>
+                </li>
+                <li>
+                  <a href="#">Code of honor</a>
+                </li>
               </ul>
             </div>
             <div className="pt-footer-help">
               <h3 className="pt-footer-heading">Need Help?</h3>
               <p className="pt-footer-help-text">
-                We're here to help. Our expert human-support team is at your service 24/7.
+                We're here to help. Our expert human-support team is at your
+                service 24/7.
               </p>
               <div className="pt-footer-buttons">
                 <button className="pt-footer-button pt-chat">Let's Chat</button>
-                <button className="pt-footer-button pt-discord">Join Discord</button>
+                <button className="pt-footer-button pt-discord">
+                  Join Discord
+                </button>
               </div>
               <div className="pt-footer-language">
                 <img

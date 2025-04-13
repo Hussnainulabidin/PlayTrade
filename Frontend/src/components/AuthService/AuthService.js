@@ -1,94 +1,96 @@
-import axios from "axios"
+import axios from "axios";
 
-const API_URL = "http://localhost:3003"
+const API_URL = "http://localhost:3003";
 
-// Helper function to get token from localStorage
-const getToken = () => localStorage.getItem("token")
-
-// Set auth token for all requests
 const setAuthHeader = (token) => {
   if (token) {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   } else {
-    delete axios.defaults.headers.common["Authorization"]
+    delete axios.defaults.headers.common["Authorization"];
   }
-}
+};
 
-// Initialize auth header from localStorage
-const initAuthHeader = () => {
-  const token = getToken()
-  if (token) {
-    setAuthHeader(token)
-  }
-}
+const initAuthHeader = (token) => {
+  setAuthHeader(token);
+};
 
-// Login user
 const login = async (email, password) => {
   try {
     const response = await axios.post(`${API_URL}/users/login`, {
       email,
       password,
-    })
+    });
 
     if (response.data.token) {
-      localStorage.setItem("token", response.data.token)
-      setAuthHeader(response.data.token)
-      return response.data
+      const userData = { ...response.data.data.user };
+      delete userData.passwordResetToken;
+      delete userData.passwordResetExpires;
+      delete userData.password;
+      
+      setAuthHeader(response.data.token);
+      userData.token = response.data.token
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userId", userData._id);
+      return userData;
     }
-
-    return null
+    return null;
   } catch (error) {
-    throw error
+    throw error;
   }
-}
+};
 
-// Register user
 const register = async (userData) => {
   try {
-    const response = await axios.post(`${API_URL}/users/signup`, userData)
+    const response = await axios.post(`${API_URL}/users/signup`, userData);
 
     if (response.data.token) {
-      localStorage.setItem("token", response.data.token)
-      setAuthHeader(response.data.token)
-      return response.data
+      const user = { ...response.data.data.user };
+      delete user.passwordResetToken;
+      delete user.passwordResetExpires;
+      delete user.password;
+      
+      setAuthHeader(response.data.token);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userId", user._id);
+      return user;
     }
-
-    return null
+    return null;
   } catch (error) {
-    throw error
+    throw error;
   }
-}
+};
 
-// Get current user profile
-const getCurrentUser = async () => {
+const getCurrentUser = async (token) => {
   try {
-    const token = getToken()
-    if (!token) return null
-
-    const response = await axios.get(`${API_URL}/api/users/me`, {
+    if (!token) return null;
+    const response = await axios.get(`${API_URL}/users/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    })
+    });
 
-    return response.data
+    const userData = { ...response.data.data };
+
+    delete userData.passwordResetToken;
+    delete userData.passwordResetExpires;
+    delete userData.password;
+
+    return userData;
   } catch (error) {
-    console.error("Error fetching user profile:", error)
-    return null
+    console.error("Error getting current user:", error);
+    throw error;
   }
-}
+};
 
-// Logout user
 const logout = () => {
-  localStorage.removeItem("token")
-  localStorage.removeItem("userRole")
-  setAuthHeader(null)
-}
+  setAuthHeader(null);
+  localStorage.removeItem("userId");
+  localStorage.removeItem("token");
+};
 
-// Check if user is authenticated
-const isAuthenticated = () => {
-  return !!getToken()
-}
+const isAuthenticated = (token) => {
+  return !!token;
+};
 
 const AuthService = {
   login,
@@ -97,7 +99,6 @@ const AuthService = {
   logout,
   isAuthenticated,
   initAuthHeader,
-}
+};
 
-export default AuthService
-
+export default AuthService;

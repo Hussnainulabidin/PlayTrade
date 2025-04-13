@@ -39,8 +39,8 @@ exports.getAllAccounts = catchAsync(async (req, res , next) => {
 
 exports.createAccount = catchAsync(async (req, res, next) => {
   const newAccount = await valorant.create({
-    ...req.body, // Spread existing data from request body
-    user: req.user._id, // Add user ID from `authController.protect`
+    ...req.body, 
+    sellerID: req.user._id,
   });
 
   console.log("Account created successfully:", newAccount);
@@ -54,7 +54,6 @@ exports.createAccount = catchAsync(async (req, res, next) => {
   });
 });
 
-
 exports.getAccount = catchAsync(async (req, res, next) => {
   const account = await valorant.findById(req.params.id);
 
@@ -62,7 +61,7 @@ exports.getAccount = catchAsync(async (req, res, next) => {
     return next(new AppError('No account found with that ID' , 404))
   }
 
-  await valorant.updateOne({ _id: req.params.id }, { $inc: { views: 1 } });
+  await valorant.updateOne({ _id: req.params.id });
 
   const updatedAccount = await valorant.findById(req.params.id);
 
@@ -78,36 +77,47 @@ exports.getAccount = catchAsync(async (req, res, next) => {
 });
 
 exports.updateAccount = catchAsync(async (req, res, next) => {
-  const accounts = await valorant.findByIdAndUpdate(req.params.id, req.body, {
+  const account = await valorant.findById(req.params.id);
+
+  if (!account) {
+    return next(new AppError('No account found with that ID', 404));
+  }
+
+  if (account.sellerID.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    return next(new AppError('You do not have permission to update this account', 403));
+  }
+
+  const updatedAccount = await valorant.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
-
-  if (!accounts) {
-    return next(new AppError('No account found with that ID' , 404))
-  }
 
   res.status(200).json({
     status: "success",
     requestedAt: req.requestTime,
     data: {
-      accounts,
+      accounts: updatedAccount,
     },
   });
 });
 
 exports.deleteAccount = catchAsync(async (req, res, next) => {
-  const accounts = await valorant.findByIdAndDelete(req.params.id);
+  const account = await valorant.findById(req.params.id);
 
-  if (!accounts) {
-    return next(new AppError('No account found with that ID' , 404))
+  if (!account) {
+    return next(new AppError('No account found with that ID', 404));
   }
+
+  // Check if the user is the seller or an admin
+  if (account.sellerID.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    return next(new AppError('You do not have permission to delete this account', 403));
+  }
+
+  await valorant.findByIdAndDelete(req.params.id);
 
   res.status(200).json({
     status: "success",
     requestedAt: req.requestTime,
-    data: {
-      accounts,
-    },
+    data: null, // No data is returned after deletion
   });
 });

@@ -1,0 +1,298 @@
+/* Orders page styling to match Sellers page but more compact */
+.sellers-container {
+  padding: 1.25rem;
+  background-color: #0d0c17;
+  min-height: 100vh;
+}
+
+.sellers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.sellers-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+}
+
+.sellers-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.import-button {
+  background-color: #332b49;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.add-new-button {
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.add-new-button:hover {
+  background-color: #7c3aed;
+}
+
+.plus-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.search-wrapper {
+  margin-bottom: 1.25rem;
+}
+
+.search-container {
+  position: relative;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.search-input {
+  width: 100%;
+  height: 2.25rem;
+  padding: 0.375rem 0.75rem 0.375rem 2rem;
+  background-color: transparent;
+  border: 1px solid #2d2a3c;
+  border-radius: 0.375rem;
+  color: white;
+  font-size: 0.75rem;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #8b5cf6;
+}
+
+.sellers-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.sellers-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: white;
+  background-color: #1a172b;
+  font-size: 0.75rem;
+}
+
+.sellers-table thead tr {
+  border-bottom: 1px solid #2d2a3c;
+}
+
+.sellers-table th {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #a1a1aa;
+  white-space: nowrap;
+}
+
+.sellers-table tbody tr {
+  border-bottom: 1px solid #2d2a3c;
+}
+
+.sellers-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.sellers-table tbody tr:hover {
+  background-color: rgba(58, 52, 72, 0.4);
+}
+
+.sellers-table td {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: white;
+}
+
+.id-cell {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.amount-cell {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.seller-link {
+  color: white;
+  text-decoration: none;
+}
+
+.seller-link:hover {
+  color: #8b5cf6;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.badge-active {
+  background-color: #8b5cf6;
+  color: white;
+}
+
+.badge-processing {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.badge-refunded {
+  background-color: #ef4444;
+  color: white;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.action-button {
+  background: transparent;
+  border: none;
+  color: #a1a1aa;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+}
+
+.action-button:hover {
+  background-color: #2d2a3c;
+  color: white;
+}
+
+.no-results, .no-orders-message {
+  text-align: center;
+  padding: 1.5rem;
+  color: #a1a1aa;
+  font-style: italic;
+  font-size: 0.75rem;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #0d0c17;
+  color: white;
+}
+
+.loader-spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid #3a3657;
+  border-bottom-color: #8b5cf6;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+.loader-text {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.error-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #0d0c17;
+  color: #ef4444;
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 0 1.5rem;
+}
+
+.dropdown-container {
+  position: absolute;
+  z-index: 999;
+}
+
+.dropdown-menu {
+  background-color: #2a2438;
+  border: 1px solid #3a3448;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 10rem;
+  padding: 0.25rem;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  color: white;
+  cursor: pointer;
+  border-radius: 0.25rem;
+}
+
+.dropdown-item:hover {
+  background-color: #3a3448;
+}
+
+.dropdown-item-danger {
+  color: #ef4444;
+}
+
+.dropdown-item-danger:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+} 
