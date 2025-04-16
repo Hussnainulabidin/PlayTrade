@@ -9,6 +9,8 @@ import SellerWalletPage from "./pages/AdminDashboardSellerWallet"
 import SellerOrdersPage from "./pages/AdminDasboardSellerOrders"
 import OrdersPage from "./pages/OrdersPage"
 import OrderDetailPage from "./pages/OrderDetails"
+import ValorantPage from "./pages/valorant"
+import AccountsLayout from "./pages/AccountsLayout"
 import "./App.css"
 import "./components/AdminDashboard/ui.css"
 
@@ -18,6 +20,10 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/accounts" element={<AccountsLayout />}>
+            <Route path="valorant" element={<ValorantPage />} />
+            {/* Add more account-related routes here */}
+          </Route>
           <Route path="/order/:id" element={<OrderDetailPage />} />
           <Route path="/admin/orders" element={
             <DashboardLayout>

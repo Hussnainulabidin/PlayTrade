@@ -118,7 +118,7 @@ export function LoginModal({
             <div
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
               style={{
-                backgroundImage: `url("images/na.avif")`,
+                backgroundImage: `url("/images/na.avif")`,
                 backgroundPosition: "-20px center",
                 backgroundSize: "cover",
                 backgroundRepeat: "no-repeat",
