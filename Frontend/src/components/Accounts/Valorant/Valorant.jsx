@@ -1,14 +1,16 @@
 "use client"
 
 import { Search, ChevronDown, Moon, Filter, Grid, List, Zap, Crown, User } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import { useNavigate } from "react-router-dom"
 import axios from "axios"
-import { LoginModal } from "../LoginModal/LoginModal"
-import { SignupModal } from "../SignupModal/SignupModal"
-import { useUser } from "../userContext/UserContext"
-import { UserMenu } from "../UserMenu/UserMenu"
+import { LoginModal } from "../../LoginModal/LoginModal"
+import { SignupModal } from "../../SignupModal/SignupModal"
+import { useUser } from "../../userContext/UserContext"
+import { UserMenu } from "../../UserMenu/UserMenu"
 
 export default function Valorant() {
+  const navigate = useNavigate()
   const { user, isAuthenticated, login, logout } = useUser()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false)
@@ -16,13 +18,86 @@ export default function Valorant() {
   const [accounts, setAccounts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [sellers, setSellers] = useState({})  // Store sellers data with sellerID as key
+  const [sellers, setSellers] = useState({})
+  const [searchQuery, setSearchQuery] = useState("")
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
+  
+  // Add filter states
+  const [selectedServer, setSelectedServer] = useState("")
+  const [selectedRank, setSelectedRank] = useState("")
+  const [selectedPrice, setSelectedPrice] = useState("")
+  const [isServerDropdownOpen, setIsServerDropdownOpen] = useState(false)
+  const [isRankDropdownOpen, setIsRankDropdownOpen] = useState(false)
+  const [isPriceDropdownOpen, setIsPriceDropdownOpen] = useState(false)
+
+  // Server options
+  const serverOptions = ["All Servers", "North America", "Europe", "Asia Pacific", "Latin America", "Brazil", "Korea", "Japan"]
+
+  // Rank options
+  const rankOptions = ["All Ranks", "Unranked", "Iron", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Ascendent", "Immortal", "Radiant"]
+
+  // Price range options
+  const priceOptions = [
+    { label: "All Prices", value: "" },
+    { label: "Under $50", value: "0-50" },
+    { label: "$50 - $100", value: "50-100" },
+    { label: "$100 - $200", value: "100-200" },
+    { label: "$200 - $500", value: "200-500" },
+    { label: "Over $500", value: "500" }
+  ]
+
+  const serverDropdownRef = useRef(null)
+  const rankDropdownRef = useRef(null)
+  const priceDropdownRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (serverDropdownRef.current && !serverDropdownRef.current.contains(event.target)) {
+        setIsServerDropdownOpen(false)
+      }
+      if (rankDropdownRef.current && !rankDropdownRef.current.contains(event.target)) {
+        setIsRankDropdownOpen(false)
+      }
+      if (priceDropdownRef.current && !priceDropdownRef.current.contains(event.target)) {
+        setIsPriceDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  // Add debounce effect for search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
         setLoading(true)
-        const response = await axios.get("http://localhost:3003/valorant/accounts")
+        let queryParams = new URLSearchParams()
+        
+        if (debouncedSearchQuery) {
+          queryParams.append('search', debouncedSearchQuery)
+        }
+        if (selectedServer) {
+          queryParams.append('server', selectedServer)
+        }
+        if (selectedRank) {
+          queryParams.append('rank', selectedRank)
+        }
+        if (selectedPrice) {
+          queryParams.append('price', selectedPrice)
+        }
+
+        const response = await axios.get(`http://localhost:3003/valorant/accounts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`)
         console.log('API Response:', response.data)
         if (response.data?.data?.accounts) {
           setAccounts(response.data.data.accounts)
@@ -59,7 +134,7 @@ export default function Valorant() {
     }
 
     fetchAccounts()
-  }, [])
+  }, [debouncedSearchQuery, selectedServer, selectedRank, selectedPrice])
 
   const handleLoginSuccess = async (userData) => {
     await login(userData)
@@ -78,6 +153,18 @@ export default function Valorant() {
   const switchToLogin = () => {
     setIsSignupModalOpen(false)
     setIsLoginModalOpen(true)
+  }
+
+  const handleAccountClick = (accountId) => {
+    navigate(`/accounts/valorant/${accountId}`)
+  }
+
+  // Add reset filters function
+  const resetFilters = () => {
+    setSearchQuery("")
+    setSelectedServer("")
+    setSelectedRank("")
+    setSelectedPrice("")
   }
 
   const renderUserMenu = () => {
@@ -131,12 +218,17 @@ export default function Valorant() {
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded flex items-center justify-center">
-                <Crown className="pt-crown-icon w-5 h-5" />
+              <div 
+                className="flex items-center gap-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:opacity-90"
+                onClick={() => navigate('/')}
+              >
+                <div className="w-8 h-8 rounded flex items-center justify-center">
+                  <Crown className="pt-crown-icon w-5 h-5" />
+                </div>
+                <span className="pt-logo-text">
+                  <span className="pt-blue">PLAY</span>TRADE
+                </span>
               </div>
-              <span className="pt-logo-text">
-                <span className="pt-blue">PLAY</span>TRADE
-              </span>
             </div>
 
             <div className="flex items-center gap-2 border border-gray-700 rounded-md px-3 py-1.5">
@@ -256,138 +348,164 @@ export default function Valorant() {
         {/* Search and Filters */}
         <div className="mb-6">
           <div className="flex flex-wrap gap-4 mb-4">
-            <div className="relative flex-1 min-w-[300px]">
+            <div className="relative w-150">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search by title or rank..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-[#161b22] border border-gray-700 rounded-md py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
-            <div className="relative">
-              <button className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-4 h-4 mr-2"
+            <div className="flex gap-4 ml-auto">
+              <div className="relative" ref={serverDropdownRef}>
+                <button 
+                  className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
+                  onClick={() => {
+                    setIsServerDropdownOpen(!isServerDropdownOpen)
+                    setIsRankDropdownOpen(false)
+                    setIsPriceDropdownOpen(false)
+                  }}
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM6.262 6.072a8.25 8.25 0 1010.562-.766 4.5 4.5 0 01-1.318 1.357L14.25 7.5l.165.33a.809.809 0 01-1.086 1.085l-.604-.302a1.125 1.125 0 00-1.298.21l-.132.131c-.439.44-.439 1.152 0 1.591l.296.296c.256.257.622.374.98.314l1.17-.195c.323-.054.654.036.905.245l1.33 1.108c.32.267.46.694.358 1.1a8.7 8.7 0 01-2.288 4.04l-.723.724a1.125 1.125 0 01-1.298.21l-.153-.076a1.125 1.125 0 01-.622-1.006v-1.089c0-.298-.119-.585-.33-.796l-1.347-1.347a1.125 1.125 0 01-.21-1.298L9.75 12l-1.64-1.64a6 6 0 01-1.676-3.257l-.172-1.03z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Server
-                <ChevronDown className="ml-2 w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="relative">
-              <button className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-4 h-4 mr-2"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Rank
-                <ChevronDown className="ml-2 w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="relative">
-              <button className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-4 h-4 mr-2"
-                >
-                  <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
-                  <path
-                    fillRule="evenodd"
-                    d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Price
-                <ChevronDown className="ml-2 w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="relative">
-              <button className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center">
-                <Filter className="w-4 h-4 mr-2" />
-                More Filters
-                <ChevronDown className="ml-2 w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex items-center ml-auto">
-              <button className="text-gray-400 hover:text-white hover:bg-gray-800 p-2 rounded-md">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-4 h-4 mr-2"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M15.97 2.47a.75.75 0 011.06 0l4.5 4.5a.75.75 0 010 1.06l-4.5 4.5a.75.75 0 11-1.06-1.06l3.22-3.22H7.5a.75.75 0 010-1.5h16.19l-2.47-2.47a.75.75 0 010-1.06zm-7.94 9a.75.75 0 010 1.06l-3.22 3.22H16.5a.75.75 0 010 1.5H4.81l3.22 3.22a.75.75 0 11-1.06 1.06l-4.5-4.5a.75.75 0 010-1.06l4.5-4.5a.75.75 0 011.06 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
-
-              <div className="relative">
-                <button className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center">
-                  Recommended
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-4 h-4 mr-2"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM6.262 6.072a8.25 8.25 0 1010.562-.766 4.5 4.5 0 01-1.318 1.357L14.25 7.5l.165.33a.809.809 0 01-1.086 1.085l-.604-.302a1.125 1.125 0 00-1.298.21l-.132.131c-.439.44-.439 1.152 0 1.591l.296.296c.256.257.622.374.98.314l1.17-.195c.323-.054.654.036.905.245l1.33 1.108c.32.267.46.694.358 1.1a8.7 8.7 0 01-2.288 4.04l-.723.724a1.125 1.125 0 01-1.298.21l-.153-.076a1.125 1.125 0 01-.622-1.006v-1.089c0-.298-.119-.585-.33-.796l-1.347-1.347a1.125 1.125 0 01-.21-1.298L9.75 12l-1.64-1.64a6 6 0 01-1.676-3.257l-.172-1.03z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {selectedServer || "All Servers"}
                   <ChevronDown className="ml-2 w-4 h-4" />
                 </button>
+                {isServerDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#161b22] border border-gray-700 rounded-md shadow-lg z-50">
+                    {serverOptions.map((server) => (
+                      <button
+                        key={server}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                        onClick={() => {
+                          setSelectedServer(server === "All Servers" ? "" : server)
+                          setIsServerDropdownOpen(false)
+                        }}
+                      >
+                        {server}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="flex ml-2">
-                <button className="text-gray-400 hover:text-white hover:bg-gray-800 p-2 rounded-r-none border-r border-gray-700">
-                  <Grid className="w-4 h-4" />
+              <div className="relative" ref={rankDropdownRef}>
+                <button 
+                  className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
+                  onClick={() => {
+                    setIsRankDropdownOpen(!isRankDropdownOpen)
+                    setIsServerDropdownOpen(false)
+                    setIsPriceDropdownOpen(false)
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-4 h-4 mr-2"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {selectedRank || "All Ranks"}
+                  <ChevronDown className="ml-2 w-4 h-4" />
                 </button>
-                <button className="text-gray-400 hover:text-white hover:bg-gray-800 p-2 rounded-l-none">
-                  <List className="w-4 h-4" />
-                </button>
+                {isRankDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#161b22] border border-gray-700 rounded-md shadow-lg z-50">
+                    {rankOptions.map((rank) => (
+                      <button
+                        key={rank}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                        onClick={() => {
+                          setSelectedRank(rank === "All Ranks" ? "" : rank)
+                          setIsRankDropdownOpen(false)
+                        }}
+                      >
+                        {rank}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
+
+              <div className="relative" ref={priceDropdownRef}>
+                <button 
+                  className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
+                  onClick={() => {
+                    setIsPriceDropdownOpen(!isPriceDropdownOpen)
+                    setIsServerDropdownOpen(false)
+                    setIsRankDropdownOpen(false)
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-4 h-4 mr-2"
+                  >
+                    <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
+                    <path
+                      fillRule="evenodd"
+                      d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {selectedPrice ? priceOptions.find(opt => opt.value === selectedPrice)?.label : "All Prices"}
+                  <ChevronDown className="ml-2 w-4 h-4" />
+                </button>
+                {isPriceDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#161b22] border border-gray-700 rounded-md shadow-lg z-50">
+                    {priceOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                        onClick={() => {
+                          setSelectedPrice(option.value)
+                          setIsPriceDropdownOpen(false)
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={resetFilters}
+                className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center hover:bg-gray-700"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-4 h-4 mr-2"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.755 10.059a7.5 7.5 0 0112.548-3.364l1.903 1.903h-3.183a.75.75 0 100 1.5h4.992a.75.75 0 00.75-.75V4.356a.75.75 0 00-1.5 0v3.18l-1.9-1.9A9 9 0 003.306 9.67a.75.75 0 101.45.388zm15.408 3.352a.75.75 0 00-.919.53 7.5 7.5 0 01-12.548 3.364l-1.902-1.903h3.183a.75.75 0 000-1.5H2.984a.75.75 0 00-.75.75v4.992a.75.75 0 001.5 0v-3.18l1.9 1.9a9 9 0 0015.059-4.035.75.75 0 00-.53-.918z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Reset Filters
+              </button>
             </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2 text-sm">
-            <span className="text-gray-400 mr-2">Popular searches:</span>
-            <span className="bg-[#161b22] hover:bg-gray-700 border border-gray-700 text-gray-300 px-2 py-1 rounded-md text-xs">
-              Europe
-            </span>
-            <span className="bg-[#161b22] hover:bg-gray-700 border border-gray-700 text-gray-300 px-2 py-1 rounded-md text-xs">
-              North America
-            </span>
-            <span className="bg-[#161b22] hover:bg-gray-700 border border-gray-700 text-gray-300 px-2 py-1 rounded-md text-xs">
-              Handmade
-            </span>
-            <span className="bg-[#161b22] hover:bg-gray-700 border border-gray-700 text-gray-300 px-2 py-1 rounded-md text-xs">
-              Unranked
-            </span>
-            <span className="bg-[#161b22] hover:bg-gray-700 border border-gray-700 text-gray-300 px-2 py-1 rounded-md text-xs">
-              VIP Seller
-            </span>
-            <span className="bg-[#161b22] hover:bg-gray-700 border border-gray-700 text-gray-300 px-2 py-1 rounded-md text-xs">
-              Smurf
-            </span>
-            <span className="bg-[#161b22] hover:bg-gray-700 border border-gray-700 text-gray-300 px-2 py-1 rounded-md text-xs">
-              Ranked Ready
-            </span>
           </div>
         </div>
 
@@ -408,7 +526,11 @@ export default function Valorant() {
             </div>
           ) : (
             accounts.map((account) => (
-              <div key={account._id} className="bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden">
+              <div 
+                key={account._id} 
+                className="bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden cursor-pointer hover:border-blue-500 transition-colors"
+                onClick={() => handleAccountClick(account._id)}
+              >
                 <div className="p-4 border-b border-gray-800">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-2">

@@ -19,21 +19,48 @@ exports.getTopAccounts = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAllAccounts = catchAsync(async (req, res , next) => {
-  const features = new APIFeatures(valorant.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
+exports.getAllAccounts = catchAsync(async (req, res, next) => {
+  const { search, server, rank, price } = req.query;
+  
+  let searchQuery = {};
 
-  const accounts = await features.query;
+  // Handle search query
+  if (search) {
+    searchQuery.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { 'account_data.current_rank': { $regex: search, $options: 'i' } },
+      { server: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  // Handle server filter
+  if (server) {
+    searchQuery.server = server;
+  }
+
+  // Handle rank filter
+  if (rank) {
+    searchQuery['account_data.current_rank'] = rank;
+  }
+
+  // Handle price range filter
+  if (price) {
+    const [min, max] = price.split('-').map(Number);
+    if (max) {
+      searchQuery.price = { $gte: min, $lte: max };
+    } else {
+      // Handle "500+" case
+      searchQuery.price = { $gte: min };
+    }
+  }
+
+  console.log('Search Query:', searchQuery);
+
+  const accounts = await valorant.find(searchQuery);
 
   res.status(200).json({
     status: "success",
-    requestedAt: req.requestTime,
-    data: {
-      accounts,
-    },
+    data: { accounts },
   });
 });
 
@@ -58,20 +85,18 @@ exports.getAccount = catchAsync(async (req, res, next) => {
   const account = await valorant.findById(req.params.id);
 
   if (!account) {
-    return next(new AppError('No account found with that ID' , 404))
+    return next(new AppError('No account found with that ID', 404));
   }
 
-  await valorant.updateOne({ _id: req.params.id });
-
-  const updatedAccount = await valorant.findById(req.params.id);
-
-  console.log("Account found:", updatedAccount.timeSinceLastUpdated);
+  // Increment the views count
+  account.views += 1;
+  await account.save();
 
   res.status(200).json({
     status: "success",
     requestedAt: req.requestTime,
     data: {
-      account: updatedAccount,
+      account,
     },
   });
 });

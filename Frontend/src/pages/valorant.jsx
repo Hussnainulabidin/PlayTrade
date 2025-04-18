@@ -1,11 +1,16 @@
 import React from 'react';
-import ValorantComponent from '../components/Accounts/Valorant';
+import { Routes, Route } from 'react-router-dom';
+import ValorantComponent from '../components/Accounts/Valorant/Valorant';
+import ValorantDetail from '../components/Accounts/Valorant/Valorant-detail';
 import './valorant.css';
 
 function ValorantPage() {
   return (
     <div className="valorant-page">
-      <ValorantComponent />
+      <Routes>
+        <Route path="/" element={<ValorantComponent />} />
+        <Route path="/:id" element={<ValorantDetail />} />
+      </Routes>
     </div>
   );
 }
