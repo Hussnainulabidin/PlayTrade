@@ -148,7 +148,11 @@ export function OrdersList() {
             ) : (
               filteredOrders.map((order) => (
                 <tr key={order.id} className="table-row">
-                  <td className="table-cell listing-id">#{order.id}</td>
+                    <td className="table-cell listing-id">
+                    <Link to={`/order/${order.id}`} className="seller-link">
+                    {order.id}
+                    </Link>
+                  </td>
                   <td className="table-cell">{order.gameType}</td>
                   <td className="table-cell">
                     <Link to={`/admindashboard/customers/${order.customer?.id}`} className="seller-link">

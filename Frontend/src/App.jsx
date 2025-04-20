@@ -9,6 +9,8 @@ import SellerWalletPage from "./pages/AdminDashboardSellerWallet"
 import SellerOrdersPage from "./pages/AdminDasboardSellerOrders"
 import OrdersPage from "./pages/OrdersPage"
 import OrderDetailPage from "./pages/OrderDetails"
+import TicketsPage from "./pages/AdminDashboardTicketsPage"
+import TicketDetailPage from "./pages/TicketDetail"
 import "./App.css"
 import "./components/AdminDashboard/ui.css"
 
@@ -19,6 +21,14 @@ const App = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/order/:id" element={<OrderDetailPage />} />
+          <Route path="/tickets/:id" element={<TicketDetailPage />}/>
+          <Route path="/admin/tickets" element={
+            <DashboardLayout>
+              <TicketsPage />
+            </DashboardLayout>
+          }
+          />
+          
           <Route path="/admin/orders" element={
             <DashboardLayout>
               <OrdersPage />

@@ -27,11 +27,6 @@ const valorantSchema = new mongoose.Schema({
   },
   email_login: String,
   email_password: String,
-  server: {
-    type : String,
-    required: [true, "A valorant account must have a server"],
-    enum: ["Europe", "North America", "Asia Pasific", "Brazil" , "Latin America"]
-  },
   delivery_instructions: String,
   gallery: [],
   account_data: {
@@ -56,6 +51,10 @@ const valorantSchema = new mongoose.Schema({
       type : Number,
       default : 0
     },
+    server: {
+      type : String,
+      enum: ["Europe", "North America", "Asia Pasific", "Brazil" , "Latin America"]
+    }
   },
   status: {
     type: String,

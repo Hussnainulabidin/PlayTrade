@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const http = require('http');
 dotenv.config({ path: "./config.env" });
 
 
@@ -10,7 +11,7 @@ process.on('uncaughtException' , err => {
 })
 
 const app = require("./app");
-const { getAllAccounts } = require("./controllers/valorantController");
+const initializeSocket = require('./services/socketService');
 
 const DB = process.env.DATABASE.replace(
   "<PASSWORD>",
@@ -23,7 +24,15 @@ mongoose.connect(DB , {
 })
 
 const port = 3003 || process.env.PORT;
-const server = app.listen(port, () => {
+
+// Create HTTP server
+const server = http.createServer(app);
+
+// Initialize Socket.IO
+const io = initializeSocket(server);
+
+// Start server
+server.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
 
