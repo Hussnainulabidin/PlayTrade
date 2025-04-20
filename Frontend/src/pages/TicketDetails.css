@@ -1,0 +1,613 @@
+.ticket-detail-page {
+    background-color: #1a172b;
+    min-height: 100%;
+    color: white;
+    padding: 1rem;
+  }
+  
+  .ticket-detail-header {
+    padding: 0.5rem 0 1rem;
+  }
+  
+  .ticket-back-link {
+    display: flex;
+    align-items: center;
+    color: #a0aec0;
+    font-size: 0.875rem;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+  }
+  
+  .ticket-back-link:hover {
+    color: white;
+  }
+  
+  .ticket-back-icon {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+  }
+  
+  .ticket-detail-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .ticket-detail-content {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .ticket-chat-container {
+    flex: 1;
+    min-width: 0;
+    min-width: 500px;
+    background-color: #1f1a2e;
+    border-radius: 0.5rem;
+    border: 1px solid #3a3448;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 150px);
+  }
+  
+  .chat-header {
+    border-bottom: 1px solid #3a3448;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: #2a263a;
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #7e57c2;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 12px;
+  }
+  
+  .user-details {
+    flex: 1;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .user-type {
+    font-size: 0.85rem;
+    color: #a7a7b5;
+    margin: 0;
+  }
+  
+  .connection-status {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #a7a7b5;
+  }
+  
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  
+  .status-dot.connected {
+    background-color: #4caf50;
+  }
+  
+  .status-dot.disconnected {
+    background-color: #f44336;
+  }
+  
+  .chat-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .message {
+    display: flex;
+    margin-bottom: 1rem;
+    max-width: 80%;
+  }
+  
+  .current-user-message {
+    margin-left: auto;
+    flex-direction: row-reverse;
+  }
+  
+  .other-user-message {
+    margin-right: auto;
+  }
+  
+  .message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #6c5ce7;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+    margin: 0 0.5rem;
+  }
+  
+  .message-content {
+    background-color: #2a2438;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    position: relative;
+  }
+  
+  .current-user-message .message-content {
+    background-color: #6c5ce7;
+    border-top-right-radius: 0;
+  }
+  
+  .other-user-message .message-content {
+    border-top-left-radius: 0;
+  }
+  
+  .message-sender {
+    font-size: 0.8rem;
+    color: #a29bfe;
+    margin-bottom: 0.25rem;
+  }
+  
+  .current-user-message .message-sender {
+    color: #d1c9ff;
+  }
+  
+  .message-text {
+    margin: 0;
+    color: white;
+    word-break: break-word;
+  }
+  
+  .message-time {
+    font-size: 0.7rem;
+    color: #a29bfe;
+    margin-top: 0.5rem;
+    display: block;
+    text-align: right;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  .message-content:hover .message-time {
+    opacity: 1;
+  }
+  
+  .current-user-message .message-time {
+    text-align: right;
+  }
+  
+  .other-user-message .message-time {
+    text-align: left;
+  }
+  
+  .chat-input {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-top: 1px solid #3a3448;
+    background-color: #2a263a;
+    gap: 8px;
+  }
+  
+  .input-field {
+    flex: 1;
+    background-color: #3a3448;
+    border: 1px solid #4a4458;
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: white;
+    font-size: 14px;
+    min-height: 40px;
+    max-height: 120px;
+    resize: none;
+  }
+  
+  .input-field:focus {
+    outline: none;
+  }
+  
+  .input-icon {
+    color: #a7a7b5;
+    background: transparent;
+  }
+  
+  .input-icon:hover {
+    color: white;
+  }
+  
+  .send-btn {
+    background-color: #6c5ce7;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .send-btn:hover {
+    background-color: #7d6cf6;
+  }
+  
+  .ticket-game-info {
+    background-color: #3a3448;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    align-self: center;
+  }
+  
+  .game-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  
+  .game-info-item {
+    margin-bottom: 0.75rem;
+  }
+  
+  .game-info-label {
+    color: #a0aec0;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .game-info-value {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+  }
+  
+  .game-info-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 0.5rem;
+  }
+  
+  .ticket-attachment-content {
+    display: flex;
+    align-items: center;
+  }
+  
+  .ticket-attachment-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 0.5rem;
+    color: #4299e1;
+  }
+  
+  .ticket-attachment-name {
+    font-weight: 500;
+    margin-right: 0.5rem;
+  }
+  
+  .ticket-attachment-size {
+    color: #a0aec0;
+    font-size: 0.875rem;
+  }
+  
+  .message-additional {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #e2e8f0;
+    opacity: 0.8;
+  }
+  
+  .ticket-details-sidebar {
+    width: 300px;
+  }
+  
+  .ticket-details-card {
+    background-color: #2a2438;
+    border-radius: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .ticket-details-card h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+  }
+  
+  .ticket-properties-heading {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 1.5rem 0 1rem;
+  }
+  
+  .ticket-detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .ticket-detail-label {
+    color: #a0aec0;
+  }
+  
+  .ticket-detail-value {
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+  }
+  
+  .ticket-agent-badge {
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: #4299e1;
+    color: white;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+  }
+  
+  .ticket-actions {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .ticket-action-button {
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+  }
+  
+  .ticket-action-button:last-child {
+    margin-bottom: 0;
+  }
+  
+  .ticket-action-button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .close-ticket-button:hover,
+  .cancel-ticket-button:hover {
+    background-color: #c0392b !important;
+  }
+  
+  .reopen-ticket-button:hover {
+    background-color: #2980b9 !important;
+  }
+  
+  .resolve-ticket-button:hover {
+    background-color: #27ae60 !important;
+  }
+  
+  .delete-ticket-button:hover {
+    background-color: #6c7a7a !important;
+  }
+  
+  @media (max-width: 1024px) {
+    .ticket-detail-content {
+      flex-direction: column;
+    }
+  
+    .ticket-details-sidebar {
+      width: 100%;
+      margin-top: 1rem;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .game-info-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .typing-indicator {
+    align-self: flex-start;
+    background-color: #2a263a;
+    padding: 8px 12px;
+    border-radius: 1rem;
+    margin-bottom: 10px;
+  }
+  
+  .dots {
+    display: flex;
+    gap: 4px;
+  }
+  
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #a7a7b5;
+    animation: typing-animation 1.4s infinite ease-in-out;
+  }
+  
+  .dot:nth-child(1) {
+    animation-delay: 0s;
+  }
+  
+  .dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  
+  .dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+  
+  @keyframes typing-animation {
+    0%, 60%, 100% {
+      transform: translateY(0);
+    }
+    30% {
+      transform: translateY(-5px);
+    }
+  }
+  
+  .no-messages {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #a7a7b5;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(42, 36, 56, 0.2);
+    border-radius: 8px;
+    margin: 20px;
+  }
+  
+  .tickets-status-open {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .tickets-status-closed {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .tickets-status-in-progress {
+    background-color: #2196f3;
+    color: white;
+  }
+  
+  .tickets-category-marketplace {
+    background-color: #9c27b0;
+    color: white;
+  }
+  
+  .tickets-category-order {
+    background-color: #ff9800;
+    color: white;
+  }
+  
+  .waiting-container {
+    background-color: #2a2438;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    max-width: 600px;
+    margin: 2rem auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .waiting-icon {
+    margin-bottom: 1.5rem;
+    animation: pulse 2s infinite ease-in-out;
+  }
+  
+  .waiting-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #6c5ce7;
+  }
+  
+  .waiting-message {
+    color: #a7a7b5;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    max-width: 450px;
+  }
+  
+  .waiting-ticket-info {
+    background-color: #1f1a2e;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+  
+  .waiting-ticket-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #3a3448;
+  }
+  
+  .waiting-ticket-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  
+  .waiting-ticket-label {
+    color: #a7a7b5;
+    font-weight: 500;
+  }
+  
+  .waiting-ticket-value {
+    color: white;
+    font-weight: 600;
+  }
+  
+  .waiting-button {
+    background-color: #6c5ce7;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .waiting-button:hover {
+    background-color: #7d6cf6;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+  }
+  
