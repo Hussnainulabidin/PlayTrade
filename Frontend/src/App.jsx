@@ -12,6 +12,8 @@ import SellerDashboardAccountImportsPage from "./pages/SellerDashboardAccountImp
 import SellerDashboardLayout from "./components/layouts/SellerDashboardLayout"
 import OrdersPage from "./pages/OrdersPage"
 import OrderDetailPage from "./pages/OrderDetails"
+import ValorantPage from "./pages/valorant"
+import AccountsLayout from "./pages/AccountsLayout"
 import "./App.css"
 import "./components/AdminDashboard/ui.css"
 
@@ -21,64 +23,40 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/accounts" element={<AccountsLayout />}>
+            <Route path="valorant/*" element={<ValorantPage />} />
+          </Route>
           <Route path="/order/:id" element={<OrderDetailPage />} />
           <Route path="/admin/orders" element={
             <DashboardLayout>
               <OrdersPage />
             </DashboardLayout>
-          }
-          />
+          } />
           <Route path="/admindashboard/sellers" element={
             <DashboardLayout>
               <SellersPage />
             </DashboardLayout>
-          }
-          />
-          <Route path="/admindashboard/sellers/:id"
-            element={
-              <DashboardLayout>
-                <SellerDetailsPage />
-              </DashboardLayout>
-            }
-          />
-          <Route path="/admindashboard/sellers/:id/listings"
-            element={
-              <DashboardLayout>
-                <SellerListingsPage />
-              </DashboardLayout>
-            }
-          />
-          <Route path="/admindashboard/sellers/:id/wallet"
-            element={
-              <DashboardLayout>
-                <SellerWalletPage />
-              </DashboardLayout>
-            }
-          />
-          <Route path="/admindashboard/sellers/:id/orders"
-            element={
-              <DashboardLayout>
-                <SellerOrdersPage />
-              </DashboardLayout>
-            }
-          />
-
-          //Seller Dashboard Routes
-          <Route path="/seller/dashboard/accounts"
-            element={
-              <SellerDashboardLayout>
-                <SellerDashboardAccountsPage />
-              </SellerDashboardLayout>
-            }
-          />
-          <Route path="/seller-dashboard/account-imports"
-            element={
-              <SellerDashboardLayout>
-                <SellerDashboardAccountImportsPage />
-              </SellerDashboardLayout>
-            }
-          />
-
+          } />
+          <Route path="/admindashboard/sellers/:id" element={
+            <DashboardLayout>
+              <SellerDetailsPage />
+            </DashboardLayout>
+          } />
+          <Route path="/admindashboard/sellers/:id/listings" element={
+            <DashboardLayout>
+              <SellerListingsPage />
+            </DashboardLayout>
+          } />
+          <Route path="/admindashboard/sellers/:id/wallet" element={
+            <DashboardLayout>
+              <SellerWalletPage />
+            </DashboardLayout>
+          } />
+          <Route path="/admindashboard/sellers/:id/orders" element={
+            <DashboardLayout>
+              <SellerOrdersPage />
+            </DashboardLayout>
+          } />
         </Routes>
       </Router>
     </UserProvider>
