@@ -1,0 +1,24 @@
+.seller-dashboard-imports-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.imports-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: auto;
+}
+
+.imports-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    background-color: #161b22;
+    border-radius: 8px;
+    font-size: 18px;
+    color: #8b949e;
+}

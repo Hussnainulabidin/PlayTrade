@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 
 
-process.on('uncaughtException' , err => {
+process.on('uncaughtException', err => {
   console.log("UNCAUGHT REJECTION ..... Shutting Down");
   console.error(err.name, err.message);
   process.exit(1);
@@ -17,7 +17,7 @@ const DB = process.env.DATABASE.replace(
   process.env.DATABASE_PASSWORD
 );
 
-mongoose.connect(DB , {
+mongoose.connect(DB, {
 }).then(() => {
   console.log("DB connection successful");
 })

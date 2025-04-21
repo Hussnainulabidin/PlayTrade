@@ -7,6 +7,9 @@ import SellerDetailsPage from "./pages/AdminDashboardSellerDetails"
 import SellerListingsPage from "./pages/AdminDashboardSellerListing"
 import SellerWalletPage from "./pages/AdminDashboardSellerWallet"
 import SellerOrdersPage from "./pages/AdminDasboardSellerOrders"
+import SellerDashboardAccountsPage from "./pages/SellerDashboardAccountsPage"
+import SellerDashboardAccountImportsPage from "./pages/SellerDashboardAccountImportsPage"
+import SellerDashboardLayout from "./components/layouts/SellerDashboardLayout"
 import OrdersPage from "./pages/OrdersPage"
 import OrderDetailPage from "./pages/OrderDetails"
 import "./App.css"
@@ -24,19 +27,19 @@ const App = () => {
               <OrdersPage />
             </DashboardLayout>
           }
-            />
+          />
           <Route path="/admindashboard/sellers" element={
             <DashboardLayout>
               <SellersPage />
             </DashboardLayout>
           }
           />
-          <Route path="/admindashboard/sellers/:id" 
+          <Route path="/admindashboard/sellers/:id"
             element={
               <DashboardLayout>
                 <SellerDetailsPage />
               </DashboardLayout>
-          }
+            }
           />
           <Route path="/admindashboard/sellers/:id/listings"
             element={
@@ -59,7 +62,23 @@ const App = () => {
               </DashboardLayout>
             }
           />
-          
+
+          //Seller Dashboard Routes
+          <Route path="/seller/dashboard/accounts"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardAccountsPage />
+              </SellerDashboardLayout>
+            }
+          />
+          <Route path="/seller-dashboard/account-imports"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardAccountImportsPage />
+              </SellerDashboardLayout>
+            }
+          />
+
         </Routes>
       </Router>
     </UserProvider>

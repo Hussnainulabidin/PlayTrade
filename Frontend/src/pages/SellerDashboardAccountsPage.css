@@ -1,0 +1,17 @@
+.seller-dashboard-accounts-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.accounts-container {
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: auto;
+}
+
+.accounts-container> :not(:last-child) {
+    margin-bottom: 16px;
+}

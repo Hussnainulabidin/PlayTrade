@@ -19,11 +19,11 @@ router
     .get(userController.getAllUsers)
     .post(userController.createUser);
 
-router.route("/me").get( authController.protect, userController.myData)
+router.route("/me").get(authController.protect, userController.myData)
 
-router.route("/getSeller").get(authController.protect , authController.restrictTo("admin") , userController.getAllSellers)
+router.route("/getSeller").get(authController.protect, authController.restrictTo("admin"), userController.getAllSellers)
 
-router.route("/getSeller/:id").get(authController.protect , authController.restrictTo("admin") , userController.getSeller)
+router.route("/getSeller/:id").get(authController.protect, authController.restrictTo("admin"), userController.getSeller)
 
 router
     .route("/:id")

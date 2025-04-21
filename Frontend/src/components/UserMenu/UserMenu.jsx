@@ -1,8 +1,8 @@
 import React from 'react';
-import { 
-  LayoutDashboard, 
-  MessageSquare, 
-  Settings, 
+import {
+  LayoutDashboard,
+  MessageSquare,
+  Settings,
   LogOut,
   X,
   Wallet,
@@ -28,7 +28,7 @@ const menuItems = {
     { icon: Settings, label: 'Settings', link: '/settings' }
   ],
   seller: [
-    { icon: LayoutDashboard, label: 'Dashboard', link: '/seller/dashboard' },
+    { icon: LayoutDashboard, label: 'Dashboard', link: '/seller/dashboard/accounts' },
     { icon: User, label: 'My Profile', link: '/seller/profile' },
     { icon: Package, label: 'My Accounts', link: '/seller/accounts' },
     { icon: Settings, label: 'Settings', link: '/seller/settings' }
@@ -64,9 +64,8 @@ export function UserMenu({ isOpen, onClose, userData, handleLogout }) {
         {currentMenuItems.map((item, index) => (
           <button
             key={index}
-            className={`menu-item ${userRole === 'admin' ? 'admin-item' : ''} ${
-              userRole === 'seller' ? 'seller-item' : ''
-            }`}
+            className={`menu-item ${userRole === 'admin' ? 'admin-item' : ''} ${userRole === 'seller' ? 'seller-item' : ''
+              }`}
             onClick={() => {
               navigate(item.link); // Navigate to the link
               onClose(); // Close the sidebar

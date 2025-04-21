@@ -41,7 +41,7 @@ app.use("/wallet", walletRouter);
 app.use("/orders", orderRouter);
 
 app.all("*", (req, res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on the server` , 404))
+  next(new AppError(`Can't find ${req.originalUrl} on the server`, 404))
 });
 
 app.use(globalErrorHandler);

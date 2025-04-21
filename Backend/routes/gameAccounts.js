@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.route("/seller/:id").get(
   authController.protect,
-  authController.restrictTo("admin" , "seller"),
+  authController.restrictTo("admin", "seller"),
   gameAccountsController.getAccountsBySellerId
 );
 
