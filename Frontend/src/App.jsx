@@ -11,6 +11,9 @@ import OrdersPage from "./pages/OrdersPage"
 import OrderDetailPage from "./pages/OrderDetails"
 import TicketsPage from "./pages/AdminDashboardTicketsPage"
 import TicketDetailPage from "./pages/TicketDetail"
+import ValorantPage from "./pages/valorant"
+import AccountsLayout from "./pages/AccountsLayout"
+import AdminChatPage from "./pages/AdminDashboardChatPage"
 import "./App.css"
 import "./components/AdminDashboard/ui.css"
 
@@ -20,6 +23,9 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/accounts" element={<AccountsLayout />}>
+            <Route path="valorant/*" element={<ValorantPage />} />
+          </Route>
           <Route path="/order/:id" element={<OrderDetailPage />} />
           <Route path="/tickets/:id" element={<TicketDetailPage />}/>
           <Route path="/admin/tickets" element={
@@ -33,43 +39,37 @@ const App = () => {
             <DashboardLayout>
               <OrdersPage />
             </DashboardLayout>
-          }
-            />
+          } />
+          <Route path="/admin/chat" element={
+            <DashboardLayout>
+              <AdminChatPage />
+            </DashboardLayout>
+          } />
           <Route path="/admindashboard/sellers" element={
             <DashboardLayout>
               <SellersPage />
             </DashboardLayout>
-          }
-          />
-          <Route path="/admindashboard/sellers/:id" 
-            element={
-              <DashboardLayout>
-                <SellerDetailsPage />
-              </DashboardLayout>
-          }
-          />
-          <Route path="/admindashboard/sellers/:id/listings"
-            element={
-              <DashboardLayout>
-                <SellerListingsPage />
-              </DashboardLayout>
-            }
-          />
-          <Route path="/admindashboard/sellers/:id/wallet"
-            element={
-              <DashboardLayout>
-                <SellerWalletPage />
-              </DashboardLayout>
-            }
-          />
-          <Route path="/admindashboard/sellers/:id/orders"
-            element={
-              <DashboardLayout>
-                <SellerOrdersPage />
-              </DashboardLayout>
-            }
-          />
-          
+          } />
+          <Route path="/admindashboard/sellers/:id" element={
+            <DashboardLayout>
+              <SellerDetailsPage />
+            </DashboardLayout>
+          } />
+          <Route path="/admindashboard/sellers/:id/listings" element={
+            <DashboardLayout>
+              <SellerListingsPage />
+            </DashboardLayout>
+          } />
+          <Route path="/admindashboard/sellers/:id/wallet" element={
+            <DashboardLayout>
+              <SellerWalletPage />
+            </DashboardLayout>
+          } />
+          <Route path="/admindashboard/sellers/:id/orders" element={
+            <DashboardLayout>
+              <SellerOrdersPage />
+            </DashboardLayout>
+          } />
         </Routes>
       </Router>
     </UserProvider>

@@ -4,6 +4,11 @@ const orders = require ("../models/order")
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const walletActions = require('../models/wallet');
+const clashofclans = require("./../models/clashofclans");
+const leagueoflegends = require("./../models/leagueoflegends");
+const fortnite = require("./../models/fortnite");
+const brawlstars = require("./../models/brawlstars");
+
 
 exports.getAllUsers = catchAsync( async (req, res , next) => {
   const users = await User.find();
@@ -24,8 +29,17 @@ exports.getAllSellers = catchAsync(async (req , res , next) => {
       // Get the number of orders for the seller
       const orderCount = await orders.countDocuments({ sellerID: seller._id });
 
-      // Get the number of accounts listed by the seller
-      const accountCount = await valorant.countDocuments({ sellerID: seller._id });
+      // Get the number of accounts listed by the seller for each game type
+      const [valorantCount, clashOfClansCount, leagueOfLegendsCount, fortniteCount, brawlStarsCount] = await Promise.all([
+        valorant.countDocuments({ sellerID: seller._id }),
+        clashofclans.countDocuments({ sellerID: seller._id }),
+        leagueoflegends.countDocuments({ sellerID: seller._id }),
+        fortnite.countDocuments({ sellerID: seller._id }),
+        brawlstars.countDocuments({ sellerID: seller._id })
+      ]);
+
+      // Sum up all game accounts
+      const totalAccounts = valorantCount + clashOfClansCount + leagueOfLegendsCount + fortniteCount + brawlStarsCount;
 
       return {
         id: seller._id,
@@ -34,7 +48,7 @@ exports.getAllSellers = catchAsync(async (req , res , next) => {
         wallet: seller.wallet,
         status: seller.status,
         totalOrders: orderCount,
-        totalListings: accountCount,
+        totalListings: totalAccounts,
         joinDate: seller.joinDate
       };
     })
@@ -58,16 +72,35 @@ exports.getSeller = catchAsync(async (req, res, next) => {
     return next(new AppError('Seller not found', 404));
   }
 
-
   // Get total orders count
   const totalOrders = await orders.countDocuments({ sellerID: sellerId });
 
+  // Get total listings count for each game type (excluding sold accounts)
+  const [valorantCount, clashOfClansCount, leagueOfLegendsCount, fortniteCount, brawlStarsCount] = await Promise.all([
+    valorant.countDocuments({ 
+      sellerID: sellerId,
+      status: { $ne: "sold" } 
+    }),
+    clashofclans.countDocuments({ 
+      sellerID: sellerId,
+      status: { $ne: "sold" } 
+    }),
+    leagueoflegends.countDocuments({ 
+      sellerID: sellerId,
+      status: { $ne: "sold" } 
+    }),
+    fortnite.countDocuments({ 
+      sellerID: sellerId,
+      status: { $ne: "sold" } 
+    }),
+    brawlstars.countDocuments({ 
+      sellerID: sellerId,
+      status: { $ne: "sold" } 
+    })
+  ]);
 
-  // Get total listings count (excluding sold accounts)
-  const totalListings = await valorant.countDocuments({ 
-    sellerID: sellerId,
-    status: { $ne: "sold" } // Only count non-sold listings
-  });
+  // Sum up all listings
+  const totalListings = valorantCount + clashOfClansCount + leagueOfLegendsCount + fortniteCount + brawlStarsCount;
 
   // Get recent orders (last 3)
   const recentOrders = await orders.find({ sellerID: sellerId })
@@ -128,12 +161,21 @@ exports.createUser = (req, res) => {
   });
 };
 
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined getUser",
+exports.getUser = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.id).select('-password');
+
+  if (!user) {
+    return next(new AppError('No user found with that ID', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    requestedAt: new Date().toISOString(),
+    data: {
+      user
+    }
   });
-};
+});
 
 exports.updateUser = (req, res) => {
   res.status(500).json({

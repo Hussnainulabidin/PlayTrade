@@ -86,26 +86,27 @@ function TicketsPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="filter-buttons">
-          <button 
-            className={`filter-button ${activeFilter === 'all' ? 'active' : ''}`}
-            onClick={() => setActiveFilter('all')}
-          >
-            All Tickets
-          </button>
-          <button 
-            className={`filter-button ${activeFilter === 'mytickets' ? 'active' : ''}`}
-            onClick={() => setActiveFilter('mytickets')}
-          >
-            My Tickets
-          </button>
-          <button 
-            className={`filter-button ${activeFilter === 'unattended' ? 'active' : ''}`}
-            onClick={() => setActiveFilter('unattended')}
-          >
-            Unattended
-          </button>
-        </div>
+      </div>
+      
+      <div className="filter-buttons-left">
+        <button 
+          className={`filter-button ${activeFilter === 'all' ? 'active' : ''}`}
+          onClick={() => setActiveFilter('all')}
+        >
+          All Tickets
+        </button>
+        <button 
+          className={`filter-button ${activeFilter === 'mytickets' ? 'active' : ''}`}
+          onClick={() => setActiveFilter('mytickets')}
+        >
+          My Tickets
+        </button>
+        <button 
+          className={`filter-button ${activeFilter === 'unattended' ? 'active' : ''}`}
+          onClick={() => setActiveFilter('unattended')}
+        >
+          Unattended
+        </button>
       </div>
 
       <div className="listings-table">

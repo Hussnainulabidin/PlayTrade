@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Link, useParams } from "react-router-dom"
-import { Search, ExternalLink, MoreVertical } from "lucide-react"
+import { Link, useParams, useLocation, useNavigate } from "react-router-dom"
+import { Search, ExternalLink, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react"
 import PropTypes from "prop-types"
 import axios from "axios"
 import "./SellerOrders.css"
@@ -15,8 +15,21 @@ export function SellerOrders({ sellerId: propSellerId }) {
   const [activeDropdownId, setActiveDropdownId] = useState(null)
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 })
   const params = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
   const sellerId = propSellerId || params.id
   const dropdownRef = useRef(null)
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalOrders: 0
+  })
+
+  // Get the current page from URL params or default to 1
+  const getPageFromUrl = () => {
+    const searchParams = new URLSearchParams(location.search);
+    return parseInt(searchParams.get('page')) || 1;
+  }
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -31,8 +44,10 @@ export function SellerOrders({ sellerId: propSellerId }) {
           token = token.slice(1, -1)
         }
         
+        const currentPage = getPageFromUrl();
+        
         const response = await axios.get(
-          `http://localhost:3003/orders/seller/${sellerId}`,
+          `http://localhost:3003/orders/seller/${sellerId}?page=${currentPage}&limit=12`,
           {
             headers: {
               Authorization: token ? `Bearer ${token}` : undefined
@@ -42,6 +57,11 @@ export function SellerOrders({ sellerId: propSellerId }) {
         
         if (response.data.status === 'success') {
           setOrders(response.data.data)
+          setPagination({
+            currentPage: response.data.currentPage || 1,
+            totalPages: response.data.totalPages || 1,
+            totalOrders: response.data.totalOrders || 0
+          })
         } else {
           throw new Error('Failed to fetch orders')
         }
@@ -54,7 +74,7 @@ export function SellerOrders({ sellerId: propSellerId }) {
     }
     
     fetchOrders()
-  }, [sellerId])
+  }, [sellerId, location.search])
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -77,6 +97,11 @@ export function SellerOrders({ sellerId: propSellerId }) {
       left: rect.left - 120 // Position to the left of the button
     })
     setActiveDropdownId(activeDropdownId === orderId ? null : orderId)
+  }
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > pagination.totalPages) return;
+    navigate(`/admindashboard/sellers/${sellerId}/orders?page=${newPage}`);
   }
 
   const filteredOrders = orders.filter(
@@ -102,6 +127,15 @@ export function SellerOrders({ sellerId: propSellerId }) {
 
   return (
     <div className="orders-container">
+      <div className="listings-header">
+        <h1 className="listings-title">Listings for Seller: {sellerId}</h1>
+        <Link 
+          to={`/admindashboard/sellers/${sellerId}`} 
+          className="back-button"
+        >
+          Back to Seller
+        </Link>
+      </div>
       <div className="orders-toolbar">
         <div className="search-container">
           <Search className="search-icon" />
@@ -113,9 +147,6 @@ export function SellerOrders({ sellerId: propSellerId }) {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <Link to={`/admindashboard/sellers/${sellerId}`} className="back-button">
-          Back to Seller
-        </Link>
       </div>
 
       <div className="table-container">
@@ -174,6 +205,28 @@ export function SellerOrders({ sellerId: propSellerId }) {
           </tbody>
         </table>
       </div>
+
+      {pagination.totalPages > 1 && (
+        <div className="pagination-container">
+          <button 
+            className="pagination-button"
+            onClick={() => handlePageChange(pagination.currentPage - 1)}
+            disabled={pagination.currentPage === 1}
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <span className="pagination-info">
+            Page {pagination.currentPage} of {pagination.totalPages}
+          </span>
+          <button 
+            className="pagination-button"
+            onClick={() => handlePageChange(pagination.currentPage + 1)}
+            disabled={pagination.currentPage === pagination.totalPages}
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
+      )}
 
       {activeDropdownId && (
         <div

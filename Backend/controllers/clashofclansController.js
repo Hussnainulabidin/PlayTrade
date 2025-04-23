@@ -1,10 +1,10 @@
-const valorant = require("./../models/valorant");
+const clashofclans = require("./../models/clashofclans");
 const APIFeatures = require("./../utils/apifeatures");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require('./../utils/appError')
 
 exports.getTopAccounts = catchAsync(async (req, res, next) => {
-  const topAccounts = await valorant
+  const topAccounts = await clashofclans
     .find()
     .sort({ views: -1 })
     .limit(5);
@@ -20,7 +20,7 @@ exports.getTopAccounts = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllAccounts = catchAsync(async (req, res, next) => {
-  const { search, server, rank, price } = req.query;
+  const { search, townHallLevel, price } = req.query;
   
   let searchQuery = {};
 
@@ -28,19 +28,14 @@ exports.getAllAccounts = catchAsync(async (req, res, next) => {
   if (search) {
     searchQuery.$or = [
       { title: { $regex: search, $options: 'i' } },
-      { 'account_data.current_rank': { $regex: search, $options: 'i' } },
-      { server: { $regex: search, $options: 'i' } }
+      { description: { $regex: search, $options: 'i' } },
+      { ign: { $regex: search, $options: 'i' } }
     ];
   }
 
-  // Handle server filter
-  if (server) {
-    searchQuery.server = server;
-  }
-
-  // Handle rank filter
-  if (rank) {
-    searchQuery['account_data.current_rank'] = rank;
+  // Handle TownHall level filter
+  if (townHallLevel) {
+    searchQuery['account_data.TownHallLevel'] = parseInt(townHallLevel);
   }
 
   // Handle price range filter
@@ -56,7 +51,7 @@ exports.getAllAccounts = catchAsync(async (req, res, next) => {
 
   console.log('Search Query:', searchQuery);
 
-  const accounts = await valorant.find(searchQuery);
+  const accounts = await clashofclans.find(searchQuery);
 
   res.status(200).json({
     status: "success",
@@ -65,7 +60,7 @@ exports.getAllAccounts = catchAsync(async (req, res, next) => {
 });
 
 exports.createAccount = catchAsync(async (req, res, next) => {
-  const newAccount = await valorant.create({
+  const newAccount = await clashofclans.create({
     ...req.body, 
     sellerID: req.user._id,
   });
@@ -82,15 +77,17 @@ exports.createAccount = catchAsync(async (req, res, next) => {
 });
 
 exports.getAccount = catchAsync(async (req, res, next) => {
-  const account = await valorant.findById(req.params.id);
+  const account = await clashofclans.findById(req.params.id);
 
   if (!account) {
     return next(new AppError('No account found with that ID', 404));
   }
 
-  // Increment the views count
-  account.views += 1;
-  await account.save();
+  // Increment the views count if it exists in the schema
+  if (account.views !== undefined) {
+    account.views += 1;
+    await account.save();
+  }
 
   res.status(200).json({
     status: "success",
@@ -102,7 +99,7 @@ exports.getAccount = catchAsync(async (req, res, next) => {
 });
 
 exports.updateAccount = catchAsync(async (req, res, next) => {
-  const account = await valorant.findById(req.params.id);
+  const account = await clashofclans.findById(req.params.id);
 
   if (!account) {
     return next(new AppError('No account found with that ID', 404));
@@ -112,7 +109,7 @@ exports.updateAccount = catchAsync(async (req, res, next) => {
     return next(new AppError('You do not have permission to update this account', 403));
   }
 
-  const updatedAccount = await valorant.findByIdAndUpdate(req.params.id, req.body, {
+  const updatedAccount = await clashofclans.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
@@ -127,7 +124,7 @@ exports.updateAccount = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteAccount = catchAsync(async (req, res, next) => {
-  const account = await valorant.findById(req.params.id);
+  const account = await clashofclans.findById(req.params.id);
 
   if (!account) {
     return next(new AppError('No account found with that ID', 404));
@@ -138,11 +135,11 @@ exports.deleteAccount = catchAsync(async (req, res, next) => {
     return next(new AppError('You do not have permission to delete this account', 403));
   }
 
-  await valorant.findByIdAndDelete(req.params.id);
+  await clashofclans.findByIdAndDelete(req.params.id);
 
   res.status(200).json({
     status: "success",
     requestedAt: req.requestTime,
     data: null, // No data is returned after deletion
   });
-});
+}); 

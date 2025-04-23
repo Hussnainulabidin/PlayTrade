@@ -170,8 +170,8 @@ export function SignupModal({ isOpen, onClose, switchToLogin, onLoginSuccess }) 
             <div
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
               style={{
-                backgroundImage: `url("images/na.avif")`,
-                backgroundPosition: "-20px center",
+                backgroundImage: `url("/images/na.avif")`,
+                backgroundPosition: "-100px center",
                 backgroundSize: "cover",
                 backgroundRepeat: "no-repeat",
               }}

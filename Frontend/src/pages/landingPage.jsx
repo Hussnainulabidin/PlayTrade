@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Users,
   Zap,
@@ -15,12 +15,15 @@ import {
   PlayCircle,
   CheckCircle,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { LoginModal } from "../components/LoginModal/LoginModal";
 import { SignupModal } from "../components/SignupModal/SignupModal";
 import { UserMenu } from "../components/UserMenu/UserMenu";
 import "./landingPage.css";
 import { useUser } from "../components/userContext/UserContext";
+import { Link } from 'react-router-dom';
 
 function PlayTradeLanding() {
   const { user, isAuthenticated, login, logout } = useUser();
@@ -33,6 +36,10 @@ function PlayTradeLanding() {
   const [activeProcessIndex, setActiveProcessIndex] = useState(0);
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
   const [openFaqItem, setOpenFaqItem] = useState(null);
+  const gamesSliderRef = useRef(null);
+  const [isSliderPaused, setIsSliderPaused] = useState(false);
+  const autoScrollIntervalRef = useRef(null);
+  const [activeGameIndex, setActiveGameIndex] = useState(0);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -44,6 +51,44 @@ function PlayTradeLanding() {
 
     return () => clearInterval(intervalId);
   }, []);
+
+  // Auto-scroll games slider
+  useEffect(() => {
+    const startAutoScroll = () => {
+      if (autoScrollIntervalRef.current) return;
+      
+      autoScrollIntervalRef.current = setInterval(() => {
+        if (!isSliderPaused && gamesSliderRef.current) {
+          const slider = gamesSliderRef.current;
+          const maxScroll = slider.scrollWidth - slider.clientWidth;
+          
+          if (slider.scrollLeft >= maxScroll) {
+            // Reset to beginning when reaching the end
+            slider.scrollTo({
+              left: 0,
+              behavior: 'smooth'
+            });
+            setActiveGameIndex(0);
+          } else {
+            // Scroll by one card width (approximately)
+            slider.scrollTo({
+              left: slider.scrollLeft + 200,
+              behavior: 'smooth'
+            });
+            setActiveGameIndex(prevIndex => (prevIndex + 1) % 7);
+          }
+        }
+      }, 3000); // Scroll every 3 seconds
+    };
+
+    startAutoScroll();
+
+    return () => {
+      if (autoScrollIntervalRef.current) {
+        clearInterval(autoScrollIntervalRef.current);
+      }
+    };
+  }, [isSliderPaused]);
 
   const toggleFaqItem = (index) => {
     setOpenFaqItem(openFaqItem === index ? null : index);
@@ -108,6 +153,43 @@ function PlayTradeLanding() {
         Login
       </button>
     );
+  };
+
+  const scrollGamesSlider = (direction) => {
+    if (gamesSliderRef.current) {
+      const cardWidth = 200; // Approximate width of a card including gap
+      const currentScroll = gamesSliderRef.current.scrollLeft;
+      
+      let newIndex;
+      let newScroll;
+      
+      if (direction === 'left') {
+        newIndex = activeGameIndex > 0 ? activeGameIndex - 1 : 6;
+        newScroll = newIndex * cardWidth;
+      } else if (direction === 'right') {
+        newIndex = activeGameIndex < 6 ? activeGameIndex + 1 : 0;
+        newScroll = newIndex * cardWidth;
+      } else {
+        // If direction is a number (index), use it directly
+        newIndex = direction;
+        newScroll = newIndex * cardWidth;
+      }
+      
+      gamesSliderRef.current.scrollTo({
+        left: newScroll,
+        behavior: 'smooth'
+      });
+      
+      setActiveGameIndex(newIndex);
+    }
+  };
+
+  const handleSliderMouseEnter = () => {
+    setIsSliderPaused(true);
+  };
+
+  const handleSliderMouseLeave = () => {
+    setIsSliderPaused(false);
   };
 
   return (
@@ -184,20 +266,79 @@ function PlayTradeLanding() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="pt-cta">
-        <div className="pt-container pt-text-center">
-          <h2 className="pt-section-title">What are you waiting for?</h2>
-          <p className="pt-section-subtitle">
-            Step up your game now! Let our pros boost your level and guide you
-            to the higher ranks you deserve.
-          </p>
-          <button className="pt-button">
-            <Gamepad2 className="pt-button-icon" />
-            Select Game
-          </button>
+      
+
+      {/* Popular Games */}
+      <section className="pt-games">
+        <div className="pt-container">
+          <h2 className="pt-section-title pt-text-center">Popular Games</h2>
+          <div 
+            className="pt-games-slider-container"
+            onMouseEnter={handleSliderMouseEnter}
+            onMouseLeave={handleSliderMouseLeave}
+          >
+            <button 
+              className="pt-slider-button pt-slider-button-left" 
+              onClick={() => scrollGamesSlider('left')}
+              aria-label="Previous games"
+            >
+              <ChevronLeft className="pt-slider-icon" />
+            </button>
+            
+            <div className="pt-games-slider" ref={gamesSliderRef}>
+              {[
+                { name: "Fortnite", image: "/images/Fort.png" },
+                { name: "League of Legends", image: "/images/Log.png" },
+                { name: "Valorant", image: "/images/Val.jpg", path: "/accounts/valorant" },
+                { name: "GTA V", image: "/images/GTAV.jpeg" },
+                { name: "Clash of Clans", image: "/images/Coc.png" },
+                { name: "Call of Duty", image: "/images/Cod.png" },
+                { name: "Brawl Stars", image: "/images/Bs.jpg" },
+              ].map((game) => (
+                game.name === "Valorant" ? (
+                  <Link to={game.path} key={game.name} className="pt-game-card">
+                    <img
+                      src={game.image}
+                      alt={game.name}
+                      className="pt-game-image"
+                    />
+                    <div className="pt-game-name">{game.name}</div>
+                  </Link>
+                ) : (
+                  <div key={game.name} className="pt-game-card">
+                    <img
+                      src={game.image}
+                      alt={game.name}
+                      className="pt-game-image"
+                    />
+                    <div className="pt-game-name">{game.name}</div>
+                  </div>
+                )
+              ))}
+            </div>
+            
+            <button 
+              className="pt-slider-button pt-slider-button-right" 
+              onClick={() => scrollGamesSlider('right')}
+              aria-label="Next games"
+            >
+              <ChevronRight className="pt-slider-icon" />
+            </button>
+            
+            <div className="pt-slider-indicators">
+              {[0, 1, 2, 3, 4, 5, 6].map((index) => (
+                <button
+                  key={index}
+                  className={`pt-slider-indicator ${index === activeGameIndex ? 'pt-active' : ''}`}
+                  onClick={() => scrollGamesSlider(index)}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </section>
+
 
       {/* Trust Section */}
       <section className="pt-trust">
@@ -414,32 +555,6 @@ function PlayTradeLanding() {
                 className="pt-image"
               />
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Popular Games */}
-      <section className="pt-games">
-        <div className="pt-container">
-          <h2 className="pt-section-title pt-text-center">Popular Games</h2>
-          <div className="pt-games-slider">
-            {[
-              "Fortnite",
-              "League of Legends",
-              "Valorant",
-              "GTA V",
-              "Clash of Clans",
-              "Call of Duty",
-              "Brawl Stars",
-            ].map((game) => (
-              <div key={game} className="pt-game-card">
-                <img
-                  src={`https://via.placeholder.com/192x256?text=${game}`}
-                  alt={game}
-                  className="pt-game-image"
-                />
-              </div>
-            ))}
           </div>
         </div>
       </section>

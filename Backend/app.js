@@ -7,6 +7,10 @@ const cors = require("cors")
 const AppError = require('./utils/appError')
 const globalErrorHandler = require('./controllers/errorController')
 const valorantRouter = require("./routes/valorantRoutes");
+const clashofclansRouter = require("./routes/clashofclansRoutes");
+const leagueoflegendsRouter = require("./routes/leagueoflegendsRoutes");
+const fortniteRouter = require("./routes/fortniteRoutes");
+const brawlstarsRouter = require("./routes/brawlstarsRoutes");
 const userRouter = require("./routes/userRoutes");
 const gameAccountsRouter = require("./routes/gameAccounts");
 const walletRouter = require("./routes/walletRoutes");
@@ -37,6 +41,10 @@ app.use((req, res, next) => {
 
 // 2) Routes
 app.use("/valorant", valorantRouter);
+app.use("/clashofclans", clashofclansRouter);
+app.use("/leagueoflegends", leagueoflegendsRouter);
+app.use("/fortnite", fortniteRouter);
+app.use("/brawlstars", brawlstarsRouter);
 app.use("/users", userRouter);
 app.use("/gameAccounts", gameAccountsRouter);
 app.use("/wallet", walletRouter);

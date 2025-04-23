@@ -616,17 +616,88 @@
   background-color: #0a0c16;
 }
 
+.pt-games-slider-container {
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 3rem;
+}
+
+.pt-slider-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: rgba(30, 136, 229, 0.8);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.pt-slider-button:hover {
+  background-color: #1e88e5;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.pt-slider-button-left {
+  left: 0;
+}
+
+.pt-slider-button-right {
+  right: 0;
+}
+
+.pt-slider-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
 .pt-games-slider {
   display: flex;
   overflow-x: auto;
-  gap: 1rem;
+  gap: 1.5rem;
   padding: 1.5rem 0;
   -ms-overflow-style: none;
   scrollbar-width: none;
+  scroll-behavior: smooth;
 }
 
 .pt-games-slider::-webkit-scrollbar {
   display: none;
+}
+
+.pt-slider-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.pt-slider-indicator {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.pt-slider-indicator:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.pt-slider-indicator.pt-active {
+  background-color: #1e88e5;
+  transform: scale(1.2);
 }
 
 .pt-game-card {
@@ -635,12 +706,42 @@
   height: 16rem;
   border-radius: 0.5rem;
   overflow: hidden;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.pt-game-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
 .pt-game-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.pt-game-card:hover .pt-game-image {
+  transform: scale(1.1);
+}
+
+.pt-game-name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  color: white;
+  padding: 1rem 0.5rem 0.5rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.pt-game-card:hover .pt-game-name {
+  opacity: 1;
 }
 
 /* Fast and Easy */

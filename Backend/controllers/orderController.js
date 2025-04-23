@@ -108,8 +108,20 @@ exports.getOrdersBySellerId = catchAsync(async (req, res, next) => {
     );
   }
 
+  // Pagination parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 12;
+  const skip = (page - 1) * limit;
+
+  // Get total count for pagination
+  const totalOrders = await Orders.countDocuments({ sellerID: sellerId });
+  const totalPages = Math.ceil(totalOrders / limit);
+
+  // Get paginated orders
   const orders = await Orders.find({ sellerID: sellerId })
     .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
     .populate({
       path: "accountID",
       select: "title gameType",
@@ -152,6 +164,9 @@ exports.getOrdersBySellerId = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     results: formattedOrders.length,
+    totalOrders,
+    totalPages,
+    currentPage: page,
     data: formattedOrders,
   });
 });
