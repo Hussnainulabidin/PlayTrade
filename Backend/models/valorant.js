@@ -6,10 +6,10 @@ const valorantSchema = new mongoose.Schema({
     type: String,
     required: [true, "A valorant account must have a title"],
   },
-  slug : String,
+  slug: String,
   description: {
-    type : String,
-    maxlength : [2048 , "Description length can not exceed the limit 2048"]
+    type: String,
+    maxlength: [2048, "Description length can not exceed the limit 2048"]
   },
   price: {
     type: Number,
@@ -33,23 +33,23 @@ const valorantSchema = new mongoose.Schema({
     current_rank: {
       type: String,
       required: [true, "A valorant account must have a current rank"],
-      enum:  {
-        values : ["Unranked", "Iron", "Bronze", "Silver", "Gold" , "Platinum", "Diamond", "Ascendent", "Immortal", "Radiant"],
-        message : "You must provide a correct RANK value"
+      enum: {
+        values: ["Unranked", "Iron", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Ascendent", "Immortal", "Radiant"],
+        message: "You must provide a correct RANK value"
       },
       default: "Unranked",
     },
     level: {
-      type : Number,
-      default : 1
+      type: Number,
+      default: 1
     },
-    valorant_points: { 
-      type : Number,
-      default : 0
+    valorant_points: {
+      type: Number,
+      default: 0
     },
-    radianite_points: { 
-      type : Number,
-      default : 0
+    radianite_points: {
+      type: Number,
+      default: 0
     },
     server: {
       type : String,
@@ -58,7 +58,7 @@ const valorantSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["draft" ,"active", "sold"],
+    enum: ["draft", "active", "sold"],
     default: "draft",
   },
   lastUpdated: {
@@ -73,7 +73,7 @@ const valorantSchema = new mongoose.Schema({
     ref: "user", // References the User model
     required: [true, "A valorant account must belong to a user"],
   },
-} , {
+}, {
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
 });
@@ -94,7 +94,7 @@ valorantSchema.virtual('timeSinceLastUpdated').get(function () {
   const diffMs = now - this.lastUpdated;
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMinutes / 60);
-  
+
   if (diffHours >= 24) {
     const diffDays = Math.floor(diffHours / 24);
     return `${diffDays} day(s)`;
@@ -105,6 +105,6 @@ valorantSchema.virtual('timeSinceLastUpdated').get(function () {
   }
 });
 
-const valorant = mongoose.model("valorant", valorantSchema , "valorant");
+const valorant = mongoose.model("valorant", valorantSchema, "valorant");
 
 module.exports = valorant;

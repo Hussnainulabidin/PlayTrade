@@ -128,13 +128,12 @@ export function SellersList() {
                 <td className="table-cell">{seller.name ? (seller.name.length > 50 ? seller.name.substring(0, 50) + '...' : seller.name) : ''}</td>
                 <td className="table-cell">{seller.email ? (seller.email.length > 50 ? seller.email.substring(0, 50) + '...' : seller.email) : ''}</td>
                 <td className="table-cell">
-                  <span className={`status-badge ${
-                    seller.status === "Active"
+                  <span className={`status-badge ${seller.status === "Active"
                       ? "badge-listed"
                       : seller.status === "Suspended"
-                      ? "badge-draft"
-                      : "badge-other"
-                  }`}>
+                        ? "badge-draft"
+                        : "badge-other"
+                    }`}>
                     {seller.status}
                   </span>
                 </td>
@@ -146,7 +145,7 @@ export function SellersList() {
                   <button className="action-icon-button">
                     <Edit className="action-icon" size={18} />
                   </button>
-                  <button 
+                  <button
                     className="action-icon-button"
                     onClick={(e) => handleDropdownClick(seller.id, e)}
                   >

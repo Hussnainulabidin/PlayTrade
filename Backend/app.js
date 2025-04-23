@@ -52,7 +52,7 @@ app.use("/orders", orderRouter);
 app.use("/chats", chatRouter);
 app.use("/tickets", ticketRouter);
 app.all("*", (req, res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on the server` , 404))
+  next(new AppError(`Can't find ${req.originalUrl} on the server`, 404))
 });
 
 app.use(globalErrorHandler);

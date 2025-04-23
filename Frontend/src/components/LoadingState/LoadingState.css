@@ -1,0 +1,34 @@
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #0d1117;
+    color: #c9d1d9;
+}
+
+.loader-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(31, 111, 235, 0.2);
+    border-radius: 50%;
+    border-top-color: #1f6feb;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+.loader-text {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
