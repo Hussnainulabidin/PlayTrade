@@ -1,6 +1,6 @@
 import "./GameIcon.css"
 import pubgIcon from './../../../public/images/na.avif'; // Update with your actual image path
-import valorantIcon from './../../../public/images/valo.png'; // Update with your actual image path
+import valorantIcon from './../../../public/images/Valo.png'; // Update with your actual image path
 import cocIcon from './../../../public/images/coc-icon.png'; // Update with your actual image path
 
 const GameIcon = ({ game }) => {
