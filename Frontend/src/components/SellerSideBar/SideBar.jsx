@@ -12,7 +12,7 @@ import {
     Settings,
     Ticket,
 } from "lucide-react"
-import "./Sidebar.css"
+import "./SideBar.css"
 
 import { FiMessageSquare } from 'react-icons/fi';
 
