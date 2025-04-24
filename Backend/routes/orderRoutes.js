@@ -17,7 +17,11 @@ router.route("/").get(authController.restrictTo("admin"),orderController.getAllO
 // Get specific order by ID - any authenticated user can access if they are buyer or seller
 router.route("/myorder/:id").get(orderController.getOrderById);
 
+// Mark order as received
 router.route("/:id/mark-received").post(orderController.markOrderAsReceived);
+
+// Cancel an order - restricted to the seller who owns the order
+router.route("/:id/cancel").post(orderController.cancelOrder);
 
 // Refund an order - restricted to admin only
 router.route("/:id/refund")
@@ -31,5 +35,12 @@ router.route("/:id/create-chat").post(
   authController.restrictTo("admin", "seller"),
   orderController.createChatForOrder
 );
+
+/**
+ * @route   POST /orders/:id/feedback
+ * @desc    Submit feedback for an order
+ * @access  Private (authenticated client only)
+ */
+router.post('/:id/feedback', orderController.submitFeedback);
 
 module.exports = router;

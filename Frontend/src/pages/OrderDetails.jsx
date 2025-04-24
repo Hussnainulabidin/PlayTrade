@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronRight, Paperclip, SmilePlus } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Paperclip, SmilePlus, ThumbsUp, ThumbsDown, X } from 'lucide-react';
 import axios from 'axios';
 import useChat from '../hooks/useChat';
 import './OrderDetails.css';
@@ -10,6 +10,10 @@ function OrderDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackType, setFeedbackType] = useState(null);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   
@@ -79,7 +83,9 @@ function OrderDetails() {
     try {
       const response = await axios.post(
         `http://localhost:3003/orders/${orderData.id}/mark-received`,
-        {},
+        {
+          sendChatMessage: false // Do not send any system message to the chat
+        },
         {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -105,8 +111,13 @@ function OrderDetails() {
 
   const handleCancelOrder = async () => {
     try {
+      // Ask for confirmation before cancelling
+      if (!window.confirm("Are you sure you want to cancel this order? This will:\n- Return the full payment to the customer\n- Change your account status back to active\n- Record the refund in wallet history\n\nThis action cannot be undone.")) {
+        return;
+      }
+      
       const response = await axios.post(
-        `http://localhost:3003/orders/${orderData.id}/cancel`,
+        `http://localhost:3003/orders/${orderData.id}/refund`,
         {},
         {
           headers: {
@@ -116,15 +127,18 @@ function OrderDetails() {
       );
       
       if (response.data.status === 'success') {
-        // Update the order status locally
+        // Update the local state
         setOrderData(prev => ({
           ...prev,
-          status: 'cancelled'
+          status: 'refunded'
         }));
+        
+        // Display success message
+        alert('Order has been cancelled successfully. The buyer has been refunded.');
       }
     } catch (err) {
       console.error('Error cancelling order:', err);
-      alert('Failed to cancel order. Please try again.');
+      alert(`Failed to cancel order: ${err.response?.data?.message || 'Unknown error'}`);
     }
   };
 
@@ -153,9 +167,58 @@ function OrderDetails() {
     }
   };
 
-  const handleGiveFeedback = async () => {
-    // Navigate to feedback page with order ID
-    navigate(`/feedback/${orderData.id}`);
+  const handleGiveFeedback = () => {
+    // Open the feedback modal instead of navigating
+    setShowFeedbackModal(true);
+  };
+  
+  const handleCloseFeedbackModal = () => {
+    setShowFeedbackModal(false);
+    setFeedbackType(null);
+    setFeedbackMessage('');
+  };
+  
+  const handleSubmitFeedback = async () => {
+    // Validate input
+    if (!feedbackType) {
+      alert('Please select a feedback type (Positive or Negative)');
+      return;
+    }
+    
+    try {
+      setSubmittingFeedback(true);
+      
+      const response = await axios.post(
+        `http://localhost:3003/orders/${orderData.id}/feedback`,
+        {
+          review: feedbackType,
+          reviewMessage: feedbackMessage
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      
+      if (response.data.status === 'success') {
+        // Update local order data with the feedback
+        setOrderData(prev => ({
+          ...prev,
+          review: feedbackType,
+          reviewMessage: feedbackMessage
+        }));
+        
+        // Close the modal and show success message
+        setShowFeedbackModal(false);
+        alert('Thank you for your feedback!');
+      }
+    } catch (err) {
+      console.error('Error submitting feedback:', err);
+      alert(`Failed to submit feedback: ${err.response?.data?.message || 'Unknown error'}`);
+    } finally {
+      setSubmittingFeedback(false);
+    }
   };
   
   if (loading) {
@@ -193,6 +256,73 @@ function OrderDetails() {
 
   return (
     <div className="order-container">
+      {/* Feedback Modal */}
+      {showFeedbackModal && (
+        <div className="feedback-modal-overlay">
+          <div className="feedback-modal">
+            <div className="feedback-modal-header">
+              <h3>Leave Your Feedback</h3>
+              <button 
+                className="close-modal-btn" 
+                onClick={handleCloseFeedbackModal}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="feedback-type-selection">
+              <p>How was your experience with this order?</p>
+              
+              <div className="feedback-options">
+                <button 
+                  className={`feedback-option positive ${feedbackType === 'positive' ? 'selected' : ''}`}
+                  onClick={() => setFeedbackType('positive')}
+                >
+                  <ThumbsUp size={24} />
+                  <span>Positive</span>
+                </button>
+                
+                <button 
+                  className={`feedback-option negative ${feedbackType === 'negative' ? 'selected' : ''}`}
+                  onClick={() => setFeedbackType('negative')}
+                >
+                  <ThumbsDown size={24} />
+                  <span>Negative</span>
+                </button>
+              </div>
+            </div>
+            
+            <div className="feedback-message">
+              <p>Additional comments (optional):</p>
+              <textarea
+                placeholder="Share your experience..."
+                value={feedbackMessage}
+                onChange={(e) => setFeedbackMessage(e.target.value)}
+                maxLength={100}
+                rows={4}
+              />
+              <small>{feedbackMessage.length}/100 characters</small>
+            </div>
+            
+            <div className="feedback-actions">
+              <button 
+                className="cancel-feedback-btn"
+                onClick={handleCloseFeedbackModal}
+              >
+                Cancel
+              </button>
+              <button 
+                className="submit-feedback-btn"
+                onClick={handleSubmitFeedback}
+                disabled={!feedbackType || submittingFeedback}
+              >
+                {submittingFeedback ? 'Submitting...' : 'Submit Feedback'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="order-wrapper">
         <div className="order-main">
           {/* Header */}
@@ -349,11 +479,25 @@ function OrderDetails() {
                       </button>
                     ) : (
                       <div className="buyer-actions">
-                        {orderData.status === 'completed' || orderData.status === 'refunded' ? (
+                        {orderData.status === 'refunded' || orderData.status === 'completed' ? (
+                          // For completed or refunded orders
+                          <>
+                            {/* Only hide feedback button if feedback exists */}
+                            {!orderData.review && (
                           <button className="feedback-btn" onClick={handleGiveFeedback}>
                             Give Feedback
                           </button>
+                            )}
+                            
+                            {/* Always show dispute button for completed orders, never for refunded */}
+                            {orderData.status === 'completed' && (
+                              <button className="dispute-btn" onClick={handleDispute}>
+                                Dispute Order
+                              </button>
+                            )}
+                          </>
                         ) : (
+                          // Original code for processing orders
                           <>
                             <button className="receive-btn" onClick={handleMarkAsReceived}>
                               Mark as Received
@@ -370,6 +514,29 @@ function OrderDetails() {
                   </div>
                 )}
             </div>
+
+            {/* Display feedback if it exists */}
+            {orderData.review && (
+              <div className={`feedback-display ${orderData.review === 'positive' ? 'positive' : 'negative'}`}>
+                <div className="feedback-display-header">
+                  <div className="feedback-icon">
+                    {orderData.review === 'positive' ? (
+                      <ThumbsUp size={20} />
+                    ) : (
+                      <ThumbsDown size={20} />
+                    )}
+                  </div>
+                  <div className="feedback-title">
+                    <h3>{orderData.review === 'positive' ? 'Positive Feedback' : 'Negative Feedback'}</h3>
+                  </div>
+                </div>
+                {orderData.reviewMessage && (
+                  <div className="feedback-content">
+                    <p>&ldquo;{orderData.reviewMessage}&rdquo;</p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Chat Section */}
             <div className="chat-section">
@@ -517,34 +684,23 @@ function OrderDetails() {
               {/* Divider */}
               <div className="section-divider"></div>
 
-              {/* Account Data */}
-              {orderData.account?.accountData?.current_rank && (
-                <div className="detail-row">
-                  <span className="detail-label">Rank</span>
-                  <span>{orderData.account.accountData.current_rank}</span>
-                </div>
+              {/* Account Data - Dynamically displayed based on game type */}
+              {orderData.account?.accountData && (
+                <>
+                  <h4 className="account-data-title">Account Details</h4>
+                  {Object.entries(orderData.account.accountData).map(([key, value]) => (
+                    <div className="detail-row" key={key}>
+                      <span className="detail-label">
+                        {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                      </span>
+                      <span className="detail-value">{value}</span>
+                    </div>
+                  ))}
+                  
+                  {/* Divider after account data */}
+                  <div className="section-divider"></div>
+                </>
               )}
-              {orderData.account?.accountData?.level && (
-                <div className="detail-row">
-                  <span className="detail-label">Level</span>
-                  <span>{orderData.account.accountData.level}</span>
-                </div>
-              )}
-              {orderData.account?.accountData?.valorant_points != null && (
-                <div className="detail-row">
-                  <span className="detail-label">Valorant Points</span>
-                  <span>{orderData.account.accountData.valorant_points}</span>
-                </div>
-              )}
-              {orderData.account?.accountData?.radianite_points != null && (
-                <div className="detail-row">
-                  <span className="detail-label">Radianite Points</span>
-                  <span>{orderData.account.accountData.radianite_points}</span>
-                </div>
-              )}
-              
-              {/* Divider */}
-              <div className="section-divider"></div>
               
               {/* Buyer/Seller Info */}
               <div className="detail-row">
@@ -565,36 +721,36 @@ function OrderDetails() {
 
           {/* Payment Details - only show to seller */}
           {localStorage.getItem('userId') !== orderData?.buyer?.id && (
-            <div className="sidebar-card">
-              <h3 className="card-title">Payment details</h3>
-              <div className="detail-rows">
-                <div className="detail-row">
-                  <span className="detail-label">Order Price</span>
-                  <span>${orderData.payment?.orderPrice.toFixed(2)}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Commission</span>
-                  <span className="commission-amount">-${orderData.payment?.commission?.amount}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">You receive</span>
-                  <span>${orderData.payment?.sellerReceives}</span>
-                </div>
+          <div className="sidebar-card">
+            <h3 className="card-title">Payment details</h3>
+            <div className="detail-rows">
+              <div className="detail-row">
+                <span className="detail-label">Order Price</span>
+                <span>${orderData.payment?.orderPrice.toFixed(2)}</span>
               </div>
-              <p className="info-text">
-                Funds will be automatically added to your balance after 1 day.
-              </p>
-              <p className="info-text margin-top">
-                If the buyer confirms delivery, funds will be added to your balance immediately.
-              </p>
-              <div className="help-box">
-                <p className="help-text">
-                  Learn more in our FAQ.
-                  <br />
-                  Chat with PlayTrade Support, we&apos;re available 24/7.
-                </p>
+              <div className="detail-row">
+                <span className="detail-label">Commission</span>
+                <span className="commission-amount">-${orderData.payment?.commission?.amount}</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">You receive</span>
+                <span>${orderData.payment?.sellerReceives}</span>
               </div>
             </div>
+            <p className="info-text">
+              Funds will be automatically added to your balance after 1 day.
+            </p>
+            <p className="info-text margin-top">
+              If the buyer confirms delivery, funds will be added to your balance immediately.
+            </p>
+            <div className="help-box">
+              <p className="help-text">
+                Learn more in our FAQ.
+                <br />
+                Chat with PlayTrade Support, we&apos;re available 24/7.
+              </p>
+            </div>
+          </div>
           )}
         </div>
       </div>
