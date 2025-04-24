@@ -11,11 +11,11 @@ const walletActions = require("../models/wallet");
 
 // Import all game models with error handling
 let PUBG, Fortnite, LeagueOfLegends, BrawlStars;
-try {
-  PUBG = require("../models/pubg");
-} catch (err) {
-  console.warn("PUBG model not found:", err.message);
-}
+// try {
+//   PUBG = require("../models/pubg");
+// } catch (err) {
+//   console.warn("PUBG model not found:", err.message);
+// }
 
 try {
   Fortnite = require("../models/fortnite");
