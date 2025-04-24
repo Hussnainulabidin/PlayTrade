@@ -1,4 +1,4 @@
-.accounts-table {
+.accounts-table-seller {
     display: flex;
     flex-direction: column;
     border: 1px solid #30363d;
@@ -6,7 +6,7 @@
     overflow: hidden;
 }
 
-.table-header {
+.table-header-seller {
     display: flex;
     background-color: #161b22;
     padding: 12px 16px;
@@ -17,7 +17,7 @@
     align-items: center;
 }
 
-.table-body {
+.table-body-seller {
     display: flex;
     flex-direction: column;
 }

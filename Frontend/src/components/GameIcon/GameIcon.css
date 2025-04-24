@@ -2,22 +2,30 @@
     width: 32px;
     height: 32px;
     border-radius: 6px;
+    overflow: hidden;
+    background-color: #1a172b;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+}
+
+.game-icon-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
 }
 
 .pubg-icon {
-    background-color: #2d6a4f;
+    background-color: transparent;
 }
 
 .valorant-icon {
-    background-color: #9d0208;
+    background-color: transparent;
 }
 
 .coc-icon {
-    background-color: #ffc300;
+    background-color: transparent;
 }
 
 .default-icon {

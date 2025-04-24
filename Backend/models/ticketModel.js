@@ -40,7 +40,7 @@ ticketSchema.index({ status: 1 });
 ticketSchema.index({ assignedAdmin: 1 });
 
 // Update lastActivity whenever the ticket is modified
-ticketSchema.pre('save', function(next) {
+ticketSchema.pre('save', function (next) {
   this.lastActivity = Date.now();
   next();
 });

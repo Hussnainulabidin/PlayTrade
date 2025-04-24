@@ -13,6 +13,7 @@ exports.createTicket = catchAsync(async (req, res, next) => {
 
   // Create the ticket
   const ticket = await Ticket.create({
+    
     sellerId: userId, // Use userId for both sellers and clients
     ticketType: ticketType
   });

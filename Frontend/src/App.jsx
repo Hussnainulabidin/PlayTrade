@@ -11,6 +11,7 @@ import OrdersPage from "./pages/OrdersPage"
 import OrderDetailPage from "./pages/OrderDetails"
 import TicketsPage from "./pages/AdminDashboardTicketsPage"
 import TicketDetailPage from "./pages/TicketDetail"
+import SellerTicketDetailPage from "./pages/SellerTicketDetail"
 import ValorantPage from "./pages/valorant"
 import FortnitePage from "./pages/fortnite"
 import LeaguePage from "./pages/League"
@@ -18,13 +19,8 @@ import CocPage from "./pages/coc"
 import BrawlPage from "./pages/Brawl"
 import AccountsLayout from "./pages/AccountsLayout"
 import AdminChatPage from "./pages/AdminDashboardChatPage"
-<<<<<<< HEAD
-import AdminSettingsPage from "./pages/SettingPage"
-=======
 import Valorant from "./components/Accounts/Valorant/Valorant"
 import ValorantDetail from "./components/Accounts/Valorant/Valorant-detail"
-import AccountsSupport from "./pages/AccountsSupport"
->>>>>>> 5be5e26bddf25f8149f20fafb36b168d7bfca2c3
 import "./App.css"
 import "./components/AdminDashboard/ui.css"
 
@@ -42,11 +38,14 @@ const App = () => {
             <Route path="brawlstars/*" element={<BrawlPage />} />
           </Route>
           <Route path="/order/:id" element={<OrderDetailPage />} />
-          <Route path="/tickets/:id" element={<TicketDetailPage />}/>
+          <Route path="/tickets/:id" element={<TicketDetailPage />} />
           <Route path="/admin/tickets" element={
             <DashboardLayout>
               <TicketsPage />
             </DashboardLayout>
+          }
+          />
+
           }/>
           
           <Route path="/admin/orders" element={
@@ -89,6 +88,51 @@ const App = () => {
               <SellerOrdersPage />
             </DashboardLayout>
           } />
+
+          //Seller Dashboard Routes
+          <Route path="/seller/dashboard/accounts"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardAccountsPage />
+              </SellerDashboardLayout>
+            }
+          />
+          <Route path="/seller-dashboard/account-imports"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardAccountsPage />
+              </SellerDashboardLayout>
+            }
+          />
+          <Route path="/seller-dashboard/chats"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardChatPage />
+              </SellerDashboardLayout>
+            }
+          />
+          <Route path="/seller-dashboard/tickets"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardTicketsPage />
+              </SellerDashboardLayout>
+            }
+          />
+          <Route path="/seller-tickets/:id" element={<SellerTicketDetailPage />} />
+          <Route path="/seller-dashboard/tickets/new"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardCreateTicketPage />
+              </SellerDashboardLayout>
+            }
+          />
+          <Route path="/seller-dashboard/settings"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardAccountsPage />
+              </SellerDashboardLayout>
+            }
+          />
           <Route path="/accounts/valorant/support" element={<AccountsSupport />} />
           <Route path="/accounts/fortnite/support" element={<AccountsSupport />} />
           <Route path="/accounts/leagueoflegends/support" element={<AccountsSupport />} />
