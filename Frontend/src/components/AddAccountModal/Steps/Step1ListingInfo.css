@@ -98,3 +98,33 @@
     font-size: 14px;
     margin-bottom: 8px;
 }
+
+/* Scrollbar Styles */
+.step-content {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.step-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.step-content::-webkit-scrollbar-track {
+    background: #2a2438;
+    border-radius: 4px;
+}
+
+.step-content::-webkit-scrollbar-thumb {
+    background: #3a3448;
+    border-radius: 4px;
+}
+
+.step-content::-webkit-scrollbar-thumb:hover {
+    background: #4a4458;
+}
+
+/* For Firefox */
+.step-content {
+    scrollbar-width: thin;
+    scrollbar-color: #3a3448 #2a2438;
+}

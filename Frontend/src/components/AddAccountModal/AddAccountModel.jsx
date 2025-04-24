@@ -12,7 +12,7 @@ import Step2FortniteData from "./Steps/Step2FortniteData"
 import Step2LeagueOfLegendsData from "./Steps/Step2LeagueOfLegendsData"
 import Step3Credentials from "./Steps/Step3Credentials"
 
-const AddAccountModal = ({ isOpen, onClose }) => {
+const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) => {
     const [currentStep, setCurrentStep] = useState(1)
     const [formData, setFormData] = useState({
         // Step 1: Listing Info
@@ -70,6 +70,52 @@ const AddAccountModal = ({ isOpen, onClose }) => {
     const [errors, setErrors] = useState({})
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitError, setSubmitError] = useState(null)
+
+    // Initialize form data when initialData changes
+    useEffect(() => {
+        if (initialData) {
+            setFormData({
+                title: initialData.title || "",
+                slug: initialData.slug || "",
+                price: initialData.price || "",
+                gameType: initialData.gameType || "Valorant",
+                description: initialData.description || "",
+                gallery: initialData.gallery || [],
+                server: initialData.server || "",
+                current_rank: initialData.account_data?.current_rank || "Unranked",
+                level: initialData.account_data?.level || 1,
+                valorant_points: initialData.account_data?.valorant_points || 0,
+                radianite_points: initialData.account_data?.radianite_points || 0,
+                town_hall_level: initialData.account_data?.town_hall_level || "",
+                builder_hall_level: initialData.account_data?.builder_hall_level || "",
+                gems: initialData.account_data?.gems || 0,
+                trophies: initialData.account_data?.trophies || 0,
+                clan: initialData.account_data?.clan || "",
+                trophy_range: initialData.account_data?.trophy_range || "",
+                brawlers_unlocked: initialData.account_data?.brawlers_unlocked || 0,
+                club: initialData.account_data?.club || "",
+                platform: initialData.account_data?.platform || "",
+                region: initialData.account_data?.region || "",
+                account_level: initialData.account_data?.account_level || 1,
+                vbucks: initialData.account_data?.vbucks || 0,
+                skins: initialData.account_data?.skins || 0,
+                battle_pass: initialData.account_data?.battle_pass || "",
+                rank: initialData.account_data?.rank || "",
+                division: initialData.account_data?.division || "",
+                blue_essence: initialData.account_data?.blue_essence || 0,
+                rp: initialData.account_data?.rp || 0,
+                champions: initialData.account_data?.champions || 0,
+                login: initialData.login || "",
+                password: initialData.password || "",
+                email_login: initialData.email_login || "",
+                email_password: initialData.email_password || "",
+                in_game_name: initialData.ign || "",
+                has_2fa: initialData.has_2fa || false,
+                delivery_instructions: initialData.delivery_instructions || "",
+                delivery_type: initialData.delivery_type || "instant"
+            })
+        }
+    }, [initialData])
 
     // Close modal on escape key
     useEffect(() => {
@@ -251,16 +297,42 @@ const AddAccountModal = ({ isOpen, onClose }) => {
                         level: parseInt(formData.level),
                         blue_essence: parseInt(formData.blue_essence),
                         rp: parseInt(formData.rp),
-                        champions: parseInt(formData.champions),
-                        skins: parseInt(formData.skins)
+                        champions: parseInt(formData.champions)
                     }
-                    break
-                default:
                     break
             }
 
-            const response = await axios.post(`http://localhost:3003/${formData.gameType.toLowerCase().replace(/\s+/g, '-')}/`, accountData)
-            console.log(response)
+            // Add 2FA status
+            accountData.has_2fa = formData.has_2fa
+
+            // Add delivery type
+            accountData.delivery_type = formData.delivery_type
+
+            if (isEditMode && initialData) {
+                // Update existing account
+                const response = await axios.patch(
+                    `http://localhost:3003/gameAccounts/${initialData._id}`,
+                    accountData,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    }
+                )
+                console.log('Account updated successfully:', response.data)
+            } else {
+                // Create new account
+                const response = await axios.post(
+                    'http://localhost:3003/gameAccounts',
+                    accountData,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    }
+                )
+                console.log('Account created successfully:', response.data)
+            }
 
             // Close modal and reset form on success
             onClose()
@@ -307,8 +379,8 @@ const AddAccountModal = ({ isOpen, onClose }) => {
             setCurrentStep(1)
 
         } catch (error) {
-            console.error("Error creating account:", error)
-            setSubmitError(error.response?.data?.message || "Failed to create account. Please try again.")
+            console.error("Error creating/updating account:", error)
+            setSubmitError(error.response?.data?.message || "Failed to create/update account. Please try again.")
         } finally {
             setIsSubmitting(false)
         }
@@ -320,7 +392,7 @@ const AddAccountModal = ({ isOpen, onClose }) => {
         <div className="modal-overlay">
             <div className="modal-container">
                 <div className="modal-header">
-                    <h2>Add new Account</h2>
+                    <h2>{isEditMode ? "Edit Account" : "Add new Account"}</h2>
                     <button className="close-button" onClick={onClose}>
                         <X size={20} />
                     </button>
@@ -425,7 +497,7 @@ const AddAccountModal = ({ isOpen, onClose }) => {
                             onClick={handleSubmit}
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? "Saving..." : "Add Account"}
+                            {isSubmitting ? "Saving..." : isEditMode ? "Update Account" : "Add Account"}
                         </button>
                     )}
                 </div>
