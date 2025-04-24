@@ -87,21 +87,21 @@ function TicketsPage() {
           />
         </div>
       </div>
-      
+
       <div className="filter-buttons-left">
-        <button 
+        <button
           className={`filter-button ${activeFilter === 'all' ? 'active' : ''}`}
           onClick={() => setActiveFilter('all')}
         >
           All Tickets
         </button>
-        <button 
+        <button
           className={`filter-button ${activeFilter === 'mytickets' ? 'active' : ''}`}
           onClick={() => setActiveFilter('mytickets')}
         >
           My Tickets
         </button>
-        <button 
+        <button
           className={`filter-button ${activeFilter === 'unattended' ? 'active' : ''}`}
           onClick={() => setActiveFilter('unattended')}
         >
@@ -138,24 +138,22 @@ function TicketsPage() {
                   )}
                 </td>
                 <td className="table-cell">
-                  <span className={`status-badge ${
-                    ticket.ticketType === "Marketplace Issue"
+                  <span className={`status-badge ${ticket.ticketType === "Marketplace Issue"
                       ? "badge-purple"
                       : ticket.ticketType === "Order Issue"
-                      ? "badge-blue"
-                      : "badge-gray"
-                  }`}>
+                        ? "badge-blue"
+                        : "badge-gray"
+                    }`}>
                     {ticket.ticketType}
                   </span>
                 </td>
                 <td className="table-cell">
-                  <span className={`status-badge ${
-                    ticket.status === "Open"
+                  <span className={`status-badge ${ticket.status === "Open"
                       ? "badge-listed"
                       : ticket.status === "In Progress"
-                      ? "badge-draft"
-                      : "badge-other"
-                  }`}>
+                        ? "badge-draft"
+                        : "badge-other"
+                    }`}>
                     {ticket.status}
                   </span>
                 </td>
@@ -176,7 +174,7 @@ function TicketsPage() {
                 <td className="table-cell">{new Date(ticket.lastActivity).toLocaleDateString()}</td>
                 <td className="table-cell actions-cell">
                   {!ticket.assignedAdmin && (
-                    <button 
+                    <button
                       className="action-icon-button join-button"
                       onClick={() => handleJoinTicket(ticket._id)}
                       title="Join Ticket"

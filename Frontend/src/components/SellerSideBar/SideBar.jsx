@@ -9,8 +9,12 @@ import {
     Wallet,
     Gamepad2,
     ComputerIcon as Steam,
+    Settings,
+    Ticket,
 } from "lucide-react"
 import "./Sidebar.css"
+
+import { FiMessageSquare } from 'react-icons/fi';
 
 const Sidebar = () => {
     const location = useLocation()
@@ -29,46 +33,23 @@ const Sidebar = () => {
             </div>
 
             <nav className="sidebar-nav">
-                <Link to="/seller-dashboard/accounts" className={`nav-item ${isActive("/accounts") ? "active" : ""}`}>
+                <Link to="/seller/dashboard/accounts" className={`nav-item ${isActive("/accounts") ? "active" : ""}`}>
                     <LayoutDashboard size={18} />
                     <span>Accounts</span>
                 </Link>
-                <Link
-                    to="/seller-dashboard/account-imports"
-                    className={`nav-item ${isActive("/account-imports") ? "active" : ""}`}
-                >
-                    <Upload size={18} />
-                    <span>Account Imports</span>
+                <Link to="/seller-dashboard/chats" className={`nav-item ${isActive("/chats") ? "active" : ""}`}>
+                    <FiMessageSquare size={18} />
+                    <span>Chats</span>
                 </Link>
-                <Link to="/seller-dashboard/items" className={`nav-item ${isActive("/items") ? "active" : ""}`}>
-                    <ShoppingBag size={18} />
-                    <span>Items</span>
-                </Link>
-                <Link to="/seller-dashboard/item-orders" className={`nav-item ${isActive("/item-orders") ? "active" : ""}`}>
-                    <ShoppingCart size={18} />
-                    <span>Item Orders</span>
-                </Link>
-                <Link to="/seller-dashboard/currencies" className={`nav-item ${isActive("/currencies") ? "active" : ""}`}>
-                    <Coins size={18} />
-                    <span>Currencies</span>
+                <Link to="/seller-dashboard/tickets" className={`nav-item ${isActive("/item-orders") ? "active" : ""}`}>
+                    <Ticket size={18} />
+                    <span>Tickets</span>
                 </Link>
                 <Link
-                    to="/seller-dashboard/currency-orders"
-                    className={`nav-item ${isActive("/currency-orders") ? "active" : ""}`}
-                >
-                    <Wallet size={18} />
-                    <span>Currency Orders</span>
-                </Link>
-                <Link to="/seller-dashboard/cs2-skins" className={`nav-item ${isActive("/cs2-skins") ? "active" : ""}`}>
-                    <Gamepad2 size={18} />
-                    <span>CS2 Skins</span>
-                </Link>
-                <Link
-                    to="/seller-dashboard/steam-inventory"
-                    className={`nav-item ${isActive("/steam-inventory") ? "active" : ""}`}
-                >
-                    <Steam size={18} />
-                    <span>Steam Inventory</span>
+                    to="/seller-dashboard/settings"
+                    className={`nav-item ${isActive("/settings") ? "active" : ""}`}>
+                    <Settings size={18} />
+                    <span>Settings</span>
                 </Link>
             </nav>
         </div>

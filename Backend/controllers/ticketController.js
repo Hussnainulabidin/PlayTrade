@@ -13,8 +13,8 @@ exports.createTicket = catchAsync(async (req, res, next) => {
 
   // Create the ticket first
   const ticket = await Ticket.create({
-    sellerId : sellerId,
-    ticketType : ticketType
+    sellerId: sellerId,
+    ticketType: ticketType
   });
 
   // Create a new chat for the ticket with the ticketId

@@ -229,7 +229,7 @@ function TicketDetailPage() {
   }
 
   const handleGoBack = () => {
-    navigate('/dashboard/tickets')
+    navigate('/seller-dashboard/tickets')
   }
 
   // Helper function to format date

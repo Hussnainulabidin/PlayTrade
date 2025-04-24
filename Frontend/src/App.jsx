@@ -8,12 +8,15 @@ import SellerListingsPage from "./pages/AdminDashboardSellerListing"
 import SellerWalletPage from "./pages/AdminDashboardSellerWallet"
 import SellerOrdersPage from "./pages/AdminDasboardSellerOrders"
 import SellerDashboardAccountsPage from "./pages/SellerDashboardAccountsPage"
-import SellerDashboardAccountImportsPage from "./pages/SellerDashboardAccountImportsPage"
+import SellerDashboardTicketsPage from "./pages/SellerDashboardTicketsPage"
+import SellerDashboardCreateTicketPage from "./pages/SellerDashboardCreateTicketPage"
+import SellerDashboardChatPage from "./pages/SellerDashboardChatPage"
 import SellerDashboardLayout from "./components/layouts/SellerDashboardLayout"
 import OrdersPage from "./pages/OrdersPage"
 import OrderDetailPage from "./pages/OrderDetails"
 import TicketsPage from "./pages/AdminDashboardTicketsPage"
 import TicketDetailPage from "./pages/TicketDetail"
+import SellerTicketDetailPage from "./pages/SellerTicketDetail"
 import ValorantPage from "./pages/valorant"
 import AccountsLayout from "./pages/AccountsLayout"
 import AdminChatPage from "./pages/AdminDashboardChatPage"
@@ -30,14 +33,14 @@ const App = () => {
             <Route path="valorant/*" element={<ValorantPage />} />
           </Route>
           <Route path="/order/:id" element={<OrderDetailPage />} />
-          <Route path="/tickets/:id" element={<TicketDetailPage />}/>
+          <Route path="/tickets/:id" element={<TicketDetailPage />} />
           <Route path="/admin/tickets" element={
             <DashboardLayout>
               <TicketsPage />
             </DashboardLayout>
           }
           />
-          
+
           <Route path="/admin/orders" element={
             <DashboardLayout>
               <OrdersPage />
@@ -73,6 +76,51 @@ const App = () => {
               <SellerOrdersPage />
             </DashboardLayout>
           } />
+
+          //Seller Dashboard Routes
+          <Route path="/seller/dashboard/accounts"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardAccountsPage />
+              </SellerDashboardLayout>
+            }
+          />
+          <Route path="/seller-dashboard/account-imports"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardAccountsPage />
+              </SellerDashboardLayout>
+            }
+          />
+          <Route path="/seller-dashboard/chats"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardChatPage />
+              </SellerDashboardLayout>
+            }
+          />
+          <Route path="/seller-dashboard/tickets"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardTicketsPage />
+              </SellerDashboardLayout>
+            }
+          />
+          <Route path="/seller-tickets/:id" element={<SellerTicketDetailPage />} />
+          <Route path="/seller-dashboard/tickets/new"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardCreateTicketPage />
+              </SellerDashboardLayout>
+            }
+          />
+          <Route path="/seller-dashboard/settings"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardAccountsPage />
+              </SellerDashboardLayout>
+            }
+          />
         </Routes>
       </Router>
     </UserProvider>

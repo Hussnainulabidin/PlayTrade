@@ -8,7 +8,7 @@ const router = express.Router();
 router.use(authController.protect);
 
 // Admin only routes
-router.use(authController.restrictTo('admin' , 'seller'));
+router.use(authController.restrictTo('admin', 'seller'));
 
 // Create ticket
 router.post('/', ticketController.createTicket);

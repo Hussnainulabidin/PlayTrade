@@ -83,13 +83,17 @@ const SellerDashboardAccountsPage = () => {
             <Header title="Accounts" />
             <div className="accounts-container">
                 <FilterBar
+                    className="filter-bar"
                     onSearch={handleSearch}
                     onFilterChange={handleFilterChange}
                     searchQuery={searchQuery}
                     filters={filters}
                 />
-                <AccountsTable accounts={accounts} />
+                <div className="table-container">
+                    <AccountsTable accounts={accounts} />
+                </div>
                 <Pagination
+                    className="pagination-container"
                     currentPage={currentPage}
                     totalPages={totalPages}
                     rowsPerPage={rowsPerPage}
