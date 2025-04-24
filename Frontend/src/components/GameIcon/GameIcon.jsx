@@ -1,4 +1,7 @@
 import "./GameIcon.css"
+import pubgIcon from './../../../public/images/na.avif'; // Update with your actual image path
+import valorantIcon from './../../../public/images/valo.png'; // Update with your actual image path
+import cocIcon from './../../../public/images/coc-icon.png'; // Update with your actual image path
 
 const GameIcon = ({ game }) => {
     const getIconClass = (gameName) => {
@@ -9,25 +12,29 @@ const GameIcon = ({ game }) => {
                 return "valorant-icon"
             case "Clash of Clans":
                 return "coc-icon"
-            default:
-                return "default-icon"
         }
     }
 
-    const getIconContent = (gameName) => {
+    const getIconImage = (gameName) => {
         switch (gameName) {
             case "PUBG Mobile":
-                return "🔫"
+                return pubgIcon;
             case "Valorant":
-                return "🎯"
+                return valorantIcon;
             case "Clash of Clans":
-                return "⚔️"
-            default:
-                return "🎮"
+                return cocIcon;
         }
     }
 
-    return <div className={`game-icon ${getIconClass(game)}`}>{getIconContent(game)}</div>
+    return (
+        <div className={`game-icon ${getIconClass(game)}`}>
+            <img
+                src={getIconImage(game)}
+                alt={game}
+                className="game-icon-image"
+            />
+        </div>
+    )
 }
 
 export default GameIcon

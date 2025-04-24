@@ -229,7 +229,7 @@ function TicketDetailPage() {
   }
 
   const handleGoBack = () => {
-    navigate('/dashboard/tickets')
+    navigate('/seller-dashboard/tickets')
   }
 
   // Helper function to format date
@@ -299,79 +299,7 @@ function TicketDetailPage() {
       return { name: 'Support Team', avatar: 'S', role: 'Support Agent' };
     }
   };
-  
-  const handleCloseTicket = async () => {
-    if (!ticket || !ticket._id) return;
-    
-    try {
-      // Ask for confirmation
-      if (!window.confirm("Are you sure you want to close this ticket?")) {
-        return;
-      }
-      
-      // Call the API to update ticket status
-      const response = await axios.patch(
-        `http://localhost:3003/tickets/${ticket._id}/status`,
-        { status: 'Closed' },
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
-      
-      if (response.data.status === 'success') {
-        // Update the local ticket state
-        setTicket(prevTicket => ({
-          ...prevTicket,
-          status: 'Closed'
-        }));
-        
-        // Optionally show a success message
-        alert("Ticket has been closed successfully");
-      }
-    } catch (error) {
-      console.error('Error closing ticket:', error);
-      alert("Failed to close ticket. Please try again.");
-    }
-  };
-  
-  const handleReopenTicket = async () => {
-    if (!ticket || !ticket._id) return;
-    
-    try {
-      // Ask for confirmation
-      if (!window.confirm("Are you sure you want to reopen this ticket?")) {
-        return;
-      }
-      
-      // Call the API to update ticket status
-      const response = await axios.patch(
-        `http://localhost:3003/tickets/${ticket._id}/status`,
-        { status: 'Open' },
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
-      
-      if (response.data.status === 'success') {
-        // Update the local ticket state
-        setTicket(prevTicket => ({
-          ...prevTicket,
-          status: 'Open'
-        }));
-        
-        // Optionally show a success message
-        alert("Ticket has been reopened successfully");
-      }
-    } catch (error) {
-      console.error('Error reopening ticket:', error);
-      alert("Failed to reopen ticket. Please try again.");
-    }
-  };
-  
+
   if (loading) {
     return (
       <div className="loading-state">
@@ -488,52 +416,30 @@ function TicketDetailPage() {
               <div className="no-messages">No messages yet. Start the conversation!</div>
             ) : (
               messages.map((msg, index) => (
-                <div 
-                  key={index} 
-                  className={`message ${
-                    msg.isSystemMessage 
-                      ? 'system-message' 
-                      : getMessageType(msg) === 'current-user' 
-                        ? 'current-user-message' 
-                        : 'other-user-message'
-                  }`}
+                <div
+                  key={index}
+                  className={`message ${getMessageType(msg) === 'current-user' ? 'current-user-message' : 'other-user-message'}`}
                 >
-                  {!msg.isSystemMessage ? (
-                    <>
-                      <div className="message-avatar">
-                        {getMessageType(msg) === 'current-user' 
-                          ? (localStorage.getItem('username')?.charAt(0).toUpperCase() || 'Y')
-                          : (isCurrentUserAdmin 
-                              ? (ticket.sellerId?.username?.charAt(0).toUpperCase() || 'S') 
-                              : (ticket.assignedAdmin?.username?.charAt(0).toUpperCase() || 'A'))}
-                      </div>
-                      <div className="message-content">
-                        <div className="message-sender">
-                          {getMessageType(msg) === 'current-user' 
-                            ? 'You' 
-                            : (isCurrentUserAdmin 
-                                ? (ticket.sellerId?.username || 'Seller')
-                                : (ticket.assignedAdmin?.username || 'Support Agent'))}
-                        </div>
-                        <p className="message-text">{msg.content}</p>
-                        <div className="message-time" title={formatDetailedDate(msg.timestamp)}>
-                          {formatDate(msg.timestamp)}
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="system-message-content">
-                      <div className="system-message-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM11 7H13V13H11V7ZM11 15H13V17H11V15Z" fill="currentColor"/>
-                        </svg>
-                      </div>
-                      <p className="system-message-text">{msg.content}</p>
-                      <div className="message-time" title={formatDetailedDate(msg.timestamp)}>
-                        {formatDate(msg.timestamp)}
-                      </div>
+                  <div className="message-avatar">
+                    {getMessageType(msg) === 'current-user'
+                      ? (localStorage.getItem('username')?.charAt(0).toUpperCase() || 'Y')
+                      : (isCurrentUserAdmin
+                        ? (ticket.sellerId?.username?.charAt(0).toUpperCase() || 'S')
+                        : (ticket.assignedAdmin?.username?.charAt(0).toUpperCase() || 'A'))}
+                  </div>
+                  <div className="message-content">
+                    <div className="message-sender">
+                      {getMessageType(msg) === 'current-user'
+                        ? 'You'
+                        : (isCurrentUserAdmin
+                          ? (ticket.sellerId?.username || 'Seller')
+                          : (ticket.assignedAdmin?.username || 'Support Agent'))}
                     </div>
-                  )}
+                    <p className="message-text">{msg.content}</p>
+                    <div className="message-time" title={formatDetailedDate(msg.timestamp)}>
+                      {formatDate(msg.timestamp)}
+                    </div>
+                  </div>
                 </div>
               ))
             )}
@@ -621,7 +527,6 @@ function TicketDetailPage() {
                 <Button
                   className="ticket-action-button close-ticket-button"
                   style={{ backgroundColor: '#e74c3c', color: 'white', border: 'none' }}
-                  onClick={handleCloseTicket}
                 >
                   Close Ticket
                 </Button>
@@ -632,7 +537,6 @@ function TicketDetailPage() {
                 <Button
                   className="ticket-action-button reopen-ticket-button"
                   style={{ backgroundColor: '#3498db', color: 'white', border: 'none' }}
-                  onClick={handleReopenTicket}
                 >
                   Reopen Ticket
                 </Button>

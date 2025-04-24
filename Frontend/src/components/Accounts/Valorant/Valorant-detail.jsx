@@ -34,7 +34,7 @@ export default function ValorantDetail() {
 
         if (accountData) {
           setAccount(accountData)
-          
+
           // Fetch seller details if we have a seller ID
           if (accountData.sellerID) {
             try {
@@ -138,7 +138,7 @@ export default function ValorantDetail() {
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div 
+              <div
                 className="flex items-center gap-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:opacity-90"
                 onClick={() => navigate('/')}
               >
@@ -176,7 +176,7 @@ export default function ValorantDetail() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Back button */}
-        <button 
+        <button
           onClick={() => navigate('/accounts/valorant')}
           className="flex items-center text-gray-400 hover:text-white mb-6"
         >
@@ -204,7 +204,7 @@ export default function ValorantDetail() {
                   </h1>
                   <div className="flex items-center gap-2 mt-2">
                     <div className="border-gray-800 rounded-full w-8 h-8 flex items-center justify-center p-0.5">
-                      <img 
+                      <img
                         src={`/images/ranks/${account.account_data?.current_rank?.toLowerCase() || 'unranked'}.png`}
                         alt={account.account_data?.current_rank || "Unranked"}
                         className="w-full h-full rounded-full object-cover"

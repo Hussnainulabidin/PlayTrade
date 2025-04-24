@@ -7,7 +7,8 @@ const router = express.Router();
 // Protect all routes
 router.use(authController.protect);
 
-// Create ticket - allow any authenticated user (client or seller)
+router.use(authController.restrictTo('admin', 'seller'));
+
 router.post('/', ticketController.createTicket);
 
 // Get tickets by client - allow clients to view their own tickets

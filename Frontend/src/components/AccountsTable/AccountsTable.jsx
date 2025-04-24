@@ -3,8 +3,8 @@ import "./AccountsTable.css"
 
 const AccountsTable = ({ accounts }) => {
     return (
-        <div className="accounts-table">
-            <div className="table-header">
+        <div className="accounts-table-seller">
+            <div className="table-header-seller">
                 <div className="checkbox-cell">
                     <input type="checkbox" />
                 </div>
@@ -18,7 +18,7 @@ const AccountsTable = ({ accounts }) => {
                 <div className="actions-cell"></div>
             </div>
 
-            <div className="table-body">
+            <div className="table-body-seller">
                 {accounts.length > 0 ? (
                     accounts.map((account) => <AccountItem key={account._id} account={account} />)
                 ) : (

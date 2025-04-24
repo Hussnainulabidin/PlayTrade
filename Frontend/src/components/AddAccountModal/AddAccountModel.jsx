@@ -6,6 +6,10 @@ import { X, Zap, Truck, Plus } from 'lucide-react'
 import "./AddAccountModal.css"
 import Step1ListingInfo from "./Steps/Step1ListingInfo"
 import Step2ValorantData from "./Steps/Step2ValorantData"
+import Step2ClashOfClansData from "./Steps/Step2ClashOfClansData"
+import Step2BrawlStarsData from "./Steps/Step2BrawlStarsData"
+import Step2FortniteData from "./Steps/Step2FortniteData"
+import Step2LeagueOfLegendsData from "./Steps/Step2LeagueOfLegendsData"
 import Step3Credentials from "./Steps/Step3Credentials"
 
 const AddAccountModal = ({ isOpen, onClose }) => {
@@ -15,7 +19,7 @@ const AddAccountModal = ({ isOpen, onClose }) => {
         title: "",
         slug: "",
         price: "",
-        game: "Valorant",
+        gameType: "Valorant",
         description: "",
         gallery: [],
 
@@ -25,6 +29,33 @@ const AddAccountModal = ({ isOpen, onClose }) => {
         level: 1,
         valorant_points: 0,
         radianite_points: 0,
+
+        // Step 2: Game Data (Clash of Clans)
+        town_hall_level: "",
+        builder_hall_level: "",
+        gems: 0,
+        trophies: 0,
+        clan: "",
+
+        // Step 2: Game Data (Brawl Stars)
+        trophy_range: "",
+        brawlers_unlocked: 0,
+        club: "",
+
+        // Step 2: Game Data (Fortnite)
+        platform: "",
+        region: "",
+        account_level: 1,
+        vbucks: 0,
+        skins: 0,
+        battle_pass: "",
+
+        // Step 2: Game Data (League of Legends)
+        rank: "",
+        division: "",
+        blue_essence: 0,
+        rp: 0,
+        champions: 0,
 
         // Step 3: Credentials
         login: "",
@@ -106,9 +137,29 @@ const AddAccountModal = ({ isOpen, onClose }) => {
         if (step === 1) {
             if (!formData.title.trim()) newErrors.title = "Title is required"
             if (!formData.price) newErrors.price = "Price is required"
+            if (!formData.gameType) newErrors.gameType = "Game is required"
         }
         else if (step === 2) {
-            if (!formData.server) newErrors.server = "Server is required"
+            switch (formData.gameType) {
+                case "Valorant":
+                    if (!formData.server) newErrors.server = "Server is required"
+                    break
+                case "Clash of Clans":
+                    if (!formData.town_hall_level) newErrors.town_hall_level = "Town Hall Level is required"
+                    break
+                case "Brawl Stars":
+                    if (!formData.trophy_range) newErrors.trophy_range = "Trophy Range is required"
+                    break
+                case "Fortnite":
+                    if (!formData.platform) newErrors.platform = "Platform is required"
+                    if (!formData.region) newErrors.region = "Region is required"
+                    break
+                case "League of Legends":
+                    if (!formData.server) newErrors.server = "Server is required"
+                    break
+                default:
+                    break
+            }
         }
         else if (step === 3) {
             if (!formData.login.trim()) newErrors.login = "Login is required"
@@ -148,20 +199,67 @@ const AddAccountModal = ({ isOpen, onClose }) => {
                 email_login: formData.email_login,
                 email_password: formData.email_password,
                 ign: formData.in_game_name,
-                server: formData.server,
                 delivery_instructions: formData.delivery_instructions,
                 gallery: formData.gallery,
-                account_data: {
-                    current_rank: formData.current_rank,
-                    level: parseInt(formData.level),
-                    valorant_points: parseInt(formData.valorant_points),
-                    radianite_points: parseInt(formData.radianite_points)
-                }
+                game: formData.gameType,
+                account_data: {}
             }
 
-            console.log(accountData.gallery);
+            // Add game-specific data
+            switch (formData.gameType) {
+                case "Valorant":
+                    accountData.server = formData.server
+                    accountData.account_data = {
+                        current_rank: formData.current_rank,
+                        level: parseInt(formData.level),
+                        valorant_points: parseInt(formData.valorant_points),
+                        radianite_points: parseInt(formData.radianite_points)
+                    }
+                    break
+                case "Clash of Clans":
+                    accountData.account_data = {
+                        town_hall_level: parseInt(formData.town_hall_level),
+                        builder_hall_level: parseInt(formData.builder_hall_level),
+                        gems: parseInt(formData.gems),
+                        trophies: parseInt(formData.trophies),
+                        clan: formData.clan
+                    }
+                    break
+                case "Brawl Stars":
+                    accountData.account_data = {
+                        trophy_range: formData.trophy_range,
+                        brawlers_unlocked: parseInt(formData.brawlers_unlocked),
+                        gems: parseInt(formData.gems),
+                        club: formData.club
+                    }
+                    break
+                case "Fortnite":
+                    accountData.account_data = {
+                        platform: formData.platform,
+                        region: formData.region,
+                        account_level: parseInt(formData.account_level),
+                        vbucks: parseInt(formData.vbucks),
+                        skins: parseInt(formData.skins),
+                        battle_pass: formData.battle_pass
+                    }
+                    break
+                case "League of Legends":
+                    accountData.server = formData.server
+                    accountData.account_data = {
+                        rank: formData.rank,
+                        division: formData.division,
+                        level: parseInt(formData.level),
+                        blue_essence: parseInt(formData.blue_essence),
+                        rp: parseInt(formData.rp),
+                        champions: parseInt(formData.champions),
+                        skins: parseInt(formData.skins)
+                    }
+                    break
+                default:
+                    break
+            }
 
-            const response = await axios.post("http://localhost:3003/valorant/", accountData)
+            const response = await axios.post(`http://localhost:3003/${formData.gameType.toLowerCase().replace(/\s+/g, '-')}/`, accountData)
             console.log(response)
 
             // Close modal and reset form on success
@@ -170,7 +268,7 @@ const AddAccountModal = ({ isOpen, onClose }) => {
                 title: "",
                 slug: "",
                 price: "",
-                game: "Valorant",
+                gameType: "Valorant",
                 description: "",
                 gallery: [],
                 server: "",
@@ -178,6 +276,25 @@ const AddAccountModal = ({ isOpen, onClose }) => {
                 level: 1,
                 valorant_points: 0,
                 radianite_points: 0,
+                town_hall_level: "",
+                builder_hall_level: "",
+                gems: 0,
+                trophies: 0,
+                clan: "",
+                trophy_range: "",
+                brawlers_unlocked: 0,
+                club: "",
+                platform: "",
+                region: "",
+                account_level: 1,
+                vbucks: 0,
+                skins: 0,
+                battle_pass: "",
+                rank: "",
+                division: "",
+                blue_essence: 0,
+                rp: 0,
+                champions: 0,
                 login: "",
                 password: "",
                 email_login: "",
@@ -229,16 +346,49 @@ const AddAccountModal = ({ isOpen, onClose }) => {
                         <Step1ListingInfo
                             formData={formData}
                             handleChange={handleChange}
+                            handleSlugChange={handleSlugChange}
                             errors={errors}
                         />
                     )}
 
                     {currentStep === 2 && (
-                        <Step2ValorantData
-                            formData={formData}
-                            handleChange={handleChange}
-                            errors={errors}
-                        />
+                        <>
+                            {formData.gameType === "Valorant" && (
+                                <Step2ValorantData
+                                    formData={formData}
+                                    handleChange={handleChange}
+                                    errors={errors}
+                                />
+                            )}
+                            {formData.gameType === "Clash of Clans" && (
+                                <Step2ClashOfClansData
+                                    formData={formData}
+                                    handleChange={handleChange}
+                                    errors={errors}
+                                />
+                            )}
+                            {formData.gameType === "Brawl Stars" && (
+                                <Step2BrawlStarsData
+                                    formData={formData}
+                                    handleChange={handleChange}
+                                    errors={errors}
+                                />
+                            )}
+                            {formData.gameType === "Fortnite" && (
+                                <Step2FortniteData
+                                    formData={formData}
+                                    handleChange={handleChange}
+                                    errors={errors}
+                                />
+                            )}
+                            {formData.gameType === "League of Legends" && (
+                                <Step2LeagueOfLegendsData
+                                    formData={formData}
+                                    handleChange={handleChange}
+                                    errors={errors}
+                                />
+                            )}
+                        </>
                     )}
 
                     {currentStep === 3 && (
