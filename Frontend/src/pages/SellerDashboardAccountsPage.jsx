@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import axios from "axios"
 import Header from "../components/SellerHeader/Header"
 import AccountsTable from "../components/AccountsTable/AccountsTable"
-import FilterBar from "../components/FilterBar/FilterBar"
+import FilterBar from "../components/SellerFilterBar/FilterBar"
 import Pagination from "../components/Pagination/Pagination"
 import LoadingState from "../components/LoadingState/LoadingState"
 import ErrorState from "../components/ErrorState/ErrorState"
@@ -15,7 +15,7 @@ const SellerDashboardAccountsPage = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [currentPage, setCurrentPage] = useState(1)
-    const [rowsPerPage, setRowsPerPage] = useState(15)
+    const [rowsPerPage, setRowsPerPage] = useState(10)
     const [totalRows, setTotalRows] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
     const [searchQuery, setSearchQuery] = useState("")
@@ -38,10 +38,17 @@ const SellerDashboardAccountsPage = () => {
                 const sellerId = sellerResponse.data.data._id
 
                 // Then fetch accounts using the seller ID
-                const response = await axios.get(`http://localhost:3003/gameAccounts/seller/${sellerId}`)
+                const response = await axios.get(`http://localhost:3003/gameAccounts/seller/${sellerId}`, {
+                    params: {
+                        page: currentPage,
+                        limit: rowsPerPage,
+                        search: searchQuery,
+                        ...filters
+                    }
+                })
                 setAccounts(response.data.data.gameAccounts)
-                setTotalRows(response.data.results)
-                setTotalPages(Math.ceil(response.data.results / rowsPerPage))
+                setTotalRows(response.data.data.totalResults)
+                setTotalPages(Math.ceil(response.data.data.totalResults / rowsPerPage))
             } catch (err) {
                 setError("Failed to fetch accounts")
                 console.error(err)
@@ -58,8 +65,10 @@ const SellerDashboardAccountsPage = () => {
     }
 
     const handleRowsPerPageChange = (rows) => {
-        setRowsPerPage(rows)
+        const newRows = parseInt(rows)
+        setRowsPerPage(newRows)
         setCurrentPage(1) // Reset to first page when changing rows per page
+        setTotalPages(Math.ceil(totalRows / newRows)) // Recalculate total pages
     }
 
     const handleSearch = (query) => {
@@ -100,6 +109,7 @@ const SellerDashboardAccountsPage = () => {
                     totalRows={totalRows}
                     onPageChange={handlePageChange}
                     onRowsPerPageChange={handleRowsPerPageChange}
+                    rowsPerPageOptions={[5, 10, 15, 25]}
                 />
             </div>
         </div>

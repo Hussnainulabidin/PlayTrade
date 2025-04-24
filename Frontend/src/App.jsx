@@ -7,11 +7,6 @@ import SellerDetailsPage from "./pages/AdminDashboardSellerDetails"
 import SellerListingsPage from "./pages/AdminDashboardSellerListing"
 import SellerWalletPage from "./pages/AdminDashboardSellerWallet"
 import SellerOrdersPage from "./pages/AdminDasboardSellerOrders"
-import SellerDashboardAccountsPage from "./pages/SellerDashboardAccountsPage"
-import SellerDashboardTicketsPage from "./pages/SellerDashboardTicketsPage"
-import SellerDashboardCreateTicketPage from "./pages/SellerDashboardCreateTicketPage"
-import SellerDashboardChatPage from "./pages/SellerDashboardChatPage"
-import SellerDashboardLayout from "./components/layouts/SellerDashboardLayout"
 import OrdersPage from "./pages/OrdersPage"
 import OrderDetailPage from "./pages/OrderDetails"
 import TicketsPage from "./pages/AdminDashboardTicketsPage"
@@ -22,6 +17,7 @@ import SellerDashboardCreateTicketPage from "./pages/SellerDashboardCreateTicket
 import SellerDashboardChatPage from "./pages/SellerDashboardChatPage"
 import SellerDashboardLayout from "./components/layouts/SellerDashboardLayout"
 import SellerTicketDetailPage from "./pages/SellerTicketDetail"
+import SellerSettingPage from "./pages/SellerSettingPage"
 import ValorantPage from "./pages/valorant"
 import AccountsLayout from "./pages/AccountsLayout"
 import AdminChatPage from "./pages/AdminDashboardChatPage"
@@ -130,7 +126,7 @@ const App = () => {
           <Route path="/seller-dashboard/settings"
             element={
               <SellerDashboardLayout>
-                <SettingPage />
+                <SellerSettingPage />
               </SellerDashboardLayout>
             }
           />

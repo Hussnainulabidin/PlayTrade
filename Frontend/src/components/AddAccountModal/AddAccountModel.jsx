@@ -237,6 +237,7 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
         try {
             // Format data according to the schema
             const accountData = {
+                id: initialData?._id || "",
                 title: formData.title,
                 description: formData.description,
                 price: parseFloat(formData.price),
@@ -308,75 +309,232 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
             // Add delivery type
             accountData.delivery_type = formData.delivery_type
 
-            if (isEditMode && initialData) {
-                // Update existing account
-                const response = await axios.patch(
-                    `http://localhost:3003/gameAccounts/${initialData._id}`,
-                    accountData,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        }
-                    }
-                )
-                console.log('Account updated successfully:', response.data)
+            if (isEditMode) {
+                let response;
+                switch (formData.gameType.toLowerCase()) {
+                    case "valorant":
+                        response = await axios.patch(
+                            `http://localhost:3003/valorant/accounts/${initialData?._id}`,
+                            accountData,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                }
+                            }
+                        )
+                        console.log('Account updated successfully:', response.data)
+                        break;
+                    case "clash of clans":
+                        response = await axios.patch(
+                            `http://localhost:3003/clashofclans/${initialData?._id}`,
+                            accountData,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                }
+                            }
+                        )
+                        console.log('Account updated successfully:', response.data)
+                        break;
+                    case "brawl stars":
+                        response = await axios.patch(
+                            `http://localhost:3003/brawlstars/${initialData?._id}`,
+                            accountData,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                }
+                            }
+                        )
+                        console.log('Account updated successfully:', response.data)
+                        break;
+                    case "fortnite":
+                        response = await axios.patch(
+                            `http://localhost:3003/fortnite/${initialData?._id}`,
+                            accountData,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                }
+                            }
+                        )
+                        console.log('Account updated successfully:', response.data)
+                        break;
+                    case "league of legends":
+                        response = await axios.patch(
+                            `http://localhost:3003/leagueoflegends/${initialData?._id}`,
+                            accountData,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                }
+                            }
+                        )
+                        console.log('Account updated successfully:', response.data)
+                        break;
+                }
+
+                if (response && response.data) {
+                    // Show success message
+                    // Close modal and reset form on success
+                    onClose();
+                    setFormData({
+                        title: "",
+                        slug: "",
+                        price: "",
+                        gameType: "Valorant",
+                        description: "",
+                        gallery: [],
+                        server: "",
+                        current_rank: "Unranked",
+                        level: 1,
+                        valorant_points: 0,
+                        radianite_points: 0,
+                        town_hall_level: "",
+                        builder_hall_level: "",
+                        gems: 0,
+                        trophies: 0,
+                        clan: "",
+                        trophy_range: "",
+                        brawlers_unlocked: 0,
+                        club: "",
+                        platform: "",
+                        region: "",
+                        account_level: 1,
+                        vbucks: 0,
+                        skins: 0,
+                        battle_pass: "",
+                        rank: "",
+                        division: "",
+                        blue_essence: 0,
+                        rp: 0,
+                        champions: 0,
+                        login: "",
+                        password: "",
+                        email_login: "",
+                        email_password: "",
+                        in_game_name: "",
+                        has_2fa: false,
+                        delivery_instructions: "",
+                        delivery_type: "instant"
+                    });
+                    setCurrentStep(1);
+                    return;
+                }
             } else {
                 // Create new account
-                const response = await axios.post(
-                    'http://localhost:3003/gameAccounts',
-                    accountData,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        }
-                    }
-                )
-                console.log('Account created successfully:', response.data)
-            }
+                let response;
+                switch (formData.gameType.toLowerCase()) {
+                    case "valorant":
+                        response = await axios.post(
+                            'http://localhost:3003/valorant',
+                            accountData,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                }
+                            }
+                        )
+                        console.log('Account created successfully:', response.data)
+                        break;
+                    case "clash of clans":
+                        response = await axios.post(
+                            'http://localhost:3003/clashofclans',
+                            accountData,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                }
+                            }
+                        )
+                        console.log('Account created successfully:', response.data)
+                        break;
+                    case "brawl stars":
+                        response = await axios.post(
+                            'http://localhost:3003/brawlstars',
+                            accountData,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                }
+                            }
+                        )
+                        console.log('Account created successfully:', response.data)
+                        break;
+                    case "fortnite":
+                        response = await axios.post(
+                            'http://localhost:3003/fortnite',
+                            accountData,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                }
+                            }
+                        )
+                        console.log('Account created successfully:', response.data)
+                        break;
+                    case "league of legends":
+                        response = await axios.post(
+                            'http://localhost:3003/leagueoflegends',
+                            accountData,
+                            {
+                                headers: {
+                                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                }
+                            }
+                        )
+                        console.log('Account created successfully:', response.data)
+                        break;
+                }
 
-            // Close modal and reset form on success
-            onClose()
-            setFormData({
-                title: "",
-                slug: "",
-                price: "",
-                gameType: "Valorant",
-                description: "",
-                gallery: [],
-                server: "",
-                current_rank: "Unranked",
-                level: 1,
-                valorant_points: 0,
-                radianite_points: 0,
-                town_hall_level: "",
-                builder_hall_level: "",
-                gems: 0,
-                trophies: 0,
-                clan: "",
-                trophy_range: "",
-                brawlers_unlocked: 0,
-                club: "",
-                platform: "",
-                region: "",
-                account_level: 1,
-                vbucks: 0,
-                skins: 0,
-                battle_pass: "",
-                rank: "",
-                division: "",
-                blue_essence: 0,
-                rp: 0,
-                champions: 0,
-                login: "",
-                password: "",
-                email_login: "",
-                email_password: "",
-                in_game_name: "",
-                has_2fa: false,
-                delivery_instructions: "",
-                delivery_type: "instant"
-            })
-            setCurrentStep(1)
+                if (response && response.data) {
+                    // Show success message
+                    // Close modal and reset form on success
+                    onClose();
+                    setFormData({
+                        title: "",
+                        slug: "",
+                        price: "",
+                        gameType: "Valorant",
+                        description: "",
+                        gallery: [],
+                        server: "",
+                        current_rank: "Unranked",
+                        level: 1,
+                        valorant_points: 0,
+                        radianite_points: 0,
+                        town_hall_level: "",
+                        builder_hall_level: "",
+                        gems: 0,
+                        trophies: 0,
+                        clan: "",
+                        trophy_range: "",
+                        brawlers_unlocked: 0,
+                        club: "",
+                        platform: "",
+                        region: "",
+                        account_level: 1,
+                        vbucks: 0,
+                        skins: 0,
+                        battle_pass: "",
+                        rank: "",
+                        division: "",
+                        blue_essence: 0,
+                        rp: 0,
+                        champions: 0,
+                        login: "",
+                        password: "",
+                        email_login: "",
+                        email_password: "",
+                        in_game_name: "",
+                        has_2fa: false,
+                        delivery_instructions: "",
+                        delivery_type: "instant"
+                    });
+                    setCurrentStep(1);
+                    return;
+                }
+            }
 
         } catch (error) {
             console.error("Error creating/updating account:", error)
