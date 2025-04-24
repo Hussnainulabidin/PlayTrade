@@ -232,12 +232,6 @@ function AdminChatPage() {
                   
                 const otherUsername = otherUser?.username || 
                   (chat.sender?._id === user?._id ? "Unknown Recipient" : "Unknown Sender")
-                
-                // Get the last message
-                const lastMessage = chat.messages?.length > 0 
-                  ? chat.messages[chat.messages.length - 1]
-                  : null
-                
                 return (
                   <div 
                     key={chat._id} 
@@ -252,9 +246,7 @@ function AdminChatPage() {
                         <span>{otherUsername}</span>
                         <span className="timestamp">{formatDate(chat.lastActivity)}</span>
                       </div>
-                      <div className="chat-preview">
-                        {lastMessage ? lastMessage.content : "No messages yet"}
-                      </div>
+                     
                     </div>
                     {hasUnread && <div className="unread-indicator"></div>}
                   </div>

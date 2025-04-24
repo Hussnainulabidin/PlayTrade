@@ -17,6 +17,8 @@ export function SellerListings() {
   const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [updating, setUpdating] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -91,6 +93,98 @@ export function SellerListings() {
     fetchSellerAccounts()
   }, [id, location.search])
 
+  const handleStatusUpdate = async (accountId, gameType, status) => {
+    try {
+      setUpdating(true)
+      // Get the auth token
+      let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
+      
+      // Remove quotes if they exist
+      if (token && token.startsWith('"') && token.endsWith('"')) {
+        token = token.slice(1, -1)
+      }
+      
+      const response = await axios.patch(
+        `http://localhost:3003/gameAccounts/update-status`,
+        {
+          accountId,
+          gameType,
+          status
+        },
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined
+          }
+        }
+      )
+      
+      if (response.data.status === 'success') {
+        // Update listings state with the new status
+        setListings(prevListings => 
+          prevListings.map(listing => 
+            listing.id === accountId 
+              ? { ...listing, status }
+              : listing
+          )
+        )
+        
+        // Close dropdown
+        setActiveDropdownId(null)
+      }
+    } catch (err) {
+      console.error("Error updating account status:", err)
+      setError("Failed to update account status. Please try again.")
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  const handleDeleteAccount = async (accountId, gameType) => {
+    // Ask for confirmation before deleting
+    if (!window.confirm(`Are you sure you want to delete this listing? This action cannot be undone.`)) {
+      return;
+    }
+    
+    try {
+      setDeleting(true)
+      // Get the auth token
+      let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
+      
+      // Remove quotes if they exist
+      if (token && token.startsWith('"') && token.endsWith('"')) {
+        token = token.slice(1, -1)
+      }
+      
+      const response = await axios.delete(
+        `http://localhost:3003/gameAccounts/delete-account`,
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined
+          },
+          data: {
+            accountId,
+            gameType
+          }
+        }
+      )
+      
+      if (response.data.status === 'success') {
+        // Remove the deleted listing from state
+        setListings(prevListings => 
+          prevListings.filter(listing => listing.id !== accountId)
+        )
+        
+        // Close dropdown
+        setActiveDropdownId(null)
+      }
+    } catch (err) {
+      console.error("Error deleting account:", err)
+      setError("Failed to delete listing. Please try again.")
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   const filteredListings = listings.filter(
     (listing) =>
       listing.id.includes(searchQuery) ||
@@ -112,12 +206,18 @@ export function SellerListings() {
   }, [])
 
   const handleDropdownClick = (listingId, event) => {
+    event.stopPropagation()
     const button = event.currentTarget
     const rect = button.getBoundingClientRect()
+    
+    // Calculate position relative to viewport
+    const left = rect.left - 120 // Position dropdown to the left of the button
+    
     setDropdownPosition({
-      top: rect.bottom,
-      left: rect.left - 120 // Position to the left of the button
+      top: rect.bottom + window.scrollY,
+      left: Math.max(10, left) // Ensure dropdown doesn't go off-screen to the left
     })
+    
     setActiveDropdownId(activeDropdownId === listingId ? null : listingId)
   }
 
@@ -253,20 +353,36 @@ export function SellerListings() {
           ref={dropdownRef}
           className="dropdown-container"
           style={{
-            top: dropdownPosition.top,
-            left: dropdownPosition.left,
+            position: 'fixed', // Change to fixed positioning
+            top: `${dropdownPosition.top}px`,
+            left: `${dropdownPosition.left}px`,
           }}
         >
           <div className="dropdown-menu">
             <button className="dropdown-item">View Listing</button>
-            <button className="dropdown-item">Edit Listing</button>
-            {listings.find(listing => listing.id === activeDropdownId)?.status === "active" ? (
-              <button className="dropdown-item">Set to Draft</button>
-            ) : (
-              <button className="dropdown-item">Publish Listing</button>
-            )}
-            <button className="dropdown-item dropdown-item-danger">
-              Delete Listing
+            <button 
+              className="dropdown-item"
+              onClick={() => {
+                const listing = listings.find(item => item.id === activeDropdownId);
+                if (listing) {
+                  handleStatusUpdate(listing.id, listing.game, "draft");
+                }
+              }}
+              disabled={updating}
+            >
+              {updating ? "Updating..." : "Set to Draft"}
+            </button>
+            <button 
+              className="dropdown-item delete-item"
+              onClick={() => {
+                const listing = listings.find(item => item.id === activeDropdownId);
+                if (listing) {
+                  handleDeleteAccount(listing.id, listing.game);
+                }
+              }}
+              disabled={deleting}
+            >
+              {deleting ? "Deleting..." : "Delete Listing"}
             </button>
           </div>
         </div>

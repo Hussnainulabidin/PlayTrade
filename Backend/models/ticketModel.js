@@ -8,11 +8,12 @@ const ticketSchema = new mongoose.Schema({
   sellerId: {
     type: mongoose.Schema.ObjectId,
     ref: 'user',
-    required: [true, 'Ticket must have a seller']
+    required: [true, 'Ticket must have a user associated with it'],
+    // Note: This field stores seller ID for seller tickets and client ID for client tickets
   },
   ticketType: {
     type: String,
-    enum: ['Rating Issue', 'Order Issue', 'Marketplace Issue'],
+    enum: ['Rating Issue', 'Order Issue', 'Marketplace Issue', 'Client Ticket'],
     required: [true, 'Ticket must have a type']
   },
   status: {

@@ -10,4 +10,18 @@ router.route("/seller/:id").get(
   gameAccountsController.getAccountsBySellerId
 );
 
+router.route("/update-status")
+  .patch(
+    authController.protect,
+    authController.restrictTo("admin", "seller"),
+    gameAccountsController.updateAccountStatus
+  );
+
+router.route("/delete-account")
+  .delete(
+    authController.protect,
+    authController.restrictTo("admin"),
+    gameAccountsController.deleteAccount
+  );
+
 module.exports = router;

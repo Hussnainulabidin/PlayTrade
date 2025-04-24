@@ -14,6 +14,7 @@ export function SellerOrders({ sellerId: propSellerId }) {
   const [orders, setOrders] = useState([])
   const [activeDropdownId, setActiveDropdownId] = useState(null)
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 })
+  const [refunding, setRefunding] = useState(false)
   const params = useParams()
   const location = useLocation()
   const navigate = useNavigate()
@@ -104,6 +105,56 @@ export function SellerOrders({ sellerId: propSellerId }) {
     navigate(`/admindashboard/sellers/${sellerId}/orders?page=${newPage}`);
   }
 
+  const handleRefundOrder = async (orderId) => {
+    // Ask for confirmation before proceeding
+    if (!window.confirm('Are you sure you want to refund this order? This will:\n- Return the full payment to the customer\n- Deduct funds from the seller\'s wallet\n- Set the account status back to active\n\nThis action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setRefunding(true);
+      // Get auth token
+      let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token');
+      
+      // Remove quotes if they exist
+      if (token && token.startsWith('"') && token.endsWith('"')) {
+        token = token.slice(1, -1);
+      }
+      
+      const response = await axios.post(
+        `http://localhost:3003/orders/${orderId}/refund`,
+        {},
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined
+          }
+        }
+      );
+      
+      if (response.data.status === 'success') {
+        // Update the order status in the UI
+        setOrders(prevOrders => 
+          prevOrders.map(order => 
+            order.id === orderId
+              ? { ...order, status: 'Refunded' }
+              : order
+          )
+        );
+        
+        // Show success message
+        alert('Order has been successfully refunded.');
+        
+        // Close dropdown
+        setActiveDropdownId(null);
+      }
+    } catch (err) {
+      console.error('Error refunding order:', err);
+      alert(`Failed to refund order: ${err.response?.data?.message || 'Unknown error'}`);
+    } finally {
+      setRefunding(false);
+    }
+  };
+
   const filteredOrders = orders.filter(
     (order) =>
       order.id.includes(searchQuery) ||
@@ -128,7 +179,7 @@ export function SellerOrders({ sellerId: propSellerId }) {
   return (
     <div className="orders-container">
       <div className="listings-header">
-        <h1 className="listings-title">Listings for Seller: {sellerId}</h1>
+        <h1 className="listings-title">Orders for Seller: {sellerId}</h1>
         <Link 
           to={`/admindashboard/sellers/${sellerId}`} 
           className="back-button"
@@ -172,7 +223,11 @@ export function SellerOrders({ sellerId: propSellerId }) {
             ) : (
               filteredOrders.map((order) => (
                 <tr key={order.id} className="table-row">
-                  <td className="table-cell order-id">#{order.id}</td>
+                  <td className="table-cell order-id">
+                    <Link to={`/order/${order.id}`} className="order-link">
+                      #{order.id}
+                    </Link>
+                  </td>
                   <td className="table-cell">{order.customerId}</td>
                   <td className="table-cell">{order.gameType}</td>
                   <td className="table-cell">
@@ -189,9 +244,11 @@ export function SellerOrders({ sellerId: propSellerId }) {
                   <td className="table-cell">{order.amount}</td>
                   <td className="table-cell">{order.date}</td>
                   <td className="table-cell actions-cell">
-                    <button className="action-icon-button">
-                      <ExternalLink className="action-icon" size={18} />
-                    </button>
+                    <Link to={`/order/${order.id}`}>
+                      <button className="action-icon-button">
+                        <ExternalLink className="action-icon" size={18} />
+                      </button>
+                    </Link>
                     <button 
                       className="action-icon-button"
                       onClick={(e) => handleDropdownClick(order.id, e)}
@@ -238,9 +295,12 @@ export function SellerOrders({ sellerId: propSellerId }) {
           }}
         >
           <div className="dropdown-menu">
-            <button className="dropdown-item">View Order Details</button>
-            <button className="dropdown-item">Update Status</button>
-            <button className="dropdown-item dropdown-item-danger">Refund Order</button>
+            <button className="dropdown-item dropdown-item-danger"
+              onClick={() => handleRefundOrder(activeDropdownId)}
+              disabled={refunding}
+            >
+              {refunding ? "Processing..." : "Refund Order"}
+            </button>
           </div>
         </div>
       )}

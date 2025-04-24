@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema({
         }
     },
     photo : String,
+    profilePicture: String,
     role : {
         type : String,
         enum : ["user" , "seller" , "admin"],
@@ -51,6 +52,10 @@ const userSchema = new mongoose.Schema({
     joinDate : {
         type : Date,
         default : Date.now
+    },
+    twoFactorEnabled: {
+        type: Boolean,
+        default: false
     },
     passwordChangedAt : Date,
     passwordResetToken : String,

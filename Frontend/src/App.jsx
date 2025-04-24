@@ -7,9 +7,6 @@ import SellerDetailsPage from "./pages/AdminDashboardSellerDetails"
 import SellerListingsPage from "./pages/AdminDashboardSellerListing"
 import SellerWalletPage from "./pages/AdminDashboardSellerWallet"
 import SellerOrdersPage from "./pages/AdminDasboardSellerOrders"
-import SellerDashboardAccountsPage from "./pages/SellerDashboardAccountsPage"
-import SellerDashboardAccountImportsPage from "./pages/SellerDashboardAccountImportsPage"
-import SellerDashboardLayout from "./components/layouts/SellerDashboardLayout"
 import OrdersPage from "./pages/OrdersPage"
 import OrderDetailPage from "./pages/OrderDetails"
 import TicketsPage from "./pages/AdminDashboardTicketsPage"
@@ -17,6 +14,7 @@ import TicketDetailPage from "./pages/TicketDetail"
 import ValorantPage from "./pages/valorant"
 import AccountsLayout from "./pages/AccountsLayout"
 import AdminChatPage from "./pages/AdminDashboardChatPage"
+import AdminSettingsPage from "./pages/SettingPage"
 import "./App.css"
 import "./components/AdminDashboard/ui.css"
 
@@ -46,6 +44,11 @@ const App = () => {
           <Route path="/admin/chat" element={
             <DashboardLayout>
               <AdminChatPage />
+            </DashboardLayout>
+          } />
+          <Route path="/admin/settings" element={
+            <DashboardLayout>
+              <AdminSettingsPage />
             </DashboardLayout>
           } />
           <Route path="/admindashboard/sellers" element={

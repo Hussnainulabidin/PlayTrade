@@ -349,7 +349,7 @@ function OrderDetails() {
                       </button>
                     ) : (
                       <div className="buyer-actions">
-                        {orderData.status === 'completed' ? (
+                        {orderData.status === 'completed' || orderData.status === 'refunded' ? (
                           <button className="feedback-btn" onClick={handleGiveFeedback}>
                             Give Feedback
                           </button>
@@ -358,7 +358,7 @@ function OrderDetails() {
                             <button className="receive-btn" onClick={handleMarkAsReceived}>
                               Mark as Received
                             </button>
-                            {orderData.status !== 'disputed' && (
+                            {orderData.status !== 'disputed' && orderData.status !== 'refunded' && (
                               <button className="dispute-btn" onClick={handleDispute}>
                                 Dispute Order
                               </button>
@@ -563,37 +563,39 @@ function OrderDetails() {
             </button>
           </div>
 
-          {/* Payment Details */}
-          <div className="sidebar-card">
-            <h3 className="card-title">Payment details</h3>
-            <div className="detail-rows">
-              <div className="detail-row">
-                <span className="detail-label">Order Price</span>
-                <span>${orderData.payment?.orderPrice.toFixed(2)}</span>
+          {/* Payment Details - only show to seller */}
+          {localStorage.getItem('userId') !== orderData?.buyer?.id && (
+            <div className="sidebar-card">
+              <h3 className="card-title">Payment details</h3>
+              <div className="detail-rows">
+                <div className="detail-row">
+                  <span className="detail-label">Order Price</span>
+                  <span>${orderData.payment?.orderPrice.toFixed(2)}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Commission</span>
+                  <span className="commission-amount">-${orderData.payment?.commission?.amount}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">You receive</span>
+                  <span>${orderData.payment?.sellerReceives}</span>
+                </div>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">Commission</span>
-                <span className="commission-amount">-${orderData.payment?.commission?.amount}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">You receive</span>
-                <span>${orderData.payment?.sellerReceives}</span>
-              </div>
-            </div>
-            <p className="info-text">
-              Funds will be automatically added to your balance after 1 day.
-            </p>
-            <p className="info-text margin-top">
-              If the buyer confirms delivery, funds will be added to your balance immediately.
-            </p>
-            <div className="help-box">
-              <p className="help-text">
-                Learn more in our FAQ.
-                <br />
-                Chat with PlayTrade Support, we&apos;re available 24/7.
+              <p className="info-text">
+                Funds will be automatically added to your balance after 1 day.
               </p>
+              <p className="info-text margin-top">
+                If the buyer confirms delivery, funds will be added to your balance immediately.
+              </p>
+              <div className="help-box">
+                <p className="help-text">
+                  Learn more in our FAQ.
+                  <br />
+                  Chat with PlayTrade Support, we&apos;re available 24/7.
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

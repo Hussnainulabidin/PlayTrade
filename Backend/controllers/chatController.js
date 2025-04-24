@@ -13,7 +13,7 @@ exports.getUserChats = catchAsync(async (req, res, next) => {
   })
     .populate({
       path: 'sender receiver',
-      select: 'name photo'
+      select: 'name photo username'
     })
     .populate({
       path: 'orderId',

@@ -2,7 +2,7 @@
 import { useParams } from "react-router-dom"
 import { SellerOrders } from "../components/AdminDashboard/SellerOrders";
 import "./pages.css"
-
+import "../components/AdminDashboard/SellerOrders.css"
 
 function SellerOrdersPage() {
     const { id } = useParams()

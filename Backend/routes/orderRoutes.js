@@ -19,6 +19,13 @@ router.route("/myorder/:id").get(orderController.getOrderById);
 
 router.route("/:id/mark-received").post(orderController.markOrderAsReceived);
 
+// Refund an order - restricted to admin only
+router.route("/:id/refund")
+  .post(
+    authController.restrictTo("admin" , "seller"),
+    orderController.refundOrder
+  );
+
 // Create chat for an existing order - restricted to admin and seller
 router.route("/:id/create-chat").post(
   authController.restrictTo("admin", "seller"),

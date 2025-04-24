@@ -6,7 +6,34 @@ const Valorant = require("../models/valorant");
 const User = require("../models/user");
 const { createOrderChat } = require("../utils/chatUtils");
 const Chat = require("../models/chatModel");
-// Import other game models here when they are created
+const mongoose = require("mongoose");
+const walletActions = require("../models/wallet");
+
+// Import all game models with error handling
+let PUBG, Fortnite, LeagueOfLegends, BrawlStars;
+try {
+  PUBG = require("../models/pubg");
+} catch (err) {
+  console.warn("PUBG model not found:", err.message);
+}
+
+try {
+  Fortnite = require("../models/fortnite");
+} catch (err) {
+  console.warn("Fortnite model not found:", err.message);
+}
+
+try {
+  LeagueOfLegends = require("../models/leagueoflegends");
+} catch (err) {
+  console.warn("League of Legends model not found:", err.message);
+}
+
+try {
+  BrawlStars = require("../models/brawlstars");
+} catch (err) {
+  console.warn("Brawl Stars model not found:", err.message);
+}
 
 // Commission rates by game type (in percentage)
 const COMMISSION_RATES = {
@@ -424,5 +451,155 @@ exports.markOrderAsReceived = catchAsync(async (req, res, next) => {
     status: "success",
     message: "Order marked as completed",
   });
+});
+
+exports.refundOrder = catchAsync(async (req, res, next) => {
+  const orderId = req.params.id;
+  
+  // Only admins can refund orders
+  if (req.user.role !== "admin" && req.user.role !== "seller") {
+    return next(new AppError("Only administrators and sellers can refund orders", 403));
+  }
+  
+  // Find the order
+  const order = await Orders.findById(orderId);
+  if (!order) {
+    return next(new AppError("No order found with that ID", 404));
+  }
+  
+  // Check if order is already refunded
+  if (order.status === "refunded") {
+    return next(new AppError("This order has already been refunded", 400));
+  }
+  
+  try {
+    // Start a transaction for database consistency
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    
+    try {
+      // Get the order amount and game type
+      const orderAmount = order.price || order.amount;
+      const gameType = order.game || "Valorant";
+      
+      // Calculate commission
+      const commissionRate = COMMISSION_RATES[gameType] || COMMISSION_RATES.Default;
+      const commissionAmount = (orderAmount * commissionRate) / 100;
+      const sellerReceives = orderAmount - commissionAmount;
+      
+      // Find the buyer and seller
+      const [buyer, seller] = await Promise.all([
+        User.findById(order.clientID),
+        User.findById(order.sellerID)
+      ]);
+      
+      if (!buyer || !seller) {
+        await session.abortTransaction();
+        session.endSession();
+        return next(new AppError("Buyer or seller not found", 404));
+      }
+      
+      // Update buyer's wallet - add full amount
+      const buyerWalletAmount = (buyer.wallet || 0) + orderAmount;
+      await User.findByIdAndUpdate(
+        buyer._id,
+        { wallet: buyerWalletAmount },
+        { session, new: true, runValidators: false }
+      );
+      
+      // Create a wallet action record for the buyer
+      await walletActions.create([{
+        user: buyer._id,
+        amount: orderAmount,
+        type: "deposit",
+        message: `Refund for order #${order._id} - ${gameType} account`,
+        createdAt: Date.now()
+      }], { session });
+      
+      // Update seller's wallet - deduct the amount they received
+      const sellerWalletAmount = Math.max(0, (seller.wallet || 0) - sellerReceives);
+      await User.findByIdAndUpdate(
+        seller._id,
+        { wallet: sellerWalletAmount },
+        { session, new: true, runValidators: false }
+      );
+      
+      // Create a wallet action record for the seller
+      await walletActions.create([{
+        user: seller._id,
+        amount: sellerReceives,
+        type: "withdrawal",
+        message: `Deduction for refunded order #${order._id} - ${gameType} account`,
+        createdAt: Date.now()
+      }], { session });
+      
+      // Find the game account based on game type
+      let accountModel;
+      switch (gameType.toLowerCase()) {
+        case "valorant":
+          accountModel = Valorant;
+          break;
+        case "pubg":
+          accountModel = PUBG || Valorant; // Fallback to Valorant if PUBG model doesn't exist
+          break;
+        case "fortnite":
+          accountModel = Fortnite || Valorant;
+          break;
+        case "league of legends":
+          accountModel = LeagueOfLegends || Valorant;
+          break;
+        case "brawl stars":
+          accountModel = BrawlStars || Valorant;
+          break;
+        // Add other game models as needed
+        default:
+          accountModel = Valorant;
+      }
+      
+      // Find the account and update its status
+      if (order.accountID) {
+        try {
+          const account = await accountModel.findById(order.accountID);
+          if (account && account.status === "sold") {
+            account.status = "active";
+            await account.save({ session });
+          }
+        } catch (err) {
+          console.warn(`Error updating account status: ${err.message}`);
+          // Continue with the refund even if account update fails
+        }
+      }
+      
+      // Update order status
+      order.status = "refunded";
+      await order.save({ session });
+      
+      // Commit the transaction
+      await session.commitTransaction();
+      session.endSession();
+      
+      // Create a record of this action in the system logs
+      
+      res.status(200).json({
+        status: "success",
+        message: "Order has been refunded successfully",
+        data: {
+          orderId: order._id,
+          buyerId: buyer._id,
+          sellerId: seller._id,
+          amountRefunded: orderAmount,
+          newOrderStatus: "refunded"
+        }
+      });
+    } catch (transactionError) {
+      // If an error occurs during the transaction, abort it
+      await session.abortTransaction();
+      session.endSession();
+      throw transactionError; // Re-throw to be caught by the outer catch
+    }
+  } catch (error) {
+    console.error("Refund error:", error);
+    return next(new AppError("Failed to process refund. Please try again later.", 500));
+  }
 });
 
