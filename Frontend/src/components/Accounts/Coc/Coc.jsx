@@ -9,7 +9,7 @@ import { SignupModal } from "../../SignupModal/SignupModal"
 import { useUser } from "../../userContext/UserContext"
 import { UserMenu } from "../../UserMenu/UserMenu"
 
-export default function Valorant() {
+export default function Coc() {
   const navigate = useNavigate()
   const { user, isAuthenticated, login, logout } = useUser()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
@@ -28,17 +28,18 @@ export default function Valorant() {
   
   // Add filter states
   const [selectedServer, setSelectedServer] = useState("")
-  const [selectedRank, setSelectedRank] = useState("")
   const [selectedPrice, setSelectedPrice] = useState("")
   const [isServerDropdownOpen, setIsServerDropdownOpen] = useState(false)
-  const [isRankDropdownOpen, setIsRankDropdownOpen] = useState(false)
   const [isPriceDropdownOpen, setIsPriceDropdownOpen] = useState(false)
 
   // Server options
-  const serverOptions = ["All Servers", "North America", "Europe", "Asia Pacific", "Latin America", "Brazil", "Korea", "Japan"]
-
-  // Rank options
-  const rankOptions = ["All Ranks", "Unranked", "Iron", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Ascendent", "Immortal", "Radiant"]
+  const townHallOptions = [
+    { label: "All Town Halls", value: "" },
+    ...Array.from({ length: 15 }, (_, i) => ({
+      label: `Town Hall ${i + 1}`,
+      value: (i + 1).toString()
+    }))
+  ]
 
   // Price range options
   const priceOptions = [
@@ -51,16 +52,12 @@ export default function Valorant() {
   ]
 
   const serverDropdownRef = useRef(null)
-  const rankDropdownRef = useRef(null)
   const priceDropdownRef = useRef(null)
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (serverDropdownRef.current && !serverDropdownRef.current.contains(event.target)) {
         setIsServerDropdownOpen(false)
-      }
-      if (rankDropdownRef.current && !rankDropdownRef.current.contains(event.target)) {
-        setIsRankDropdownOpen(false)
       }
       if (priceDropdownRef.current && !priceDropdownRef.current.contains(event.target)) {
         setIsPriceDropdownOpen(false)
@@ -92,16 +89,13 @@ export default function Valorant() {
           queryParams.append('search', debouncedSearchQuery)
         }
         if (selectedServer) {
-          queryParams.append('server', selectedServer)
-        }
-        if (selectedRank) {
-          queryParams.append('rank', selectedRank)
+          queryParams.append('townHallLevel', selectedServer)
         }
         if (selectedPrice) {
           queryParams.append('price', selectedPrice)
         }
 
-        const response = await axios.get(`http://localhost:3003/valorant/accounts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`)
+        const response = await axios.get(`http://localhost:3003/clashofclans/accounts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`)
         console.log('API Response:', response.data)
         if (response.data?.data?.accounts) {
           // Shuffle the accounts array
@@ -140,7 +134,7 @@ export default function Valorant() {
     }
 
     fetchAccounts()
-  }, [debouncedSearchQuery, selectedServer, selectedRank, selectedPrice])
+  }, [debouncedSearchQuery, selectedServer, selectedPrice])
 
   const handleLoginSuccess = async (userData) => {
     await login(userData)
@@ -162,7 +156,7 @@ export default function Valorant() {
   }
 
   const handleAccountClick = (accountId) => {
-    navigate(`/accounts/valorant/${accountId}`)
+    navigate(`/accounts/clashofclans/${accountId}`)
   }
 
   // Add pagination functions
@@ -296,7 +290,7 @@ export default function Valorant() {
                 />
               </svg>
             </div>
-            <span className="font-bold text-xl">Valorant</span>
+            <span className="font-bold text-xl">Clash of Clans</span>
           </div>
 
           <div className="flex-1">
@@ -320,11 +314,11 @@ export default function Valorant() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => navigate("/accounts/valorant/support")}
+            <button
+              onClick={() => navigate("/accounts/clashofclans/support")}
               className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center hover:bg-gray-700"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
                 <path
                   fillRule="evenodd"
                   d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
@@ -361,8 +355,8 @@ export default function Valorant() {
             </svg>
           </div>
           <div>
-            <h1 className="text-2xl font-bold mb-1">Valorant Accounts</h1>
-            <p className="text-gray-400">Buy your dream Valorant account today!</p>
+            <h1 className="text-2xl font-bold mb-1">Clash of Clans Accounts</h1>
+            <p className="text-gray-400">Buy your dream Clash of Clans account today!</p>
           </div>
         </div>
 
@@ -373,7 +367,7 @@ export default function Valorant() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Search by title or rank..."
+                placeholder="Search by title or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-[#161b22] border border-gray-700 rounded-md py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -386,7 +380,6 @@ export default function Valorant() {
                   className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
                   onClick={() => {
                     setIsServerDropdownOpen(!isServerDropdownOpen)
-                    setIsRankDropdownOpen(false)
                     setIsPriceDropdownOpen(false)
                   }}
                 >
@@ -402,63 +395,21 @@ export default function Valorant() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  {selectedServer || "All Servers"}
+                  {selectedServer ? `Town Hall ${selectedServer}` : "All Town Halls"}
                   <ChevronDown className="ml-2 w-4 h-4" />
                 </button>
                 {isServerDropdownOpen && (
                   <div className="absolute top-full left-0 mt-1 w-48 bg-[#161b22] border border-gray-700 rounded-md shadow-lg z-50">
-                    {serverOptions.map((server) => (
+                    {townHallOptions.map((option) => (
                       <button
-                        key={server}
+                        key={option.value}
                         className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
                         onClick={() => {
-                          setSelectedServer(server === "All Servers" ? "" : server)
+                          setSelectedServer(option.value)
                           setIsServerDropdownOpen(false)
                         }}
                       >
-                        {server}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="relative" ref={rankDropdownRef}>
-                <button 
-                  className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
-                  onClick={() => {
-                    setIsRankDropdownOpen(!isRankDropdownOpen)
-                    setIsServerDropdownOpen(false)
-                    setIsPriceDropdownOpen(false)
-                  }}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-4 h-4 mr-2"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {selectedRank || "All Ranks"}
-                  <ChevronDown className="ml-2 w-4 h-4" />
-                </button>
-                {isRankDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#161b22] border border-gray-700 rounded-md shadow-lg z-50">
-                    {rankOptions.map((rank) => (
-                      <button
-                        key={rank}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
-                        onClick={() => {
-                          setSelectedRank(rank === "All Ranks" ? "" : rank)
-                          setIsRankDropdownOpen(false)
-                        }}
-                      >
-                        {rank}
+                        {option.label}
                       </button>
                     ))}
                   </div>
@@ -471,7 +422,6 @@ export default function Valorant() {
                   onClick={() => {
                     setIsPriceDropdownOpen(!isPriceDropdownOpen)
                     setIsServerDropdownOpen(false)
-                    setIsRankDropdownOpen(false)
                   }}
                 >
                   <svg
@@ -555,45 +505,26 @@ export default function Valorant() {
                 <div className="p-4 border-b border-gray-800">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-2">
-                      <div className="border-gray-800 rounded-full w-12 h-12 flex items-center justify-center p-0.5">
-                        <img 
-                          src={`/images/ranks/${account.account_data.current_rank?.toLowerCase() || 'unranked'}.png`}
-                          alt={account.account_data.current_rank || "Unranked"}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      </div>
                       <span className="font-bold text-blue-400 bg-[#1f2228] px-3 py-1 rounded-full border border-blue-500">
-                        {account.account_data.current_rank || "Unranked"} • {account.server || "N/A"}
+                        TownHall {account.account_data.TownHallLevel || "0"}
                       </span>
                     </div>
                   </div>
                   <div className="space-y-1 text-sm">
                     <div className="flex items-center gap-1">
                       <span>
-                        {account.title ||
-                          `[${account.server || "N/A"}] ${account.description?.substring(0, 30) || "Valorant Account"}`}
+                        {account.title || `[${account.account_data.mainPlatform || "N/A"}] ${account.description?.substring(0, 30) || "Fortnite Account"}`}
                       </span>
                       {account.verified && <span className="bg-green-600 text-xs px-1 rounded">✓</span>}
                     </div>
-                    <div className="flex items-center gap-1 text-gray-400">
-                      {account.readyForCompetitive && (
-                        <>
-                          <span className="text-green-500">✓</span>
-                          <span>Ready For Competitive</span>
-                        </>
-                      )}
-                      {account.firstEmail && (
-                        <>
-                          <span className="text-green-500 ml-1">✓</span>
-                          <span>First Email</span>
-                        </>
-                      )}
+                    <div className="text-sm font-medium text-blue-400">
+                      IGN: {account.ign || "N/A"}
                     </div>
                   </div>
                 </div>
                 <div className="relative">
                   <img
-                    src={account.gallery[0] || "/placeholder.svg?height=180&width=320"}
+                    src={account.gallery?.[0] || "/placeholder.svg?height=180&width=320"}
                     alt="Account screenshot"
                     className="w-full h-[180px] object-cover"
                   />
@@ -611,16 +542,15 @@ export default function Valorant() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    {account.gallery || "0"}+
+                    {account.gallery?.length || "0"}+
                   </div>
                 </div>
-                <div className="p-3 border-t border-gray-800 grid grid-cols-4 gap-2 text-xs text-gray-400">
-                  
+                <div className="p-3 border-t border-gray-800 grid grid-cols-2 gap-2 text-xs text-gray-400">
                   <div className="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
                       <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                     </svg>
-                    {account.skins || 0} Skins
+                    {account.account_data.Gems || 0} Gems
                   </div>
                   <div className="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
@@ -630,7 +560,7 @@ export default function Valorant() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    Level {account.account_data.level || 0}
+                    Level {account.account_data.TownHallLevel || 0}
                   </div>
                   <div className="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
@@ -640,18 +570,18 @@ export default function Valorant() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    {account.account_data.radianite_points || 0} RP
+                    {account.account_data.TrophyCount || 0} Trophies
                   </div>
                   <div className="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
-                        <path
+                      <path
                         fillRule="evenodd"
-                        d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z"
+                        d="M12 1.5a.75.75 0 01.75.75V4.5a.75.75 0 01-1.5 0V2.25A.75.75 0 0112 1.5zM5.636 4.136a.75.75 0 011.06 0l1.592 1.591a.75.75 0 01-1.061 1.06l-1.591-1.59a.75.75 0 010-1.061zm12.728 0a.75.75 0 010 1.06l-1.591 1.592a.75.75 0 01-1.06-1.061l1.59-1.591a.75.75 0 011.061 0zm-6.816 4.496a.75.75 0 01.82.311l5.228 7.917a.75.75 0 01-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 01-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 01-1.247-.606l.569-9.47a.75.75 0 01.554-.68zM3 10.5a.75.75 0 01.75-.75H6a.75.75 0 010 1.5H3.75A.75.75 0 013 10.5zm14.25 0a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H18a.75.75 0 01-.75-.75zm-8.962 3.712a.75.75 0 010 1.061l-1.591 1.591a.75.75 0 11-1.061-1.06l1.591-1.592a.75.75 0 011.06 0z"
                         clipRule="evenodd"
-                        />
+                      />
                     </svg>
-                    {account.account_data.valorant_points || 0} VP
-                    </div>
+                    {account.account_data.ClanLevel || 0} Clan Level
+                  </div>
                 </div>
                 
                 <div className="p-4 border-t border-gray-800 flex items-center justify-between">

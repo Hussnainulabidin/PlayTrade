@@ -27,18 +27,13 @@ export default function Valorant() {
   const itemsPerPage = 12 // 3 rows × 4 columns
   
   // Add filter states
-  const [selectedServer, setSelectedServer] = useState("")
   const [selectedRank, setSelectedRank] = useState("")
   const [selectedPrice, setSelectedPrice] = useState("")
-  const [isServerDropdownOpen, setIsServerDropdownOpen] = useState(false)
   const [isRankDropdownOpen, setIsRankDropdownOpen] = useState(false)
   const [isPriceDropdownOpen, setIsPriceDropdownOpen] = useState(false)
 
-  // Server options
-  const serverOptions = ["All Servers", "North America", "Europe", "Asia Pacific", "Latin America", "Brazil", "Korea", "Japan"]
-
   // Rank options
-  const rankOptions = ["All Ranks", "Unranked", "Iron", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Ascendent", "Immortal", "Radiant"]
+  const rankOptions = ["All Ranks", "Bronze", "Silver", "Gold", "Diamond", "Mythic", "Legendary", "Masters", "Pro"]
 
   // Price range options
   const priceOptions = [
@@ -50,15 +45,11 @@ export default function Valorant() {
     { label: "Over $500", value: "500" }
   ]
 
-  const serverDropdownRef = useRef(null)
   const rankDropdownRef = useRef(null)
   const priceDropdownRef = useRef(null)
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (serverDropdownRef.current && !serverDropdownRef.current.contains(event.target)) {
-        setIsServerDropdownOpen(false)
-      }
       if (rankDropdownRef.current && !rankDropdownRef.current.contains(event.target)) {
         setIsRankDropdownOpen(false)
       }
@@ -91,9 +82,6 @@ export default function Valorant() {
         if (debouncedSearchQuery) {
           queryParams.append('search', debouncedSearchQuery)
         }
-        if (selectedServer) {
-          queryParams.append('server', selectedServer)
-        }
         if (selectedRank) {
           queryParams.append('rank', selectedRank)
         }
@@ -101,7 +89,7 @@ export default function Valorant() {
           queryParams.append('price', selectedPrice)
         }
 
-        const response = await axios.get(`http://localhost:3003/valorant/accounts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`)
+        const response = await axios.get(`http://localhost:3003/brawlstars/accounts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`)
         console.log('API Response:', response.data)
         if (response.data?.data?.accounts) {
           // Shuffle the accounts array
@@ -140,7 +128,7 @@ export default function Valorant() {
     }
 
     fetchAccounts()
-  }, [debouncedSearchQuery, selectedServer, selectedRank, selectedPrice])
+  }, [debouncedSearchQuery, selectedRank, selectedPrice])
 
   const handleLoginSuccess = async (userData) => {
     await login(userData)
@@ -162,7 +150,7 @@ export default function Valorant() {
   }
 
   const handleAccountClick = (accountId) => {
-    navigate(`/accounts/valorant/${accountId}`)
+    navigate(`/accounts/brawlstars/${accountId}`)
   }
 
   // Add pagination functions
@@ -180,7 +168,7 @@ export default function Valorant() {
   // Add reset filters function
   const resetFilters = () => {
     setSearchQuery("")
-    setSelectedServer("")
+    setSelectedRank("")
     setSelectedPrice("")
     setCurrentPage(1)
   }
@@ -291,12 +279,12 @@ export default function Valorant() {
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
                 <path
                   fillRule="evenodd"
-                  d="M3 6a3 3 0 013-3h12a3 3 0 013 3v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6zm4.5 7.5a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0v-2.25a.75.75 0 01.75-.75zm3.75-1.5a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0V12zm2.25-3a.75.75 0 01.75.75v6.75a.75.75 0 01-1.5 0V9.75A.75.75 0 0113.5 9zm3.75-1.5a.75.75 0 00-1.5 0v9a.75.75 0 001.5 0v-9z"
+                  d="M3 6a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
                   clipRule="evenodd"
                 />
               </svg>
             </div>
-            <span className="font-bold text-xl">Valorant</span>
+            <span className="font-bold text-xl">Brawl Stars</span>
           </div>
 
           <div className="flex-1">
@@ -320,11 +308,11 @@ export default function Valorant() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => navigate("/accounts/valorant/support")}
+          <button
+              onClick={() => navigate("/accounts/brawlstars/support")}
               className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center hover:bg-gray-700"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
                 <path
                   fillRule="evenodd"
                   d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
@@ -361,8 +349,8 @@ export default function Valorant() {
             </svg>
           </div>
           <div>
-            <h1 className="text-2xl font-bold mb-1">Valorant Accounts</h1>
-            <p className="text-gray-400">Buy your dream Valorant account today!</p>
+            <h1 className="text-2xl font-bold mb-1">Brawl Stars Accounts</h1>
+            <p className="text-gray-400">Buy your dream Brawl Stars account today!</p>
           </div>
         </div>
 
@@ -381,54 +369,11 @@ export default function Valorant() {
             </div>
 
             <div className="flex gap-4 ml-auto">
-              <div className="relative" ref={serverDropdownRef}>
-                <button 
-                  className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
-                  onClick={() => {
-                    setIsServerDropdownOpen(!isServerDropdownOpen)
-                    setIsRankDropdownOpen(false)
-                    setIsPriceDropdownOpen(false)
-                  }}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-4 h-4 mr-2"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM6.262 6.072a8.25 8.25 0 1010.562-.766 4.5 4.5 0 01-1.318 1.357L14.25 7.5l.165.33a.809.809 0 01-1.086 1.085l-.604-.302a1.125 1.125 0 00-1.298.21l-.132.131c-.439.44-.439 1.152 0 1.591l.296.296c.256.257.622.374.98.314l1.17-.195c.323-.054.654.036.905.245l1.33 1.108c.32.267.46.694.358 1.1a8.7 8.7 0 01-2.288 4.04l-.723.724a1.125 1.125 0 01-1.298.21l-.153-.076a1.125 1.125 0 01-.622-1.006v-1.089c0-.298-.119-.585-.33-.796l-1.347-1.347a1.125 1.125 0 01-.21-1.298L9.75 12l-1.64-1.64a6 6 0 01-1.676-3.257l-.172-1.03z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {selectedServer || "All Servers"}
-                  <ChevronDown className="ml-2 w-4 h-4" />
-                </button>
-                {isServerDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#161b22] border border-gray-700 rounded-md shadow-lg z-50">
-                    {serverOptions.map((server) => (
-                      <button
-                        key={server}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
-                        onClick={() => {
-                          setSelectedServer(server === "All Servers" ? "" : server)
-                          setIsServerDropdownOpen(false)
-                        }}
-                      >
-                        {server}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               <div className="relative" ref={rankDropdownRef}>
                 <button 
                   className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
                   onClick={() => {
                     setIsRankDropdownOpen(!isRankDropdownOpen)
-                    setIsServerDropdownOpen(false)
                     setIsPriceDropdownOpen(false)
                   }}
                 >
@@ -470,7 +415,6 @@ export default function Valorant() {
                   className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
                   onClick={() => {
                     setIsPriceDropdownOpen(!isPriceDropdownOpen)
-                    setIsServerDropdownOpen(false)
                     setIsRankDropdownOpen(false)
                   }}
                 >
@@ -555,15 +499,8 @@ export default function Valorant() {
                 <div className="p-4 border-b border-gray-800">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-2">
-                      <div className="border-gray-800 rounded-full w-12 h-12 flex items-center justify-center p-0.5">
-                        <img 
-                          src={`/images/ranks/${account.account_data.current_rank?.toLowerCase() || 'unranked'}.png`}
-                          alt={account.account_data.current_rank || "Unranked"}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      </div>
                       <span className="font-bold text-blue-400 bg-[#1f2228] px-3 py-1 rounded-full border border-blue-500">
-                        {account.account_data.current_rank || "Unranked"} • {account.server || "N/A"}
+                        {account.account_data.rank || "Unranked"}
                       </span>
                     </div>
                   </div>
@@ -571,7 +508,7 @@ export default function Valorant() {
                     <div className="flex items-center gap-1">
                       <span>
                         {account.title ||
-                          `[${account.server || "N/A"}] ${account.description?.substring(0, 30) || "Valorant Account"}`}
+                          `[${account.account_data.rank || "N/A"}] ${account.description?.substring(0, 30) || "Brawl Stars Account"}`}
                       </span>
                       {account.verified && <span className="bg-green-600 text-xs px-1 rounded">✓</span>}
                     </div>
@@ -620,7 +557,7 @@ export default function Valorant() {
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
                       <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                     </svg>
-                    {account.skins || 0} Skins
+                    {account.account_data.MaxLevelBrawlers || 0} MaxLevel Brawlers
                   </div>
                   <div className="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
@@ -630,7 +567,7 @@ export default function Valorant() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    Level {account.account_data.level || 0}
+                    XPLevel {account.account_data.XPLevel || 0}
                   </div>
                   <div className="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
@@ -640,7 +577,7 @@ export default function Valorant() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    {account.account_data.radianite_points || 0} RP
+                    {account.account_data.Gems || 0} Gems
                   </div>
                   <div className="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
@@ -650,7 +587,7 @@ export default function Valorant() {
                         clipRule="evenodd"
                         />
                     </svg>
-                    {account.account_data.valorant_points || 0} VP
+                    {account.account_data.TrophiesCount || 0} Trophies
                     </div>
                 </div>
                 

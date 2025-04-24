@@ -28,8 +28,7 @@ exports.getAllAccounts = catchAsync(async (req, res, next) => {
   if (search) {
     searchQuery.$or = [
       { title: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } },
-      { ign: { $regex: search, $options: 'i' } }
+      { description: { $regex: search, $options: 'i' } }
     ];
   }
 
