@@ -659,4 +659,269 @@
   border-radius: 8px;
   text-align: center;
 }
+
+/* Feedback Modal Styles */
+.feedback-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.feedback-modal {
+  background-color: #1f1a2e;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  color: #e2e8f0;
+}
+
+.feedback-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #3a3448;
+  padding-bottom: 15px;
+}
+
+.feedback-modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: white;
+}
+
+.close-modal-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #a1a1aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+}
+
+.close-modal-btn:hover {
+  color: white;
+}
+
+.feedback-type-selection {
+  margin-bottom: 20px;
+}
+
+.feedback-type-selection p {
+  margin-bottom: 15px;
+  font-size: 0.95rem;
+}
+
+.feedback-options {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.feedback-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: #2a2438;
+  border: 2px solid #3a3448;
+  border-radius: 8px;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.feedback-option.selected {
+  border-color: #8b5cf6;
+  background-color: rgba(139, 92, 246, 0.1);
+}
+
+.feedback-option.positive {
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.feedback-option.positive.selected {
+  border-color: #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.feedback-option.negative {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.feedback-option.negative.selected {
+  border-color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.feedback-option span {
+  margin-top: 10px;
+}
+
+.feedback-message {
+  margin-bottom: 20px;
+}
+
+.feedback-message p {
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.feedback-message textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #3a3448;
+  background-color: #2a2438;
+  color: white;
+  resize: none;
+  font-family: inherit;
+}
+
+.feedback-message textarea:focus {
+  outline: none;
+  border-color: #8b5cf6;
+}
+
+.feedback-message small {
+  display: block;
+  text-align: right;
+  color: #a1a1aa;
+  font-size: 0.8rem;
+  margin-top: 5px;
+}
+
+.feedback-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-feedback-btn,
+.submit-feedback-btn {
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel-feedback-btn {
+  background-color: transparent;
+  border: 1px solid #3a3448;
+  color: #e2e8f0;
+}
+
+.submit-feedback-btn {
+  background-color: #8b5cf6;
+  border: 1px solid #8b5cf6;
+  color: white;
+}
+
+.submit-feedback-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submit-feedback-btn:hover:not(:disabled) {
+  background-color: #7c3aed;
+}
+
+/* Feedback Display Styles */
+.feedback-display {
+  margin: 20px 0;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #1f1a2e;
+  border: 1px solid;
+}
+
+.feedback-display.positive {
+  border-color: #10b981;
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+.feedback-display.negative {
+  border-color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.feedback-display-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.feedback-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.feedback-display.positive .feedback-icon {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.feedback-display.negative .feedback-icon {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.feedback-title h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.feedback-display.positive .feedback-title h3 {
+  color: #10b981;
+}
+
+.feedback-display.negative .feedback-title h3 {
+  color: #ef4444;
+}
+
+.feedback-content {
+  padding: 10px;
+  border-radius: 6px;
+  background-color: #29203d;
+  font-style: italic;
+}
+
+.feedback-content p {
+  margin: 0;
+  color: #e2e8f0;
+}
+
+/* Account Data Styles */
+.account-data-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1rem 0 0.75rem;
+  color: #e2e8f0;
+}
+
+.detail-value {
+  font-weight: 500;
+}
   

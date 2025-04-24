@@ -52,12 +52,13 @@ orderSchema.pre('save', async function(next) {
     const chat = await Chat.findOne({ orderId: this._id });
     
     if (chat) {
-      // Add a status update message to the chat
+      // Add a status update message to the chat as a system message
       const statusMessage = {
-        sender: this.sellerID, // Status updates come from the seller
+        sender: this.sellerID, // Keep the seller as technical sender for reference
         content: `Order status updated to: ${this.status}`,
         timestamp: Date.now(),
-        read: false
+        isSystemMessage: true, // Mark as system message
+        read: true // No need for notifications for system messages
       };
       
       chat.messages.push(statusMessage);

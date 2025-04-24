@@ -18,13 +18,8 @@ import CocPage from "./pages/coc"
 import BrawlPage from "./pages/Brawl"
 import AccountsLayout from "./pages/AccountsLayout"
 import AdminChatPage from "./pages/AdminDashboardChatPage"
-<<<<<<< HEAD
 import AdminSettingsPage from "./pages/SettingPage"
-=======
-import Valorant from "./components/Accounts/Valorant/Valorant"
-import ValorantDetail from "./components/Accounts/Valorant/Valorant-detail"
 import AccountsSupport from "./pages/AccountsSupport"
->>>>>>> 5be5e26bddf25f8149f20fafb36b168d7bfca2c3
 import "./App.css"
 import "./components/AdminDashboard/ui.css"
 
