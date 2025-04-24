@@ -12,9 +12,19 @@ import OrderDetailPage from "./pages/OrderDetails"
 import TicketsPage from "./pages/AdminDashboardTicketsPage"
 import TicketDetailPage from "./pages/TicketDetail"
 import ValorantPage from "./pages/valorant"
+import FortnitePage from "./pages/fortnite"
+import LeaguePage from "./pages/League"
+import CocPage from "./pages/coc"
+import BrawlPage from "./pages/Brawl"
 import AccountsLayout from "./pages/AccountsLayout"
 import AdminChatPage from "./pages/AdminDashboardChatPage"
+<<<<<<< HEAD
 import AdminSettingsPage from "./pages/SettingPage"
+=======
+import Valorant from "./components/Accounts/Valorant/Valorant"
+import ValorantDetail from "./components/Accounts/Valorant/Valorant-detail"
+import AccountsSupport from "./pages/AccountsSupport"
+>>>>>>> 5be5e26bddf25f8149f20fafb36b168d7bfca2c3
 import "./App.css"
 import "./components/AdminDashboard/ui.css"
 
@@ -26,6 +36,10 @@ const App = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/accounts" element={<AccountsLayout />}>
             <Route path="valorant/*" element={<ValorantPage />} />
+            <Route path="fortnite/*" element={<FortnitePage />} />
+            <Route path="leagueoflegends/*" element={<LeaguePage />} />
+            <Route path="clashofclans/*" element={<CocPage />} />
+            <Route path="brawlstars/*" element={<BrawlPage />} />
           </Route>
           <Route path="/order/:id" element={<OrderDetailPage />} />
           <Route path="/tickets/:id" element={<TicketDetailPage />}/>
@@ -33,8 +47,7 @@ const App = () => {
             <DashboardLayout>
               <TicketsPage />
             </DashboardLayout>
-          }
-          />
+          }/>
           
           <Route path="/admin/orders" element={
             <DashboardLayout>
@@ -76,6 +89,11 @@ const App = () => {
               <SellerOrdersPage />
             </DashboardLayout>
           } />
+          <Route path="/accounts/valorant/support" element={<AccountsSupport />} />
+          <Route path="/accounts/fortnite/support" element={<AccountsSupport />} />
+          <Route path="/accounts/leagueoflegends/support" element={<AccountsSupport />} />
+          <Route path="/accounts/clashofclans/support" element={<AccountsSupport />} />
+          <Route path="/accounts/brawlstars/support" element={<AccountsSupport />} />
         </Routes>
       </Router>
     </UserProvider>

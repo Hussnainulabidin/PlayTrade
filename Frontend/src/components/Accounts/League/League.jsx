@@ -9,7 +9,7 @@ import { SignupModal } from "../../SignupModal/SignupModal"
 import { useUser } from "../../userContext/UserContext"
 import { UserMenu } from "../../UserMenu/UserMenu"
 
-export default function Valorant() {
+export default function League() {
   const navigate = useNavigate()
   const { user, isAuthenticated, login, logout } = useUser()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
@@ -38,7 +38,7 @@ export default function Valorant() {
   const serverOptions = ["All Servers", "North America", "Europe", "Asia Pacific", "Latin America", "Brazil", "Korea", "Japan"]
 
   // Rank options
-  const rankOptions = ["All Ranks", "Unranked", "Iron", "Bronze", "Silver", "Gold", "Platinum", "Diamond", "Ascendent", "Immortal", "Radiant"]
+  const rankOptions = ["All Ranks", "Unranked", "Iron", "Bronze", "Silver", "Gold", "Platinum", "Emerald", "Diamond", "Master", "Grandmaster", "Challenger"]
 
   // Price range options
   const priceOptions = [
@@ -101,7 +101,7 @@ export default function Valorant() {
           queryParams.append('price', selectedPrice)
         }
 
-        const response = await axios.get(`http://localhost:3003/valorant/accounts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`)
+        const response = await axios.get(`http://localhost:3003/leagueoflegends/accounts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`)
         console.log('API Response:', response.data)
         if (response.data?.data?.accounts) {
           // Shuffle the accounts array
@@ -162,7 +162,7 @@ export default function Valorant() {
   }
 
   const handleAccountClick = (accountId) => {
-    navigate(`/accounts/valorant/${accountId}`)
+    navigate(`/accounts/leagueoflegends/${accountId}`)
   }
 
   // Add pagination functions
@@ -181,6 +181,7 @@ export default function Valorant() {
   const resetFilters = () => {
     setSearchQuery("")
     setSelectedServer("")
+    setSelectedRank("")
     setSelectedPrice("")
     setCurrentPage(1)
   }
@@ -296,7 +297,7 @@ export default function Valorant() {
                 />
               </svg>
             </div>
-            <span className="font-bold text-xl">Valorant</span>
+            <span className="font-bold text-xl">League of Legends</span>
           </div>
 
           <div className="flex-1">
@@ -320,11 +321,11 @@ export default function Valorant() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => navigate("/accounts/valorant/support")}
+            <button
+              onClick={() => navigate("/accounts/leagueoflegends/support")}
               className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center hover:bg-gray-700"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
                 <path
                   fillRule="evenodd"
                   d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
@@ -361,8 +362,8 @@ export default function Valorant() {
             </svg>
           </div>
           <div>
-            <h1 className="text-2xl font-bold mb-1">Valorant Accounts</h1>
-            <p className="text-gray-400">Buy your dream Valorant account today!</p>
+            <h1 className="text-2xl font-bold mb-1">League of Legends Accounts</h1>
+            <p className="text-gray-400">Buy your dream League of Legends account today!</p>
           </div>
         </div>
 
@@ -555,15 +556,8 @@ export default function Valorant() {
                 <div className="p-4 border-b border-gray-800">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-2">
-                      <div className="border-gray-800 rounded-full w-12 h-12 flex items-center justify-center p-0.5">
-                        <img 
-                          src={`/images/ranks/${account.account_data.current_rank?.toLowerCase() || 'unranked'}.png`}
-                          alt={account.account_data.current_rank || "Unranked"}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      </div>
                       <span className="font-bold text-blue-400 bg-[#1f2228] px-3 py-1 rounded-full border border-blue-500">
-                        {account.account_data.current_rank || "Unranked"} • {account.server || "N/A"}
+                        {account.account_data.server || "N/A"} • {account.account_data.current_rank || "Unranked"}
                       </span>
                     </div>
                   </div>
@@ -575,25 +569,12 @@ export default function Valorant() {
                       </span>
                       {account.verified && <span className="bg-green-600 text-xs px-1 rounded">✓</span>}
                     </div>
-                    <div className="flex items-center gap-1 text-gray-400">
-                      {account.readyForCompetitive && (
-                        <>
-                          <span className="text-green-500">✓</span>
-                          <span>Ready For Competitive</span>
-                        </>
-                      )}
-                      {account.firstEmail && (
-                        <>
-                          <span className="text-green-500 ml-1">✓</span>
-                          <span>First Email</span>
-                        </>
-                      )}
-                    </div>
+                    
                   </div>
                 </div>
                 <div className="relative">
                   <img
-                    src={account.gallery[0] || "/placeholder.svg?height=180&width=320"}
+                    src={account.imageUrl || "/placeholder.svg?height=180&width=320"}
                     alt="Account screenshot"
                     className="w-full h-[180px] object-cover"
                   />
@@ -611,7 +592,7 @@ export default function Valorant() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    {account.gallery || "0"}+
+                    {account.screenshots || "0"}+
                   </div>
                 </div>
                 <div className="p-3 border-t border-gray-800 grid grid-cols-4 gap-2 text-xs text-gray-400">
@@ -640,7 +621,7 @@ export default function Valorant() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    {account.account_data.radianite_points || 0} RP
+                    {account.account_data.blueEssence || 0} BE
                   </div>
                   <div className="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
@@ -650,7 +631,7 @@ export default function Valorant() {
                         clipRule="evenodd"
                         />
                     </svg>
-                    {account.account_data.valorant_points || 0} VP
+                    {account.account_data.riotPoints || 0} RP
                     </div>
                 </div>
                 
