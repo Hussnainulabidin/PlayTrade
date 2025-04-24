@@ -30,6 +30,8 @@ function PlayTradeLanding() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchRef = useRef(null);
 
   const [activeServiceIndex, setActiveServiceIndex] = useState(0);
   const [activeStatIndex, setActiveStatIndex] = useState(0);
@@ -40,6 +42,19 @@ function PlayTradeLanding() {
   const [isSliderPaused, setIsSliderPaused] = useState(false);
   const autoScrollIntervalRef = useRef(null);
   const [activeGameIndex, setActiveGameIndex] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const games = [
+    { name: "Fortnite", image: "/images/Fort.png", path: "/accounts/fortnite" },
+    { name: "League of Legends", image: "/images/Log.png", path: "/accounts/leagueoflegends" },
+    { name: "Valorant", image: "/images/Val.jpg", path: "/accounts/valorant" },
+    { name: "Clash of Clans", image: "/images/Coc.png", path: "/accounts/clashofclans" },
+    { name: "Brawl Stars", image: "/images/Bs.jpg", path: "/accounts/brawlstars" },
+  ];
+
+  const filteredGames = games.filter(game => 
+    game.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -89,6 +104,19 @@ function PlayTradeLanding() {
       }
     };
   }, [isSliderPaused]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearchOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const toggleFaqItem = (index) => {
     setOpenFaqItem(openFaqItem === index ? null : index);
@@ -157,25 +185,42 @@ function PlayTradeLanding() {
 
   const scrollGamesSlider = (direction) => {
     if (gamesSliderRef.current) {
+      const slider = gamesSliderRef.current;
       const cardWidth = 200; // Approximate width of a card including gap
-      const currentScroll = gamesSliderRef.current.scrollLeft;
+      const maxScroll = slider.scrollWidth - slider.clientWidth;
+      const currentScroll = slider.scrollLeft;
+      const totalGames = 5; // Total number of games in the slider
       
-      let newIndex;
       let newScroll;
+      let newIndex;
       
       if (direction === 'left') {
-        newIndex = activeGameIndex > 0 ? activeGameIndex - 1 : 6;
-        newScroll = newIndex * cardWidth;
+        if (currentScroll <= 0) {
+          // If at the start, scroll to the end
+          newScroll = maxScroll;
+          newIndex = totalGames - 1;
+        } else {
+          // Scroll left by one card
+          newScroll = Math.max(0, currentScroll - cardWidth);
+          newIndex = Math.max(0, activeGameIndex - 1);
+        }
       } else if (direction === 'right') {
-        newIndex = activeGameIndex < 6 ? activeGameIndex + 1 : 0;
-        newScroll = newIndex * cardWidth;
+        if (currentScroll >= maxScroll) {
+          // If at the end, scroll to the start
+          newScroll = 0;
+          newIndex = 0;
+        } else {
+          // Scroll right by one card
+          newScroll = Math.min(maxScroll, currentScroll + cardWidth);
+          newIndex = Math.min(totalGames - 1, activeGameIndex + 1);
+        }
       } else {
         // If direction is a number (index), use it directly
         newIndex = direction;
         newScroll = newIndex * cardWidth;
       }
       
-      gamesSliderRef.current.scrollTo({
+      slider.scrollTo({
         left: newScroll,
         behavior: 'smooth'
       });
@@ -186,10 +231,40 @@ function PlayTradeLanding() {
 
   const handleSliderMouseEnter = () => {
     setIsSliderPaused(true);
+    if (autoScrollIntervalRef.current) {
+      clearInterval(autoScrollIntervalRef.current);
+      autoScrollIntervalRef.current = null;
+    }
   };
 
   const handleSliderMouseLeave = () => {
     setIsSliderPaused(false);
+    // Restart auto-scroll when mouse leaves
+    if (!autoScrollIntervalRef.current) {
+      autoScrollIntervalRef.current = setInterval(() => {
+        if (!isSliderPaused && gamesSliderRef.current) {
+          const slider = gamesSliderRef.current;
+          const maxScroll = slider.scrollWidth - slider.clientWidth;
+          const totalGames = 5;
+          
+          if (slider.scrollLeft >= maxScroll) {
+            // Reset to beginning when reaching the end
+            slider.scrollTo({
+              left: 0,
+              behavior: 'smooth'
+            });
+            setActiveGameIndex(0);
+          } else {
+            // Scroll by one card width
+            slider.scrollTo({
+              left: slider.scrollLeft + cardWidth,
+              behavior: 'smooth'
+            });
+            setActiveGameIndex(prevIndex => (prevIndex + 1) % totalGames);
+          }
+        }
+      }, 3000);
+    }
   };
 
   return (
@@ -231,13 +306,48 @@ function PlayTradeLanding() {
             High-Quality Accounts · Premium Gaming Services · In-Game Currencies
           </p>
 
-          <div className="pt-search-container">
-            <Search className="pt-search-icon" />
-            <input
-              type="text"
-              placeholder="Search for games..."
-              className="pt-search-input"
-            />
+          <div className="pt-search-container" ref={searchRef}>
+            <div className="pt-search-input">
+              <Search className="pt-search-icon" />
+              <input
+                type="text"
+                placeholder="Search for games..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setIsSearchOpen(true);
+                }}
+                onFocus={() => setIsSearchOpen(true)}
+              />
+            </div>
+            {isSearchOpen && (
+              <div className="pt-search-dropdown">
+                {filteredGames.length > 0 ? (
+                  filteredGames.map((game) => (
+                    <Link
+                      key={game.name}
+                      to={game.path}
+                      className="pt-search-dropdown-item"
+                      onClick={() => {
+                        setIsSearchOpen(false);
+                        setSearchQuery('');
+                      }}
+                    >
+                      <img
+                        src={game.image}
+                        alt={game.name}
+                        className="pt-search-game-image"
+                      />
+                      <span>{game.name}</span>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="pt-search-dropdown-item">
+                    No games found
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Service Icons */}
@@ -287,15 +397,13 @@ function PlayTradeLanding() {
             
             <div className="pt-games-slider" ref={gamesSliderRef}>
               {[
-                { name: "Fortnite", image: "/images/Fort.png" },
-                { name: "League of Legends", image: "/images/Log.png" },
+                { name: "Fortnite", image: "/images/Fort.png", path: "/accounts/fortnite" },
+                { name: "League of Legends", image: "/images/Log.png" , path: "/accounts/leagueoflegends" },
                 { name: "Valorant", image: "/images/Val.jpg", path: "/accounts/valorant" },
-                { name: "GTA V", image: "/images/GTAV.jpeg" },
-                { name: "Clash of Clans", image: "/images/Coc.png" },
-                { name: "Call of Duty", image: "/images/Cod.png" },
-                { name: "Brawl Stars", image: "/images/Bs.jpg" },
+                { name: "Clash of Clans", image: "/images/Coc.png", path: "/accounts/clashofclans" },
+                { name: "Brawl Stars", image: "/images/Bs.jpg", path: "/accounts/brawlstars" },
               ].map((game) => (
-                game.name === "Valorant" ? (
+                game.path ? (
                   <Link to={game.path} key={game.name} className="pt-game-card">
                     <img
                       src={game.image}
@@ -326,7 +434,7 @@ function PlayTradeLanding() {
             </button>
             
             <div className="pt-slider-indicators">
-              {[0, 1, 2, 3, 4, 5, 6].map((index) => (
+              {[0, 1, 2, 3, 4].map((index) => (
                 <button
                   key={index}
                   className={`pt-slider-indicator ${index === activeGameIndex ? 'pt-active' : ''}`}

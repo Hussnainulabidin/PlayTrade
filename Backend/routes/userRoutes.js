@@ -12,18 +12,24 @@ router.post('/login', authController.login);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 
+// Protected routes (require authentication)
+router.use(authController.protect);
 
-//admin routes for updating and deleting users
-router
-    .route("/")
-    .get(userController.getAllUsers)
-    .post(userController.createUser);
+router.post('/update-password', authController.updatePassword);
+router.post('/toggle-2fa', authController.toggleTwoFactorAuth);
+router.post('/profile-picture', userController.uploadProfilePicture);
+router.post('/logout-all', authController.logoutAllSessions);
 
-router.route("/me").get(authController.protect, userController.myData)
+router.route("/me").get(userController.myData);
 
-router.route("/getSeller").get(authController.protect, authController.restrictTo("admin"), userController.getAllSellers)
+// Admin routes
+router.use(authController.restrictTo("admin"));
 
-router.route("/getSeller/:id").get(authController.protect, authController.restrictTo("admin"), userController.getSeller)
+router.route("/").get(userController.getAllUsers).post(userController.createUser);
+
+router.route("/getSeller").get(userController.getAllSellers);
+
+router.route("/getSeller/:id").get(userController.getSeller);
 
 router
     .route("/:id")

@@ -31,12 +31,18 @@ export function SellersList() {
   }, [])
 
   const handleDropdownClick = (sellerId, event) => {
+    event.stopPropagation()
     const button = event.currentTarget
     const rect = button.getBoundingClientRect()
+    
+    // Calculate position relative to viewport
+    const left = rect.left - 120 // Position dropdown to the left of the button
+    
     setDropdownPosition({
-      top: rect.bottom,
-      left: rect.left - 120 // Position to the left of the button
+      top: rect.bottom + window.scrollY,
+      left: Math.max(10, left) // Ensure dropdown doesn't go off-screen to the left
     })
+    
     setActiveDropdownId(activeDropdownId === sellerId ? null : sellerId)
   }
 
@@ -128,12 +134,13 @@ export function SellersList() {
                 <td className="table-cell">{seller.name ? (seller.name.length > 50 ? seller.name.substring(0, 50) + '...' : seller.name) : ''}</td>
                 <td className="table-cell">{seller.email ? (seller.email.length > 50 ? seller.email.substring(0, 50) + '...' : seller.email) : ''}</td>
                 <td className="table-cell">
-                  <span className={`status-badge ${seller.status === "Active"
+                  <span className={`status-badge ${
+                    seller.status === "Active"
                       ? "badge-listed"
                       : seller.status === "Suspended"
-                        ? "badge-draft"
-                        : "badge-other"
-                    }`}>
+                      ? "badge-draft"
+                      : "badge-other"
+                  }`}>
                     {seller.status}
                   </span>
                 </td>
@@ -145,7 +152,7 @@ export function SellersList() {
                   <button className="action-icon-button">
                     <Edit className="action-icon" size={18} />
                   </button>
-                  <button
+                  <button 
                     className="action-icon-button"
                     onClick={(e) => handleDropdownClick(seller.id, e)}
                   >
@@ -163,8 +170,9 @@ export function SellersList() {
           ref={dropdownRef}
           className="dropdown-container"
           style={{
-            top: dropdownPosition.top,
-            left: dropdownPosition.left,
+            position: 'fixed', // Change to fixed positioning
+            top: `${dropdownPosition.top}px`,
+            left: `${dropdownPosition.left}px`,
           }}
         >
           <div className="dropdown-menu">

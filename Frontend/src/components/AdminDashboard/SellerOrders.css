@@ -118,8 +118,19 @@
   }
   
   .order-id {
-    font-weight: 500;
-    color: white;
+    font-family: monospace;
+    font-weight: 600;
+  }
+  
+  .order-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  
+  .order-link:hover {
+    color: var(--primary);
+    text-decoration: underline;
   }
   
   .status-badge {
@@ -154,6 +165,11 @@
   
   .badge-active {
     background-color: #8b5cf6;
+    color: white;
+  }
+  
+  .badge-other {
+    background-color: #6b7280;
     color: white;
   }
   

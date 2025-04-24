@@ -1,4 +1,4 @@
-/* Orders page styling to match Sellers page but more compact */
+Orders page styling to match Sellers page but more compact
 .sellers-container {
   padding: 1.25rem;
   background-color: #0d0c17;
@@ -235,6 +235,11 @@
 .loader-text {
   margin-top: 1rem;
   font-size: 0.875rem;
+}
+
+.badge-refunded {
+  background-color: #ef4444;
+  color: white;
 }
 
 @keyframes rotation {

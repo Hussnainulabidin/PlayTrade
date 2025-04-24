@@ -116,3 +116,104 @@ exports.getAccountsBySellerId = catchAsync(async (req, res, next) => {
         data: { gameAccounts }
     });
 });
+
+exports.updateAccountStatus = catchAsync(async (req, res, next) => {
+    const { accountId, gameType, status } = req.body;
+    
+    if (!accountId || !gameType || !status) {
+        return next(new AppError('Account ID, game type, and status are required', 400));
+    }
+    
+    // Validate status value
+    const validStatuses = ['active', 'draft', 'sold'];
+    if (!validStatuses.includes(status)) {
+        return next(new AppError('Invalid status. Must be one of: active, draft, sold', 400));
+    }
+    
+    let model;
+    
+    // Select the appropriate model based on game type
+    switch(gameType.toLowerCase()) {
+        case 'valorant':
+            model = valorant;
+            break;
+        case 'clash of clans':
+            model = clashofclans;
+            break;
+        case 'league of legends':
+            model = leagueoflegends;
+            break;
+        case 'fortnite':
+            model = fortnite;
+            break;
+        case 'brawl stars':
+            model = brawlstars;
+            break;
+        default:
+            return next(new AppError('Invalid game type', 400));
+    }
+    
+    // Update the account status
+    const updatedAccount = await model.findByIdAndUpdate(
+        accountId,
+        { status },
+        { new: true, runValidators: true }
+    );
+    
+    if (!updatedAccount) {
+        return next(new AppError('No account found with that ID', 404));
+    }
+    
+    res.status(200).json({
+        status: 'success',
+        data: {
+            account: {
+                ...updatedAccount._doc,
+                gameType
+            }
+        }
+    });
+});
+
+exports.deleteAccount = catchAsync(async (req, res, next) => {
+    const { accountId, gameType } = req.body;
+    
+    if (!accountId || !gameType) {
+        return next(new AppError('Account ID and game type are required', 400));
+    }
+    
+    let model;
+    
+    // Select the appropriate model based on game type
+    switch(gameType.toLowerCase()) {
+        case 'valorant':
+            model = valorant;
+            break;
+        case 'clash of clans':
+            model = clashofclans;
+            break;
+        case 'league of legends':
+            model = leagueoflegends;
+            break;
+        case 'fortnite':
+            model = fortnite;
+            break;
+        case 'brawl stars':
+            model = brawlstars;
+            break;
+        default:
+            return next(new AppError('Invalid game type', 400));
+    }
+    
+    // Delete the account
+    const deletedAccount = await model.findByIdAndDelete(accountId);
+    
+    if (!deletedAccount) {
+        return next(new AppError('No account found with that ID', 404));
+    }
+    
+    res.status(200).json({
+        status: 'success',
+        message: 'Account successfully deleted'
+    });
+});

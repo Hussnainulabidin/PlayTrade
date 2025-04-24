@@ -8,7 +8,73 @@ const clashofclans = require("./../models/clashofclans");
 const leagueoflegends = require("./../models/leagueoflegends");
 const fortnite = require("./../models/fortnite");
 const brawlstars = require("./../models/brawlstars");
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
+// Configure multer for file storage
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    const uploadDir = 'public/img/users';
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function(req, file, cb) {
+    const ext = path.extname(file.originalname);
+    cb(null, `user-${req.user.id}-${Date.now()}${ext}`);
+  }
+});
+
+// Filter files to accept only images
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an image! Please upload only images.', 400), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: fileFilter
+});
+
+// Middleware for handling single file upload
+exports.uploadProfilePicture = catchAsync(async (req, res, next) => {
+  // Use the upload middleware
+  upload.single('profilePicture')(req, res, async (err) => {
+    if (err) {
+      return next(new AppError(err.message, 400));
+    }
+    
+    if (!req.file) {
+      return next(new AppError('Please upload a file', 400));
+    }
+    
+    // Update user profile picture in database
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { profilePicture: `/img/users/${req.file.filename}` },
+      { new: true, runValidators: false }
+    );
+    
+    if (!user) {
+      return next(new AppError('User not found', 404));
+    }
+    
+    res.status(200).json({
+      status: 'success',
+      success: true,
+      profilePicture: `/img/users/${req.file.filename}`
+    });
+  });
+});
 
 exports.getAllUsers = catchAsync( async (req, res , next) => {
   const users = await User.find();

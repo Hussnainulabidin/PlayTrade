@@ -13,6 +13,7 @@ export function OrdersList() {
   const [error, setError] = useState(null)
   const [activeDropdownId, setActiveDropdownId] = useState(null)
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 })
+  const [refunding, setRefunding] = useState(false)
   const dropdownRef = useRef(null)
 
   useEffect(() => {
@@ -29,12 +30,18 @@ export function OrdersList() {
   }, [])
 
   const handleDropdownClick = (orderId, event) => {
+    event.stopPropagation()
     const button = event.currentTarget
     const rect = button.getBoundingClientRect()
+    
+    // Calculate position relative to viewport
+    const left = rect.left - 120 // Position dropdown to the left of the button
+    
     setDropdownPosition({
-      top: rect.bottom,
-      left: rect.left - 120 // Position to the left of the button
+      top: rect.bottom + window.scrollY,
+      left: Math.max(10, left) // Ensure dropdown doesn't go off-screen to the left
     })
+    
     setActiveDropdownId(activeDropdownId === orderId ? null : orderId)
   }
 
@@ -77,6 +84,50 @@ export function OrdersList() {
     
     fetchOrders()
   }, [])
+
+  const handleRefundOrder = async (orderId) => {
+    if (!window.confirm('Are you sure you want to refund this order? This will:\n- Return the full payment to the customer\n- Deduct funds from the seller\'s wallet\n- Set the account status back to active\n- Record transactions in wallet history\n\nThis action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setRefunding(true);
+      let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token');
+      
+      if (token && token.startsWith('"') && token.endsWith('"')) {
+        token = token.slice(1, -1);
+      }
+      
+      const response = await axios.post(
+        `http://localhost:3003/orders/${orderId}/refund`,
+        {},
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined
+          }
+        }
+      );
+      
+      if (response.data.status === 'success') {
+        setOrders(prevOrders => 
+          prevOrders.map(order => 
+            order.id === orderId
+              ? { ...order, status: 'Refunded' }
+              : order
+          )
+        );
+        
+        alert('Order has been successfully refunded. Wallet transactions have been recorded.');
+        
+        setActiveDropdownId(null);
+      }
+    } catch (err) {
+      console.error('Error refunding order:', err);
+      alert(`Failed to refund order: ${err.response?.data?.message || 'Unknown error'}`);
+    } finally {
+      setRefunding(false);
+    }
+  };
 
   const filteredOrders = orders.filter(
     (order) =>
@@ -167,25 +218,27 @@ export function OrdersList() {
                   <td className="table-cell">
                     <span className={`status-badge ${
                       order.status === "Completed"
-                        ? "badge-listed"
+                        ? "badge-completed"
                         : order.status === "Processing"
-                          ? "badge-other"
-                          : "badge-draft"
+                          ? "badge-processing"
+                          : order.status === "Refunded"
+                            ? "badge-refunded"
+                            : "badge-other"
                     }`}>
                       {order.status}
                     </span>
                   </td>
                   <td className="table-cell">{order.amount}</td>
                   <td className="table-cell">{order.date}</td>
-                  <td className="actions-cell">
-                    <button className="action-button">
-                      <ExternalLink size={14} />
-                    </button>
+                  <td className="table-cell actions-cell">
+                    <Link to={`/order/${order.id}`} className="action-icon-button">
+                      <ExternalLink className="action-icon" size={18} />
+                    </Link>
                     <button 
-                      className="action-button"
+                      className="action-icon-button"
                       onClick={(e) => handleDropdownClick(order.id, e)}
                     >
-                      <MoreVertical size={14} />
+                      <MoreVertical className="action-icon" size={18} />
                     </button>
                   </td>
                 </tr>
@@ -200,14 +253,20 @@ export function OrdersList() {
           ref={dropdownRef}
           className="dropdown-container"
           style={{
-            top: dropdownPosition.top,
-            left: dropdownPosition.left,
+            position: 'fixed',
+            top: `${dropdownPosition.top}px`,
+            left: `${dropdownPosition.left}px`,
           }}
         >
           <div className="dropdown-menu">
-            <button className="dropdown-item">View Order Details</button>
-            <button className="dropdown-item">Update Status</button>
-            <button className="dropdown-item dropdown-item-danger">Refund Order</button>
+            <Link to={`/order/${activeDropdownId}`} className="dropdown-item">View Order Details</Link>
+            <button 
+              className="dropdown-item dropdown-item-danger"
+              onClick={() => handleRefundOrder(activeDropdownId)}
+              disabled={refunding}
+            >
+              {refunding ? "Processing..." : "Refund Order"}
+            </button>
           </div>
         </div>
       )}

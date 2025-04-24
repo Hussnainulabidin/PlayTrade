@@ -173,6 +173,60 @@ exports.resetPassword = catchAsync ( async (req , res , next) => {
     });
 })
 
-exports.updatePassword = (req , res , next) => {
+exports.updatePassword = catchAsync(async (req, res, next) => {
+    // 1) Get user from collection
+    const user = await User.findById(req.user.id).select('+password');
+  
+    // 2) Check if POSTed current password is correct
+    if (!(await user.correctPassword(req.body.currentPassword, user.password))) {
+      return next(new AppError('Your current password is wrong.', 401));
+    }
+  
+    // 3) If so, update password
+    user.password = req.body.newPassword;
+    user.passwordConfirm = req.body.newPassword;
+    await user.save();
+  
+    // 4) Log user in, send JWT
+    createSendToken(user, 200, res);
+});
 
-}
+exports.toggleTwoFactorAuth = catchAsync(async (req, res, next) => {
+    // Update user's 2FA settings
+    const user = await User.findByIdAndUpdate(
+        req.user.id,
+        { twoFactorEnabled: req.body.enabled },
+        { new: true, runValidators: true }
+    );
+
+    if (!user) {
+        return next(new AppError('No user found with that ID', 404));
+    }
+
+    res.status(200).json({
+        status: 'success',
+        success: true,
+        data: {
+            twoFactorEnabled: user.twoFactorEnabled
+        }
+    });
+});
+
+exports.logoutAllSessions = catchAsync(async (req, res, next) => {
+    // Update the user's passwordChangedAt field to invalidate all tokens
+    const user = await User.findByIdAndUpdate(
+        req.user.id,
+        { passwordChangedAt: Date.now() },
+        { new: true }
+    );
+
+    if (!user) {
+        return next(new AppError('No user found with that ID', 404));
+    }
+
+    res.status(200).json({
+        status: 'success',
+        success: true,
+        message: 'Logged out from all sessions'
+    });
+});
