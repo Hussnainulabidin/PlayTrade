@@ -7,6 +7,9 @@ const router = express.Router();
 // Protect all routes
 router.use(authController.protect);
 
+// Get current user's orders
+router.route("/my-orders").get(orderController.getMyOrders);
+
 // Get orders by seller ID - restricted to admin and the seller themselves
 router.route("/seller/:id").get(authController.restrictTo("admin" , "seller"),orderController.getOrdersBySellerId);
 

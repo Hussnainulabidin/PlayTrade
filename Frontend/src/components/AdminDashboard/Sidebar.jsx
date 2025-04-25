@@ -17,7 +17,7 @@ export function Sidebar() {
     { icon: Users, label: "Sellers", link: "/admindashboard/sellers" },
     { icon: ShoppingCart, label: "Orders", link: "/admin/orders" },
     { icon: TicketIcon, label: "Tickets", link: "/admin/tickets" },
-    { icon: MessageSquare, label: "Chat", link: "/admin/chat" },
+    { icon: MessageSquare, label: "Chat", link: "/chat" },
     { icon: Settings, label: "Settings", link: "/admin/settings" }
   ]
 

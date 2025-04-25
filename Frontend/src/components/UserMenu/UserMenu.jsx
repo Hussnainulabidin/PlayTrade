@@ -18,14 +18,14 @@ const menuItems = {
   admin: [
     { icon: LayoutDashboard, label: 'Dashboard', link: '/admindashboard/sellers' },
     { icon: TicketIcon, label: 'Tickets', link: '/admin/tickets' },
-    { icon: MessageSquare, label: 'Chat', link: '/admin/chat' },
+    { icon: MessageSquare, label: 'Chat', link: '/chat' },
     { icon: Settings, label: 'Settings', link: '/admin/settings' }
   ],
   client: [
-    { icon: LayoutDashboard, label: 'Dashboard', link: '/dashboard' },
-    { icon: ShoppingBag, label: 'Orders', link: '/orders' },
-    { icon: MessageSquare, label: 'Chat', link: '/chat' },
-    { icon: Settings, label: 'Settings', link: '/settings' }
+    { icon: LayoutDashboard, label: 'Dashboard', link: '/client/chat' },
+    { icon: ShoppingBag, label: 'Orders', link: '/client/orders' },
+    { icon: MessageSquare, label: 'Chat', link: '/client/chat' },
+    { icon: Settings, label: 'Settings', link: '/client/settings' }
   ],
   seller: [
     { icon: LayoutDashboard, label: 'Dashboard', link: '/seller/dashboard/accounts' },

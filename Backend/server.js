@@ -23,7 +23,7 @@ mongoose.connect(DB, {
   console.log("DB connection successful");
 })
 
-const port = 3003 || process.env.PORT;
+const port = process.env.PORT || 3003;
 
 // Create HTTP server
 const server = http.createServer(app);

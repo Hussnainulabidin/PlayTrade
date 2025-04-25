@@ -39,6 +39,10 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use("/test" , function(req , res){
+  res.send("Hello from the middleware 👋");
+})
+
 // 2) Routes
 app.use("/valorant", valorantRouter);
 app.use("/clashofclans", clashofclansRouter);

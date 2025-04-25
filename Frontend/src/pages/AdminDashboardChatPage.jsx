@@ -10,7 +10,7 @@ import axios from "axios"
 import { useUser } from "../components/userContext/UserContext"
 import "./AdminChat.css"
 
-function AdminChatPage() {
+function AdminChatPage({ isClientView = false }) {
   const { user } = useUser()
   const [chats, setChats] = useState([])
   const [activeChat, setActiveChat] = useState(null)
@@ -173,7 +173,7 @@ function AdminChatPage() {
   return (
     <div className="chat-container">
       <div className="chat-header">
-        <h1 className="chat-title">Messages</h1>
+        <h1 className="chat-title">{isClientView ? "My Messages" : "Messages"}</h1>
       </div>
       
       <div className="filter-buttons">

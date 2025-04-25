@@ -18,7 +18,15 @@ import OrdersPage from "./pages/OrdersPage"
 import OrderDetailPage from "./pages/OrderDetails"
 import TicketsPage from "./pages/AdminDashboardTicketsPage"
 import TicketDetailPage from "./pages/TicketDetail"
+
+import SellerTicketDetailPage from "./pages/SellerTicketDetail"
+
 import ValorantPage from "./pages/valorant"
+import FortnitePage from "./pages/fortnite"
+import ClashofclansPage from "./pages/coc"
+import BrawlhallaPage from "./pages/Brawl"
+import LeaguePage from "./pages/league"
+
 import AccountsLayout from "./pages/AccountsLayout"
 import AdminChatPage from "./pages/AdminDashboardChatPage"
 import AdminSettingsPage from "./pages/SettingPage"
@@ -26,6 +34,9 @@ import Valorant from "./components/Accounts/Valorant/Valorant"
 import ValorantDetail from "./components/Accounts/Valorant/Valorant-detail"
 import AccountsSupport from "./pages/AccountsSupport"
 import SettingPage from "./pages/SettingPage"
+import ClientDashboardLayout from "./components/layouts/ClientDashboardLayout"
+import ClientOrdersPage from "./pages/ClientOrdersPage"
+import ClientChatPage from "./pages/ClientChatPage"
 import "./App.css"
 import "./components/AdminDashboard/ui.css"
 
@@ -36,8 +47,13 @@ const App = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/accounts" element={<AccountsLayout />}>
-            <Route path="valorant/*" element={<ValorantPage />} />
+            <Route path="valorant/*" element={<ValorantPage />} /> 
+            <Route path="clashofclans/*" element={<ClashofclansPage />} />
+            <Route path="fortnite/*" element={<FortnitePage />} />
+            <Route path="brawlstars/*" element={<BrawlhallaPage />} />
+            <Route path="leagueoflegends/*" element={<LeaguePage />} />
           </Route>
+          
           <Route path="/order/:id" element={<OrderDetailPage />} />
           <Route path="/tickets/:id" element={<TicketDetailPage />} />
           <Route path="/admin/tickets" element={
@@ -51,7 +67,7 @@ const App = () => {
               <OrdersPage />
             </DashboardLayout>
           } />
-          <Route path="/admin/chat" element={
+          <Route path="/chat" element={
             <DashboardLayout>
               <AdminChatPage />
             </DashboardLayout>
@@ -85,6 +101,22 @@ const App = () => {
             <DashboardLayout>
               <SellerOrdersPage />
             </DashboardLayout>
+          } />
+
+          <Route path="/client/orders" element={
+            <ClientDashboardLayout>
+              <ClientOrdersPage />
+            </ClientDashboardLayout>
+          } />
+          <Route path="/client/chat" element={
+            <ClientDashboardLayout>
+              <ClientChatPage />
+            </ClientDashboardLayout>
+          } />
+          <Route path="/client/settings" element={
+            <ClientDashboardLayout>
+              <SettingPage />
+            </ClientDashboardLayout>
           } />
 
           <Route path="/seller/dashboard/accounts"
