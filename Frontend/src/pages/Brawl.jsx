@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import BrawlComponent from '../components/Accounts/BrawlStars/BrawlStars';
 import BrawlDetail from '../components/Accounts/BrawlStars/BrawlStars-detail';
-import './brawl.css';
+import './Brawl.css';
         
 function BrawlPage() {
   return (
