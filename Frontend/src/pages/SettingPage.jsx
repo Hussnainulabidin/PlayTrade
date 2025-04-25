@@ -201,7 +201,7 @@ const SettingPage = () => {
       setLoggingOut(false);
     }
   };
-
+  
   const handleNotificationToggle = async (name) => {
     try {
       setIsLoading(true);
@@ -268,7 +268,7 @@ const SettingPage = () => {
                 <div className="field-value">
                   <div className="field-text username-field">
                     {user?.username}
-                    <button className="edit-btn">EDIT</button>
+                  <button className="edit-btn">EDIT</button>
                   </div>
                 </div>
                 <div className="field-info">Name that is visible to other users. You can change your username once every 90 days.</div>

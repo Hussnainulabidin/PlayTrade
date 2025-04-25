@@ -21,6 +21,9 @@ import ValorantPage from "./pages/valorant"
 import AccountsLayout from "./pages/AccountsLayout"
 import AdminChatPage from "./pages/AdminDashboardChatPage"
 import SettingPage from "./pages/SettingPage"
+import ClientDashboardLayout from "./components/layouts/ClientDashboardLayout"
+import ClientOrdersPage from "./pages/ClientOrdersPage"
+import ClientChatPage from "./pages/ClientChatPage"
 import "./App.css"
 import "./components/AdminDashboard/ui.css"
 
@@ -41,13 +44,13 @@ const App = () => {
             </DashboardLayout>
           }
           />
-
+          
           <Route path="/admin/orders" element={
             <DashboardLayout>
               <OrdersPage />
             </DashboardLayout>
           } />
-          <Route path="/admin/chat" element={
+          <Route path="/chat" element={
             <DashboardLayout>
               <AdminChatPage />
             </DashboardLayout>
@@ -81,6 +84,22 @@ const App = () => {
             <DashboardLayout>
               <SellerOrdersPage />
             </DashboardLayout>
+          } />
+
+          <Route path="/client/orders" element={
+            <ClientDashboardLayout>
+              <ClientOrdersPage />
+            </ClientDashboardLayout>
+          } />
+          <Route path="/client/chat" element={
+            <ClientDashboardLayout>
+              <ClientChatPage />
+            </ClientDashboardLayout>
+          } />
+          <Route path="/client/settings" element={
+            <ClientDashboardLayout>
+              <SettingPage />
+            </ClientDashboardLayout>
           } />
 
           <Route path="/seller/dashboard/accounts"

@@ -45,6 +45,123 @@ const COMMISSION_RATES = {
   Default: 15, // Default commission rate
 };
 
+// Get all orders for the currently logged-in user (client)
+exports.getMyOrders = catchAsync(async (req, res, next) => {
+  // Get current user ID
+  const userId = req.user._id;
+
+  // Find all orders where clientID matches the current user's ID
+  const orders = await Orders.find({ clientID: userId })
+    .sort({ createdAt: -1 })
+    .populate({
+      path: "accountID",
+      select: "title gameType",
+    });
+
+  // Get unique seller IDs from orders
+  const sellerIds = [...new Set(orders.map((order) => order.sellerID))];
+
+  // Fetch all sellers in one query
+  const sellers = await User.find({
+    _id: { $in: sellerIds },
+  }).select("_id username");
+
+  // Create a map for quick lookup
+  const sellerMap = {};
+  sellers.forEach((seller) => {
+    sellerMap[seller._id.toString()] = seller.username;
+  });
+
+  // Process each order to get game details
+  const formattedOrdersPromises = orders.map(async (order) => {
+    // Determine game type based on available data
+    const gameType = order.game || (order.accountID && order.accountID.gameType) || "Valorant";
+
+    // Get price from order schema
+    const orderPrice = order.price || order.amount || 0;
+
+    // Format creation date
+    const creationDate = order.createdAt || new Date();
+
+    // Get seller username from the map
+    const sellerId = order.sellerID.toString();
+    const sellerUsername = sellerMap[sellerId] || "Unknown Seller";
+
+    // Get detailed game information based on game type
+    let gameDetails = {
+      title: order.accountID?.title || "Unknown Account",
+      gameType: gameType
+    };
+
+    // If we have an accountID, try to get more game details
+    if (order.accountID) {
+      try {
+        let gameModel;
+        
+        // Select the appropriate game model based on game type
+        switch (gameType.toLowerCase()) {
+          case "valorant":
+            gameModel = Valorant;
+            break;
+          case "fortnite":
+            gameModel = Fortnite;
+            break;
+          case "league of legends":
+            gameModel = LeagueOfLegends;
+            break;
+          case "brawl stars":
+            gameModel = BrawlStars;
+            break;
+          default:
+            gameModel = Valorant; // Default to Valorant
+        }
+
+        // If we found a valid model, get additional details
+        if (gameModel) {
+          const gameAccount = await gameModel.findById(order.accountID);
+          
+          if (gameAccount) {
+            gameDetails = {
+              title: gameAccount.title || "Unknown Title",
+              gameType: gameType,
+              description: gameAccount.description || "",
+              accountLevel: gameAccount.accountLevel || gameAccount.level || "",
+              server: gameAccount.server || gameAccount.region || "",
+              champions: gameAccount.champions || gameAccount.characters || gameAccount.skins || []
+            };
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching game details for ${gameType}:`, error);
+        // Continue with basic game details on error
+      }
+    }
+
+    return {
+      id: order._id,
+      title: gameDetails.title,
+      gameType: gameType,
+      gameDetails: gameDetails,
+      seller: {
+        id: order.sellerID,
+        username: sellerUsername,
+      },
+      status: order.status.charAt(0).toUpperCase() + order.status.slice(1), // Capitalize first letter
+      amount: orderPrice,
+      createdAt: creationDate,
+    };
+  });
+
+  // Wait for all promises to resolve
+  const formattedOrders = await Promise.all(formattedOrdersPromises);
+
+  res.status(200).json({
+    status: "success",
+    results: formattedOrders.length,
+    data: formattedOrders,
+  });
+});
+
 exports.getAllOrders = catchAsync(async (req, res, next) => {
   // Check if user is authorized (only admin should see all orders)
   if (req.user.role !== "admin") {
