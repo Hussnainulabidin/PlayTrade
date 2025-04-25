@@ -4,6 +4,8 @@
     border: 1px solid #30363d;
     border-radius: 8px;
     overflow: hidden;
+    height: 600px;
+    /* Fixed height for the table container */
 }
 
 .table-header-seller {
@@ -15,11 +17,36 @@
     color: #8b949e;
     border-bottom: 1px solid #30363d;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 .table-body-seller {
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    flex: 1;
+    /* Take up remaining space */
+}
+
+/* Custom Scrollbar Styles */
+.table-body-seller::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-body-seller::-webkit-scrollbar-track {
+    background: #161b22;
+}
+
+.table-body-seller::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 4px;
+}
+
+.table-body-seller::-webkit-scrollbar-thumb:hover {
+    background: #8b949e;
 }
 
 .checkbox-cell {

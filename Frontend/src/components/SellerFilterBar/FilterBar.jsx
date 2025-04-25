@@ -50,6 +50,8 @@ const FilterBar = ({ onSearch, onFilterChange, searchQuery, filters }) => {
                     <span>View</span>
                 </button>
             </div>
+
+
         </div>
     )
 }
