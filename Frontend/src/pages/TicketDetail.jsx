@@ -108,38 +108,60 @@ function TicketDetailPage() {
 
     console.log('Attempting to connect to socket with chat ID:', chatId);
 
+    // Get authentication token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('No authentication token found');
+      setIsConnected(false);
+      return;
+    }
+
     // Connect to socket with correct authentication
     const socket = io('http://localhost:3003', {
       auth: {
-        token: localStorage.getItem('token')
+        token: token
       },
       withCredentials: true,
-      transports: ['polling', 'websocket']
+      transports: ['polling', 'websocket'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
     })
 
     socketRef.current = socket;
 
     // Socket event handlers
     socket.on('connect', () => {
-      console.log('Socket connected');
+      console.log('Socket connected successfully with ID:', socket.id);
       setIsConnected(true);
 
       // Join chat room - in this case we need to use joinChat for the backend
       socket.emit('joinChat', chatId);
+      console.log('Emitted joinChat event for chat ID:', chatId);
     });
 
     socket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error);
+      console.error('Socket connection error:', error.message);
       setIsConnected(false);
     });
 
-    socket.on('disconnect', () => {
-      console.log('Socket disconnected');
+    socket.on('disconnect', (reason) => {
+      console.log('Socket disconnected. Reason:', reason);
       setIsConnected(false);
+    });
+
+    socket.on('error', (error) => {
+      console.error('Socket error:', error);
+      setIsConnected(false);
+    });
+
+    socket.on('joinedChat', (data) => {
+      console.log('Successfully joined chat room:', data);
     });
 
     socket.on('newMessage', (data) => {
       // Handle new message event from socket
+      console.log('Received new message:', data);
       if (data.message) {
         const newMsg = {
           sender: data.message.sender._id,
@@ -158,6 +180,7 @@ function TicketDetailPage() {
     // Clean up on unmount
     return () => {
       if (socket) {
+        console.log('Cleaning up socket connection');
         socket.disconnect();
       }
     }
