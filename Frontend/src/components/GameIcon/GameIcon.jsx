@@ -2,6 +2,9 @@ import "./GameIcon.css"
 import pubgIcon from './../../../public/images/na.avif'; // Update with your actual image path
 import valorantIcon from './../../../public/images/Valo.png'; // Update with your actual image path
 import cocIcon from './../../../public/images/coc-icon.png'; // Update with your actual image path
+import fortIcon from './../../../public/images/f.jpg'; // Update with your actual image path
+import lolIcon from './../../../public/images/lol.png'; // Update with your actual image path
+import bsIcon from './../../../public/images/bstar.png'; // Update with your actual image path
 
 const GameIcon = ({ game }) => {
     const getIconClass = (gameName) => {
@@ -12,6 +15,12 @@ const GameIcon = ({ game }) => {
                 return "valorant-icon"
             case "Clash of Clans":
                 return "coc-icon"
+            case "Fortnite":
+                return "fort-icon"
+            case "League of Legends":
+                return "lol-icon"
+            case "Brawl Stars":
+                return "bs-icon"
         }
     }
 
@@ -23,6 +32,12 @@ const GameIcon = ({ game }) => {
                 return valorantIcon;
             case "Clash of Clans":
                 return cocIcon;
+            case "Fortnite":
+                return fortIcon;
+            case "League of Legends":
+                return lolIcon;
+            case "Brawl Stars":
+                return bsIcon;
         }
     }
 

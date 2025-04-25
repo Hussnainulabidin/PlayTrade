@@ -1,21 +1,24 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
 import { UserProvider } from "./components/userContext/UserContext"
 import LandingPage from "./pages/landingPage"
+import SellerDashboardAccountsPage from "./pages/SellerDashboardAccountsPage"
+import SellerDashboardTicketsPage from "./pages/SellerDashboardTicketsPage"
+import SellerDashboardCreateTicketPage from "./pages/SellerDashboardCreateTicketPage"
+import SellerDashboardChatPage from "./pages/SellerDashboardChatPage"
+import SellerDashboardLayout from "./components/layouts/SellerDashboardLayout"
+import SellerTicketDetailPage from "./pages/SellerTicketDetail"
+import SellerSettingPage from "./pages/SellerSettingPage"
 import SellersPage from "./pages/AdminDashboardSellerPage"
 import DashboardLayout from "./pages/AdminDashboardLayout"
 import SellerDetailsPage from "./pages/AdminDashboardSellerDetails"
 import SellerListingsPage from "./pages/AdminDashboardSellerListing"
 import SellerWalletPage from "./pages/AdminDashboardSellerWallet"
 import SellerOrdersPage from "./pages/AdminDasboardSellerOrders"
-import SellerDashboardAccountsPage from "./pages/SellerDashboardAccountsPage"
-import SellerDashboardTicketsPage from "./pages/SellerDashboardTicketsPage"
-import SellerDashboardCreateTicketPage from "./pages/SellerDashboardCreateTicketPage"
-import SellerDashboardChatPage from "./pages/SellerDashboardChatPage"
-import SellerDashboardLayout from "./components/layouts/SellerDashboardLayout"
 import OrdersPage from "./pages/OrdersPage"
 import OrderDetailPage from "./pages/OrderDetails"
 import TicketsPage from "./pages/AdminDashboardTicketsPage"
 import TicketDetailPage from "./pages/TicketDetail"
+
 import SellerTicketDetailPage from "./pages/SellerTicketDetail"
 
 import ValorantPage from "./pages/valorant"
@@ -26,6 +29,10 @@ import LeaguePage from "./pages/league"
 
 import AccountsLayout from "./pages/AccountsLayout"
 import AdminChatPage from "./pages/AdminDashboardChatPage"
+import AdminSettingsPage from "./pages/SettingPage"
+import Valorant from "./components/Accounts/Valorant/Valorant"
+import ValorantDetail from "./components/Accounts/Valorant/Valorant-detail"
+import AccountsSupport from "./pages/AccountsSupport"
 import SettingPage from "./pages/SettingPage"
 import ClientDashboardLayout from "./components/layouts/ClientDashboardLayout"
 import ClientOrdersPage from "./pages/ClientOrdersPage"
@@ -53,9 +60,8 @@ const App = () => {
             <DashboardLayout>
               <TicketsPage />
             </DashboardLayout>
-          }
-          />
-          
+          } />
+
           <Route path="/admin/orders" element={
             <DashboardLayout>
               <OrdersPage />
@@ -152,13 +158,18 @@ const App = () => {
           <Route path="/seller-dashboard/settings"
             element={
               <SellerDashboardLayout>
-                <SettingPage />
+                <SellerSettingPage />
               </SellerDashboardLayout>
             }
           />
-        </Routes>
-      </Router>
-    </UserProvider>
+          <Route path="/accounts/valorant/support" element={<AccountsSupport />} />
+          <Route path="/accounts/fortnite/support" element={<AccountsSupport />} />
+          <Route path="/accounts/leagueoflegends/support" element={<AccountsSupport />} />
+          <Route path="/accounts/clashofclans/support" element={<AccountsSupport />} />
+          <Route path="/accounts/brawlstars/support" element={<AccountsSupport />} />
+        </Routes >
+      </Router >
+    </UserProvider >
   )
 }
 

@@ -11,6 +11,7 @@ import {
     ComputerIcon as Steam,
     Settings,
     Ticket,
+    LogOut,
 } from "lucide-react"
 import "./SideBar.css"
 
@@ -21,6 +22,11 @@ const Sidebar = () => {
 
     const isActive = (path) => {
         return location.pathname.includes(path)
+    }
+
+    const handleLogout = () => {
+        // Add your logout logic here
+        console.log('Logging out...')
     }
 
     return (
@@ -52,6 +58,13 @@ const Sidebar = () => {
                     <span>Settings</span>
                 </Link>
             </nav>
+
+            <div className="logout-container">
+                <button onClick={handleLogout} className="logout-button">
+                    <LogOut size={18} />
+                    <span>Logout</span>
+                </button>
+            </div>
         </div>
     )
 }

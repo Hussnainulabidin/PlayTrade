@@ -5,13 +5,13 @@ import "./pages.css"
 import "../components/AdminDashboard/SellerOrders.css"
 
 function SellerOrdersPage() {
-    const { id } = useParams()
-  
-    return (
-      <div className="page-container">
-        <SellerOrders sellerId={id} />
-      </div>
-    )
-  }
-  
-  export default SellerOrdersPage
+  const { id } = useParams()
+
+  return (
+    <div className="page-container">
+      <SellerOrders sellerId={id} />
+    </div>
+  )
+}
+
+export default SellerOrdersPage

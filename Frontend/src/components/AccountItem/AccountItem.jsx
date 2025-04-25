@@ -1,12 +1,14 @@
 import { MoreHorizontal, Edit, ToggleLeft } from "lucide-react"
 import GameIcon from "../GameIcon/GameIcon"
 import EditStatusModal from "../EditStatusModal/EditStatusModal"
+import AddAccountModal from "../AddAccountModal/AddAccountModel"
 import "./AccountItem.css"
 import { useState, useRef, useEffect } from "react"
 
 const AccountItem = ({ account }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const dropdownRef = useRef(null)
 
     const getStatusClass = (status) => {
@@ -23,8 +25,8 @@ const AccountItem = ({ account }) => {
     }
 
     const handleEditAccount = () => {
-        // TODO: Implement edit account functionality
         setIsDropdownOpen(false)
+        setIsEditModalOpen(true)
     }
 
     const handleEditStatus = () => {
@@ -32,10 +34,30 @@ const AccountItem = ({ account }) => {
         setIsStatusModalOpen(true)
     }
 
-    const handleStatusChange = (newStatus) => {
-        // TODO: Implement status change functionality
-        console.log(`Changing status to: ${newStatus}`)
-    }
+    const handleStatusChange = async (newStatus) => {
+        try {
+            // Send PATCH request to update the account status
+            const response = await fetch(`http://localhost:3003/gameAccounts/update-status/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                },
+                body: JSON.stringify({ status: newStatus, accountId: account._id, gameType: account.gameType }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update status');
+            }
+
+            console.log('Status updated successfully');
+
+        } catch (error) {
+            console.error('Error updating status:', error);
+        } finally {
+            setIsStatusModalOpen(false);
+        }
+    };
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -107,6 +129,13 @@ const AccountItem = ({ account }) => {
                 onClose={() => setIsStatusModalOpen(false)}
                 account={account}
                 onStatusChange={handleStatusChange}
+            />
+
+            <AddAccountModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                initialData={account}
+                isEditMode={true}
             />
         </>
     )
