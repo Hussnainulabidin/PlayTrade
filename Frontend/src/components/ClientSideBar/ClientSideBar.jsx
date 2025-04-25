@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom"
 import { ShoppingBag, MessageSquare, Settings, LogOut } from "lucide-react"
 import { useUser } from "../userContext/UserContext"
-import "./ClientSidebar.css"
+import "./ClientSideBar.css"
 
 const ClientSidebar = () => {
   const location = useLocation()

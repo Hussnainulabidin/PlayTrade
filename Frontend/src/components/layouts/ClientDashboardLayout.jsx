@@ -1,4 +1,4 @@
-import ClientSidebar from "../ClientSidebar/ClientSidebar"
+import ClientSidebar from "../ClientSidebar/ClientSideBar"
 import "./ClientDashboardLayout.css"
 
 const ClientDashboardLayout = ({ children }) => {
