@@ -1,6 +1,6 @@
 "use client"
 import { Search, Gamepad, Tag, Star, Server, Award, Percent, Calendar, List } from "lucide-react"
-import "./FilterBar.css"
+import "./Filterbar.css"
 
 const FilterBar = ({ onSearch, onFilterChange, searchQuery, filters }) => {
     return (
