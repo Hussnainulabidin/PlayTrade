@@ -222,7 +222,16 @@ function OrderDetails() {
   };
   
   if (loading) {
-    return <div className="loading">Loading order details...</div>;
+    return (
+      <div className="loader-container">
+        <div className="loader-wrapper">
+          <div className="loader-spinner">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+          <p className="loader-text">Loading order details...</p>
+        </div>
+      </div>
+    );
   }
   
   if (error) {

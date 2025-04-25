@@ -17,7 +17,13 @@ import OrderDetailPage from "./pages/OrderDetails"
 import TicketsPage from "./pages/AdminDashboardTicketsPage"
 import TicketDetailPage from "./pages/TicketDetail"
 import SellerTicketDetailPage from "./pages/SellerTicketDetail"
+
 import ValorantPage from "./pages/valorant"
+import FortnitePage from "./pages/fortnite"
+import ClashofclansPage from "./pages/coc"
+import BrawlhallaPage from "./pages/Brawl"
+import LeaguePage from "./pages/league"
+
 import AccountsLayout from "./pages/AccountsLayout"
 import AdminChatPage from "./pages/AdminDashboardChatPage"
 import SettingPage from "./pages/SettingPage"
@@ -34,8 +40,13 @@ const App = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/accounts" element={<AccountsLayout />}>
-            <Route path="valorant/*" element={<ValorantPage />} />
+            <Route path="valorant/*" element={<ValorantPage />} /> 
+            <Route path="clashofclans/*" element={<ClashofclansPage />} />
+            <Route path="fortnite/*" element={<FortnitePage />} />
+            <Route path="brawlstars/*" element={<BrawlhallaPage />} />
+            <Route path="leagueoflegends/*" element={<LeaguePage />} />
           </Route>
+          
           <Route path="/order/:id" element={<OrderDetailPage />} />
           <Route path="/tickets/:id" element={<TicketDetailPage />} />
           <Route path="/admin/tickets" element={

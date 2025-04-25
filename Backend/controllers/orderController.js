@@ -10,12 +10,8 @@ const mongoose = require("mongoose");
 const walletActions = require("../models/wallet");
 
 // Import all game models with error handling
-let PUBG, Fortnite, LeagueOfLegends, BrawlStars;
-// try {
-//   PUBG = require("../models/pubg");
-// } catch (err) {
-//   console.warn("PUBG model not found:", err.message);
-// }
+let PUBG, Fortnite, LeagueOfLegends, BrawlStars, ClashOfClans;
+
 
 try {
   Fortnite = require("../models/fortnite");
@@ -35,6 +31,12 @@ try {
   console.warn("Brawl Stars model not found:", err.message);
 }
 
+try {
+  ClashOfClans = require("../models/clashofclans");
+} catch (err) {
+  console.warn("Clash of Clans model not found:", err.message);
+}
+
 // Commission rates by game type (in percentage)
 const COMMISSION_RATES = {
   Valorant: 15,
@@ -42,6 +44,7 @@ const COMMISSION_RATES = {
   Fortnite: 15,
   "League of Legends": 15,
   "Brawl Stars": 15,
+  "Clash of Clans": 15,
   Default: 15, // Default commission rate
 };
 
@@ -349,6 +352,9 @@ exports.createOrder = catchAsync(async (req, res, next) => {
     case "League of Legends":
       account = await LeagueOfLegends.findById(accountID);
       break;
+    case "Clash of Clans":
+      account = await ClashOfClans.findById(accountID);
+      break;
     default:
       // Default to Valorant model for now
       account = await Valorant.findById(accountID);
@@ -469,7 +475,9 @@ exports.getOrderById = catchAsync(async (req, res, next) => {
     case "League of Legends":
       accountDetails = await LeagueOfLegends.findById(order.accountID);
       break;
-
+    case "Clash of Clans":
+      accountDetails = await ClashOfClans.findById(order.accountID);
+      break;
     default:
       // Default to Valorant model for now
       accountDetails = await Valorant.findById(order.accountID);

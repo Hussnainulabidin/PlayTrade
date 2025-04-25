@@ -23,6 +23,7 @@ export default function ValorantDetail() {
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState("details")
   const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const [isProcessingOrder, setIsProcessingOrder] = useState(false)
 
   useEffect(() => {
     const fetchAccountDetails = async () => {
@@ -77,6 +78,52 @@ export default function ValorantDetail() {
   const switchToLogin = () => {
     setIsSignupModalOpen(false)
     setIsLoginModalOpen(true)
+  }
+
+  const handleBuyNow = async () => {
+    if (!isAuthenticated) {
+      setIsLoginModalOpen(true)
+      return
+    }
+
+    try {
+      setIsProcessingOrder(true)
+      
+      // Get the auth token
+      let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
+      
+      // Remove quotes if they exist
+      if (token && token.startsWith('"') && token.endsWith('"')) {
+        token = token.slice(1, -1)
+      }
+      
+      // Create the order
+      const response = await axios.post(
+        "http://localhost:3003/orders", 
+        {
+          accountID: id,
+          gameType: "Valorant"
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+      
+      if (response.data.status === 'success') {
+        // Navigate to the order details page
+        const orderId = response.data.data._id
+        navigate(`/order/${orderId}`)
+      } else {
+        throw new Error("Failed to create order")
+      }
+    } catch (err) {
+      console.error("Error creating order:", err)
+      alert(err.response?.data?.message || "Failed to create order. Please try again.")
+    } finally {
+      setIsProcessingOrder(false)
+    }
   }
 
   const renderUserMenu = () => {
@@ -270,8 +317,19 @@ export default function ValorantDetail() {
                       <span className="bg-[#1f2228] text-xs px-2 py-1 rounded-full text-gray-300">Ready For Comp</span>
                     )}
                   </div>
-                  <button className="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-md font-semibold">
-                    Buy Now
+                  <button 
+                    className={`w-full ${isProcessingOrder ? 'bg-blue-800 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} py-3 rounded-md font-semibold flex items-center justify-center`}
+                    onClick={handleBuyNow}
+                    disabled={isProcessingOrder}
+                  >
+                    {isProcessingOrder ? (
+                      <>
+                        <div className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      'Buy Now'
+                    )}
                   </button>
                 </div>
 
