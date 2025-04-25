@@ -19,8 +19,6 @@ import OrderDetailPage from "./pages/OrderDetails"
 import TicketsPage from "./pages/AdminDashboardTicketsPage"
 import TicketDetailPage from "./pages/TicketDetail"
 
-import SellerTicketDetailPage from "./pages/SellerTicketDetail"
-
 import ValorantPage from "./pages/valorant"
 import FortnitePage from "./pages/fortnite"
 import ClashofclansPage from "./pages/coc"
@@ -29,9 +27,6 @@ import LeaguePage from "./pages/league"
 
 import AccountsLayout from "./pages/AccountsLayout"
 import AdminChatPage from "./pages/AdminDashboardChatPage"
-import AdminSettingsPage from "./pages/SettingPage"
-import Valorant from "./components/Accounts/Valorant/Valorant"
-import ValorantDetail from "./components/Accounts/Valorant/Valorant-detail"
 import AccountsSupport from "./pages/AccountsSupport"
 import SettingPage from "./pages/SettingPage"
 import ClientDashboardLayout from "./components/layouts/ClientDashboardLayout"
