@@ -228,14 +228,14 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
 
     const handleSubmit = async () => {
         if (!validateStep(currentStep)) {
-            return
+            return;
         }
 
-        setIsSubmitting(true)
-        setSubmitError(null)
+        setIsSubmitting(true);
+        setSubmitError(null);
 
         try {
-            // Format data according to the schema
+            // Format data according to the schema (without gallery)
             const accountData = {
                 id: initialData?._id || "",
                 title: formData.title,
@@ -247,7 +247,6 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                 email_password: formData.email_password,
                 ign: formData.in_game_name,
                 delivery_instructions: formData.delivery_instructions,
-                gallery: formData.gallery,
                 game: formData.gameType,
                 account_data: {}
             }
@@ -323,6 +322,31 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             }
                         )
                         console.log('Account updated successfully:', response.data)
+
+                        // Update with gallery in a separate request if there are images
+                        if (formData.gallery && formData.gallery.length > 0) {
+                            console.log('Preparing to upload images:', formData.gallery);
+                            const formDataObj = new FormData();
+                            formData.gallery.forEach((file, idx) => {
+                                console.log(`Appending file [${idx}]:`, file);
+                                formDataObj.append('images', file);
+                            });
+                            try {
+                                const uploadResponse = await axios.put(
+                                    `http://localhost:3003/valorant/accounts/${initialData?._id}/pictures`,
+                                    formDataObj,
+                                    {
+                                        headers: {
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                            'Content-Type': 'multipart/form-data'
+                                        }
+                                    }
+                                );
+                                console.log('Image upload response:', uploadResponse.data);
+                            } catch (uploadErr) {
+                                console.error('Error uploading images:', uploadErr);
+                            }
+                        }
                         break;
                     case "clash of clans":
                         response = await axios.patch(
@@ -335,6 +359,31 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             }
                         )
                         console.log('Account updated successfully:', response.data)
+
+                        // Update with gallery in a separate request if there are images
+                        if (formData.gallery && formData.gallery.length > 0) {
+                            console.log('Preparing to upload images:', formData.gallery);
+                            const formDataObj = new FormData();
+                            formData.gallery.forEach((file, idx) => {
+                                console.log(`Appending file [${idx}]:`, file);
+                                formDataObj.append('images', file);
+                            });
+                            try {
+                                const uploadResponse = await axios.put(
+                                    `http://localhost:3003/clashofclans/${initialData?._id}/pictures`,
+                                    formDataObj,
+                                    {
+                                        headers: {
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                            'Content-Type': 'multipart/form-data'
+                                        }
+                                    }
+                                );
+                                console.log('Image upload response:', uploadResponse.data);
+                            } catch (uploadErr) {
+                                console.error('Error uploading images:', uploadErr);
+                            }
+                        }
                         break;
                     case "brawl stars":
                         response = await axios.patch(
@@ -347,6 +396,31 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             }
                         )
                         console.log('Account updated successfully:', response.data)
+
+                        // Update with gallery in a separate request if there are images
+                        if (formData.gallery && formData.gallery.length > 0) {
+                            console.log('Preparing to upload images:', formData.gallery);
+                            const formDataObj = new FormData();
+                            formData.gallery.forEach((file, idx) => {
+                                console.log(`Appending file [${idx}]:`, file);
+                                formDataObj.append('images', file);
+                            });
+                            try {
+                                const uploadResponse = await axios.put(
+                                    `http://localhost:3003/brawlstars/${initialData?._id}/pictures`,
+                                    formDataObj,
+                                    {
+                                        headers: {
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                            'Content-Type': 'multipart/form-data'
+                                        }
+                                    }
+                                );
+                                console.log('Image upload response:', uploadResponse.data);
+                            } catch (uploadErr) {
+                                console.error('Error uploading images:', uploadErr);
+                            }
+                        }
                         break;
                     case "fortnite":
                         response = await axios.patch(
@@ -359,6 +433,31 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             }
                         )
                         console.log('Account updated successfully:', response.data)
+
+                        // Update with gallery in a separate request if there are images
+                        if (formData.gallery && formData.gallery.length > 0) {
+                            console.log('Preparing to upload images:', formData.gallery);
+                            const formDataObj = new FormData();
+                            formData.gallery.forEach((file, idx) => {
+                                console.log(`Appending file [${idx}]:`, file);
+                                formDataObj.append('images', file);
+                            });
+                            try {
+                                const uploadResponse = await axios.put(
+                                    `http://localhost:3003/fortnite/${initialData?._id}/pictures`,
+                                    formDataObj,
+                                    {
+                                        headers: {
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                            'Content-Type': 'multipart/form-data'
+                                        }
+                                    }
+                                );
+                                console.log('Image upload response:', uploadResponse.data);
+                            } catch (uploadErr) {
+                                console.error('Error uploading images:', uploadErr);
+                            }
+                        }
                         break;
                     case "league of legends":
                         response = await axios.patch(
@@ -371,6 +470,31 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             }
                         )
                         console.log('Account updated successfully:', response.data)
+
+                        // Update with gallery in a separate request if there are images
+                        if (formData.gallery && formData.gallery.length > 0) {
+                            console.log('Preparing to upload images:', formData.gallery);
+                            const formDataObj = new FormData();
+                            formData.gallery.forEach((file, idx) => {
+                                console.log(`Appending file [${idx}]:`, file);
+                                formDataObj.append('images', file);
+                            });
+                            try {
+                                const uploadResponse = await axios.put(
+                                    `http://localhost:3003/leagueoflegends/${initialData?._id}/pictures`,
+                                    formDataObj,
+                                    {
+                                        headers: {
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                            'Content-Type': 'multipart/form-data'
+                                        }
+                                    }
+                                );
+                                console.log('Image upload response:', uploadResponse.data);
+                            } catch (uploadErr) {
+                                console.error('Error uploading images:', uploadErr);
+                            }
+                        }
                         break;
                 }
 
@@ -424,6 +548,8 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
             } else {
                 // Create new account
                 let response;
+                let accountId;
+
                 switch (formData.gameType.toLowerCase()) {
                     case "valorant":
                         response = await axios.post(
@@ -436,6 +562,35 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             }
                         )
                         console.log('Account created successfully:', response.data)
+
+                        // Get account ID from response
+                        accountId = response.data.data.account._id;
+                        console.log(accountId);
+                        console.log(formData.gallery.length);
+                        // Update with gallery in a separate request if there are images
+                        if (accountId && formData.gallery && formData.gallery.length > 0) {
+                            console.log('Preparing to upload images:', formData.gallery);
+                            const formDataObj = new FormData();
+                            formData.gallery.forEach((file, idx) => {
+                                console.log(`Appending file [${idx}]:`, file);
+                                formDataObj.append('images', file);
+                            });
+                            try {
+                                const uploadResponse = await axios.put(
+                                    `http://localhost:3003/valorant/accounts/${accountId}/pictures`,
+                                    formDataObj,
+                                    {
+                                        headers: {
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                            'Content-Type': 'multipart/form-data'
+                                        }
+                                    }
+                                );
+                                console.log('Image upload response:', uploadResponse.data);
+                            } catch (uploadErr) {
+                                console.error('Error uploading images:', uploadErr);
+                            }
+                        }
                         break;
                     case "clash of clans":
                         response = await axios.post(
@@ -448,6 +603,34 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             }
                         )
                         console.log('Account created successfully:', response.data)
+
+                        // Get account ID from response
+                        accountId = response.data._id || response.data.account?._id;
+
+                        // Update with gallery in a separate request if there are images
+                        if (accountId && formData.gallery && formData.gallery.length > 0) {
+                            console.log('Preparing to upload images:', formData.gallery);
+                            const formDataObj = new FormData();
+                            formData.gallery.forEach((file, idx) => {
+                                console.log(`Appending file [${idx}]:`, file);
+                                formDataObj.append('images', file);
+                            });
+                            try {
+                                const uploadResponse = await axios.put(
+                                    `http://localhost:3003/clashofclans/${accountId}/pictures`,
+                                    formDataObj,
+                                    {
+                                        headers: {
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                            'Content-Type': 'multipart/form-data'
+                                        }
+                                    }
+                                );
+                                console.log('Image upload response:', uploadResponse.data);
+                            } catch (uploadErr) {
+                                console.error('Error uploading images:', uploadErr);
+                            }
+                        }
                         break;
                     case "brawl stars":
                         response = await axios.post(
@@ -460,6 +643,34 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             }
                         )
                         console.log('Account created successfully:', response.data)
+
+                        // Get account ID from response
+                        accountId = response.data._id || response.data.account?._id;
+
+                        // Update with gallery in a separate request if there are images
+                        if (accountId && formData.gallery && formData.gallery.length > 0) {
+                            console.log('Preparing to upload images:', formData.gallery);
+                            const formDataObj = new FormData();
+                            formData.gallery.forEach((file, idx) => {
+                                console.log(`Appending file [${idx}]:`, file);
+                                formDataObj.append('images', file);
+                            });
+                            try {
+                                const uploadResponse = await axios.put(
+                                    `http://localhost:3003/brawlstars/${accountId}/pictures`,
+                                    formDataObj,
+                                    {
+                                        headers: {
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                            'Content-Type': 'multipart/form-data'
+                                        }
+                                    }
+                                );
+                                console.log('Image upload response:', uploadResponse.data);
+                            } catch (uploadErr) {
+                                console.error('Error uploading images:', uploadErr);
+                            }
+                        }
                         break;
                     case "fortnite":
                         response = await axios.post(
@@ -472,6 +683,34 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             }
                         )
                         console.log('Account created successfully:', response.data)
+
+                        // Get account ID from response
+                        accountId = response.data._id || response.data.account?._id;
+
+                        // Update with gallery in a separate request if there are images
+                        if (accountId && formData.gallery && formData.gallery.length > 0) {
+                            console.log('Preparing to upload images:', formData.gallery);
+                            const formDataObj = new FormData();
+                            formData.gallery.forEach((file, idx) => {
+                                console.log(`Appending file [${idx}]:`, file);
+                                formDataObj.append('images', file);
+                            });
+                            try {
+                                const uploadResponse = await axios.put(
+                                    `http://localhost:3003/fortnite/${accountId}/pictures`,
+                                    formDataObj,
+                                    {
+                                        headers: {
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                            'Content-Type': 'multipart/form-data'
+                                        }
+                                    }
+                                );
+                                console.log('Image upload response:', uploadResponse.data);
+                            } catch (uploadErr) {
+                                console.error('Error uploading images:', uploadErr);
+                            }
+                        }
                         break;
                     case "league of legends":
                         response = await axios.post(
@@ -484,6 +723,34 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             }
                         )
                         console.log('Account created successfully:', response.data)
+
+                        // Get account ID from response
+                        accountId = response.data._id || response.data.account?._id;
+
+                        // Update with gallery in a separate request if there are images
+                        if (accountId && formData.gallery && formData.gallery.length > 0) {
+                            console.log('Preparing to upload images:', formData.gallery);
+                            const formDataObj = new FormData();
+                            formData.gallery.forEach((file, idx) => {
+                                console.log(`Appending file [${idx}]:`, file);
+                                formDataObj.append('images', file);
+                            });
+                            try {
+                                const uploadResponse = await axios.put(
+                                    `http://localhost:3003/leagueoflegends/${accountId}/pictures`,
+                                    formDataObj,
+                                    {
+                                        headers: {
+                                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                            'Content-Type': 'multipart/form-data'
+                                        }
+                                    }
+                                );
+                                console.log('Image upload response:', uploadResponse.data);
+                            } catch (uploadErr) {
+                                console.error('Error uploading images:', uploadErr);
+                            }
+                        }
                         break;
                 }
 

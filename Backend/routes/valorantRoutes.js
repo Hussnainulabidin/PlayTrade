@@ -1,6 +1,7 @@
 const express = require("express");
 const valorantController = require("./../controllers/valorantController");
 const authController = require("./../controllers/authController");
+const upload = require("./../configuration/multer");
 
 const router = express.Router();
 
@@ -21,5 +22,15 @@ router
   .get(valorantController.getAccount)
   .patch(authController.protect, authController.restrictTo("seller", "admin"), valorantController.updateAccount)
   .delete(authController.protect, authController.restrictTo("seller", "admin"), valorantController.deleteAccount);
+
+// Separate route for adding pictures with multer middleware
+router
+  .route("/accounts/:id/pictures")
+  .put(
+    authController.protect,
+    authController.restrictTo("seller", "admin"),
+    upload.array('images', 5), // Allow up to 5 images with field name 'images'
+    valorantController.addPictures
+  );
 
 module.exports = router;
