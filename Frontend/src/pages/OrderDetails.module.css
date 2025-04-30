@@ -201,10 +201,13 @@
   cursor: pointer;
   font-weight: 500;
   transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .dispute-btn:hover {
-  background-color: #ffc53d;
+  background-color: #d48806;
 }
 
 .feedback-btn {
@@ -971,4 +974,50 @@
     opacity: 0.6;
   }
 }
-  
+
+/* Add these styles for the dispute modal */
+.dispute-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.dispute-submit-btn {
+  background-color: #faad14;
+  border: 1px solid #faad14;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 10px 16px;
+}
+
+.dispute-submit-btn:hover:not(:disabled) {
+  background-color: #d48806;
+}
+
+.dispute-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* System message styling */
+.system-message {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+  max-width: 100%;
+  padding: 0;
+}
+
+.system-message .message-text {
+  background-color: rgba(107, 114, 128, 0.2);
+  color: #a7a7b5;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 12px;
+  text-align: center;
+  font-style: italic;
+  white-space: pre-line;
+} 

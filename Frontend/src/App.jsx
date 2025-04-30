@@ -14,6 +14,7 @@ import SellerDetailsPage from "./pages/AdminDashboardSellerDetails"
 import SellerListingsPage from "./pages/AdminDashboardSellerListing"
 import SellerWalletPage from "./pages/AdminDashboardSellerWallet"
 import SellerOrdersPage from "./pages/AdminDasboardSellerOrders"
+import DisputedOrdersPage from "./pages/AdminDashboardDisputedOrder"
 import OrdersPage from "./pages/OrdersPage"
 import OrderDetailPage from "./pages/OrderDetails"
 import TicketsPage from "./pages/AdminDashboardTicketsPage"
@@ -95,6 +96,11 @@ const App = () => {
           <Route path="/admindashboard/sellers/:id/orders" element={
             <DashboardLayout>
               <SellerOrdersPage />
+            </DashboardLayout>
+          } />
+          <Route path="/admin/disputed-orders" element={
+            <DashboardLayout>
+              <DisputedOrdersPage />
             </DashboardLayout>
           } />
 

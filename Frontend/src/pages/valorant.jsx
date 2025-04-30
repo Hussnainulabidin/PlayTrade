@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ValorantComponent from '../components/Accounts/Valorant/Valorant';
 import ValorantDetail from '../components/Accounts/Valorant/Valorant-detail';
-import './valorant.css';
+import './games.css';
 
 function ValorantPage() {
   return (

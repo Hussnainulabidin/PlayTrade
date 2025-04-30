@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
+router.post('/verify-2fa', authController.verifyTwoFactorCode);
 
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
@@ -19,6 +20,7 @@ router.post('/update-password', authController.updatePassword);
 router.post('/toggle-2fa', authController.toggleTwoFactorAuth);
 router.post('/profile-picture', userController.uploadProfilePicture);
 router.post('/logout-all', authController.logoutAllSessions);
+router.post('/update-notification-prefs', userController.updateNotificationPreferences);
 
 router.route("/me").get(userController.myData);
 

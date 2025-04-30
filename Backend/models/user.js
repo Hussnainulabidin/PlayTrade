@@ -53,10 +53,34 @@ const userSchema = new mongoose.Schema({
         type : Date,
         default : Date.now
     },
+    notificationPreferences: {
+        newOrder: {
+            type: Boolean,
+            default: false
+        },
+        newMessage: {
+            type: Boolean,
+            default: false
+        },
+        orderDisputed: {
+            type: Boolean,
+            default: false
+        },
+        paymentUpdated: {
+            type: Boolean,
+            default: false
+        },
+        withdrawUpdates: {
+            type: Boolean,
+            default: false
+        }
+    },
     twoFactorEnabled: {
         type: Boolean,
         default: false
     },
+    twoFactorCode: String,
+    twoFactorCodeExpires: Date,
     passwordChangedAt : Date,
     passwordResetToken : String,
     passwordResetExpires : Date,
@@ -99,6 +123,17 @@ userSchema.methods.createPasswordResetToken = function () {
     this.passwordResetExpires = Date.now() + 10 * 60 * 60 * 1000;
 
     return resetToken
+}
+
+userSchema.methods.generateTwoFactorCode = function() {
+    // Generate a 6-digit code
+    const twoFactorCode = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Set expiration time - 5 minutes
+    this.twoFactorCode = twoFactorCode;
+    this.twoFactorCodeExpires = Date.now() + 5 * 60 * 1000;
+    
+    return twoFactorCode;
 }
 
 const user = mongoose.model("user", userSchema , "user");

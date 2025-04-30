@@ -5,7 +5,8 @@ import { Link } from "react-router-dom"
 import { Search, MoreVertical, Plus, Edit } from "lucide-react"
 import { Input } from "./ui/input"
 import axios from "axios"
-import "./SellerListing.css"
+import "./common/Common.css"
+import "./common/TableStyles.css"
 import { formatDate } from "../../lib/utils"
 
 export function SellersList() {
@@ -88,7 +89,6 @@ export function SellersList() {
       <div className="listings-header">
         <h1 className="listings-title">Sellers</h1>
         <div className="header-buttons">
-          <button className="header-button">Account Imports</button>
           <button className="add-new-button">
             <Plus size={18} />
             Add New Seller
@@ -96,7 +96,7 @@ export function SellersList() {
         </div>
       </div>
 
-      <div className="listings-toolbar">
+      <div className="orders-toolbar">
         <div className="search-container">
           <Search className="search-icon" />
           <Input
@@ -120,7 +120,7 @@ export function SellersList() {
               <th className="table-header">TOTAL LISTINGS</th>
               <th className="table-header">WALLET BALANCE</th>
               <th className="table-header">JOIN DATE</th>
-              <th className="table-header">ACTIONS</th>
+              <th className="table-header"></th>
             </tr>
           </thead>
           <tbody>

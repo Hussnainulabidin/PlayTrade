@@ -23,8 +23,16 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["processing", "completed", "refunded"],
+      enum: ["processing", "completed", "refunded" , "disputed"],
       default: "processing",
+    },
+    disputedAT : {
+      type : Date,
+      default: Date.now()
+    },
+    disputeReason: {
+      type: String,
+      trim: true
     },
     review: {
       type: String,
@@ -55,7 +63,7 @@ orderSchema.pre('save', async function(next) {
       // Add a status update message to the chat as a system message
       const statusMessage = {
         sender: this.sellerID, // Keep the seller as technical sender for reference
-        content: `Order status updated to: ${this.status}`,
+        content: `(System)Order status updated to: ${this.status}\n\nReason: ${this.disputeReason}`,
         timestamp: Date.now(),
         isSystemMessage: true, // Mark as system message
         read: true // No need for notifications for system messages
@@ -77,7 +85,7 @@ orderSchema.pre('save', async function(next) {
 orderSchema.post('save', async function(doc) {
   try {
     // Check if a chat already exists for this order (the createOrderChat function will handle this check)
-    const initialMessage = `Order has been created. Order status: ${doc.status}`;
+    const initialMessage = `(system)Order has been created. Order status: ${doc.status}`;
     await createOrderChat(
       doc._id,
       doc.clientID, // Buyer

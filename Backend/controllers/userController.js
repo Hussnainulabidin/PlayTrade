@@ -257,4 +257,41 @@ exports.deleteUser = (req, res) => {
   });
 };
 
+exports.updateNotificationPreferences = catchAsync(async (req, res, next) => {
+  const { preferences } = req.body;
+
+  if (!preferences || typeof preferences !== 'object') {
+    return next(new AppError('Please provide valid notification preferences', 400));
+  }
+
+  // Get only the valid notification preference fields
+  const validPreferences = {};
+  const allowedPreferences = ['newOrder', 'newMessage', 'orderDisputed', 'paymentUpdated', 'withdrawUpdates'];
+  
+  allowedPreferences.forEach(pref => {
+    if (typeof preferences[pref] === 'boolean') {
+      validPreferences[`notificationPreferences.${pref}`] = preferences[pref];
+    }
+  });
+
+  // Update user notification preferences
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user.id,
+    { $set: validPreferences },
+    { new: true, runValidators: true }
+  );
+
+  if (!updatedUser) {
+    return next(new AppError('User not found', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    success: true,
+    data: {
+      notificationPreferences: updatedUser.notificationPreferences
+    }
+  });
+});
+
 

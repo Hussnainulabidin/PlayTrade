@@ -4,7 +4,9 @@ import { Search, ExternalLink } from "lucide-react"
 import axios from "axios"
 import { useUser } from "../components/userContext/UserContext"
 import "./pages.css"
-import "../components/AdminDashboard/ui.css"
+import "../components/AdminDashboard/common/Common.css"
+import "../components/AdminDashboard/common/TableStyles.css"
+import "./ClientOrdersPage.css" // Import custom CSS
 
 function ClientOrdersPage() {
   // eslint-disable-next-line no-unused-vars
@@ -70,13 +72,24 @@ function ClientOrdersPage() {
   };
 
   const getStatusClass = (status) => {
-    const statusMap = {
-      'Processing': 'status-processing',
-      'Completed': 'status-completed',
-      'Refunded': 'status-refunded',
-      'Cancelled': 'status-cancelled'
-    };
-    return statusMap[status] || 'status-processing';
+    if (!status) return 'status-processing';
+    
+    // Convert status to lowercase for consistent matching
+    const statusLower = status.toLowerCase();
+    
+    switch (statusLower) {
+      case 'processing':
+        return 'status-processing';
+      case 'completed':
+        return 'status-completed';
+      case 'refunded':
+      case 'cancelled':
+        return 'status-refunded';
+      case 'disputed':
+        return 'status-disputed';
+      default:
+        return 'status-processing';
+    }
   };
 
   if (loading) {
@@ -93,17 +106,17 @@ function ClientOrdersPage() {
   }
 
   return (
-    <div className="listings-container">
-      <div className="listings-header">
-        <h1 className="listings-title">My Orders</h1>
-      </div>
-
-      <div className="listings-toolbar">
+    <div className="orders-page-container">
+      <div className="orders-header">
+        <div className="orders-title-section">
+          <h1 className="orders-title">My Orders</h1>
+          <p className="orders-subtitle">View and manage all your account purchases</p>
+        </div>
         <div className="search-container">
           <Search className="search-icon" />
           <input
             type="text"
-            placeholder="Search orders..."
+            placeholder="Search by ID, title, game type or seller..."
             className="search-input"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -111,18 +124,18 @@ function ClientOrdersPage() {
         </div>
       </div>
 
-      <div className="listings-table">
-        <table className="table">
+      <div className="orders-table-container">
+        <table className="orders-table">
           <thead>
             <tr>
-              <th className="table-header">ORDER ID</th>
-              <th className="table-header">GAME TYPE</th>
-              <th className="table-header">TITLE</th>
-              <th className="table-header">SELLER</th>
-              <th className="table-header">STATUS</th>
-              <th className="table-header">AMOUNT</th>
-              <th className="table-header">DATE</th>
-              <th className="table-header" style={{ textAlign: "center", width: "80px" }}>ACTIONS</th>
+              <th className="order-table-header">ORDER ID</th>
+              <th className="order-table-header">GAME TYPE</th>
+              <th className="order-table-header">TITLE</th>
+              <th className="order-table-header">SELLER</th>
+              <th className="order-table-header">STATUS</th>
+              <th className="order-table-header">AMOUNT</th>
+              <th className="order-table-header">DATE</th>
+              <th className="order-table-header">ACTIONS</th>
             </tr>
           </thead>
           <tbody>
@@ -132,52 +145,32 @@ function ClientOrdersPage() {
               </tr>
             ) : (
               filteredOrders.map((order) => (
-                <tr key={order.id} className="table-row">
-                  <td className="table-cell">#{order.id}</td>
-                  <td className="table-cell">{order.gameType}</td>
-                  <td className="table-cell title-cell">{order.title}</td>
-                  <td className="table-cell">
-                    <div className="user-cell">
-                      <div className="user-avatar" style={{ backgroundColor: "#7c3aed" }}>
-                        {order.seller?.username?.charAt(0).toUpperCase()}
+                <tr key={order.id} className="order-table-row">
+                  <td className="order-table-cell order-id">
+                    <Link to={`/order/${order.id}`} className="order-link">
+                      #{order.id}
+                    </Link>
+                  </td>
+                  <td className="order-table-cell">{order.gameType}</td>
+                  <td className="order-table-cell">{order.title}</td>
+                  <td className="order-table-cell">
+                    <div className="seller-display">
+                      <div className="seller-avatar">
+                        {order.seller?.username?.charAt(0).toUpperCase() || 'S'}
                       </div>
-                      <span>{order.seller?.username}</span>
+                      <span className="seller-name">{order.seller?.username || 'Unknown'}</span>
                     </div>
                   </td>
-                  <td className="table-cell">
-                    <span className={`status-badge ${getStatusClass(order.status)}`}>
+                  <td className="order-table-cell">
+                    <span className={`order-status-badge ${getStatusClass(order.status)}`}>
                       {order.status}
                     </span>
                   </td>
-                  <td className="table-cell">${order.amount.toFixed(2)}</td>
-                  <td className="table-cell">{formatDate(order.createdAt)}</td>
-                  <td className="table-cell actions-cell" style={{ textAlign: "center" }}>
-                    <Link 
-                      to={`/order/${order.id}`} 
-                      className="action-icon-link" 
-                      style={{ 
-                        color: "#7c3aed", 
-                        display: "inline-flex",
-                        justifyContent: "center",
-                        width: "40px",
-                        height: "40px",
-                        borderRadius: "8px",
-                        alignItems: "center",
-                        transition: "all 0.2s ease",
-                        background: "transparent",
-                        margin: "0 auto"
-                      }}
-                      onMouseOver={(e) => {
-                        e.currentTarget.style.background = "rgba(124, 58, 237, 0.1)";
-                        e.currentTarget.style.transform = "scale(1.05)";
-                      }}
-                      onMouseOut={(e) => {
-                        e.currentTarget.style.background = "transparent";
-                        e.currentTarget.style.transform = "scale(1)";
-                      }}
-                      title="View Order Details"
-                    >
-                      <ExternalLink size={22} />
+                  <td className="order-table-cell">${typeof order.amount === 'number' ? order.amount.toFixed(2) : order.amount}</td>
+                  <td className="order-table-cell">{formatDate(order.createdAt)}</td>
+                  <td className="order-table-cell actions-cell">
+                    <Link to={`/order/${order.id}`} className="order-action-link">
+                      <ExternalLink size={18} />
                     </Link>
                   </td>
                 </tr>

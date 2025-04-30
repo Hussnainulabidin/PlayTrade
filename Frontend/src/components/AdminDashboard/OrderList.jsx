@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from "react"
 import { Link } from "react-router-dom"
 import { Search, ExternalLink, MoreVertical, Plus } from "lucide-react"
 import axios from "axios"
-import "./SellerListing.css"
+import "./common/Common.css"
+import "./common/TableStyles.css"
 
 export function OrdersList() {
   const [orders, setOrders] = useState([])
@@ -155,16 +156,9 @@ export function OrdersList() {
     <div className="listings-container">
       <div className="listings-header">
         <h1 className="listings-title">Orders</h1>
-        <div className="header-buttons">
-          <button className="header-button">Account Imports</button>
-          <button className="add-new-button">
-            <Plus className="mr-2" size={16} />
-            Add New Order
-          </button>
-        </div>
       </div>
 
-      <div className="listings-toolbar">
+      <div className="orders-toolbar">
         <div className="search-container">
           <Search className="search-icon" />
           <input
@@ -188,7 +182,7 @@ export function OrdersList() {
               <th className="table-header">STATUS</th>
               <th className="table-header">AMOUNT</th>
               <th className="table-header">DATE</th>
-              <th className="table-header">ACTIONS</th>
+              <th className="table-header"></th>
             </tr>
           </thead>
           <tbody>

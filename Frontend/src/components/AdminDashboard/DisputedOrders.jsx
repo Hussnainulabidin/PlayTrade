@@ -1,25 +1,22 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Link, useParams, useLocation, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { Search, ExternalLink, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react"
-import PropTypes from "prop-types"
 import axios from "axios"
 import "./common/Common.css"
 import "./common/TableStyles.css"
 
-export function SellerOrders({ sellerId: propSellerId }) {
+export function DisputedOrders() {
   const [searchQuery, setSearchQuery] = useState("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [orders, setOrders] = useState([])
   const [activeDropdownId, setActiveDropdownId] = useState(null)
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 })
-  const [refunding, setRefunding] = useState(false)
-  const params = useParams()
+  const [processing, setProcessing] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
-  const sellerId = propSellerId || params.id
   const dropdownRef = useRef(null)
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -34,7 +31,7 @@ export function SellerOrders({ sellerId: propSellerId }) {
   }
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchDisputedOrders = async () => {
       try {
         setLoading(true)
         
@@ -48,8 +45,9 @@ export function SellerOrders({ sellerId: propSellerId }) {
         
         const currentPage = getPageFromUrl();
         
+        // Using the correct endpoint for disputed orders
         const response = await axios.get(
-          `http://localhost:3003/orders/seller/${sellerId}?page=${currentPage}&limit=12`,
+          `http://localhost:3003/orders/disputed?page=${currentPage}&limit=12`,
           {
             headers: {
               Authorization: token ? `Bearer ${token}` : undefined
@@ -58,6 +56,7 @@ export function SellerOrders({ sellerId: propSellerId }) {
         )
         
         if (response.data.status === 'success') {
+          console.log('Disputed orders response:', response.data);
           setOrders(response.data.data)
           setPagination({
             currentPage: response.data.currentPage || 1,
@@ -65,18 +64,18 @@ export function SellerOrders({ sellerId: propSellerId }) {
             totalOrders: response.data.totalOrders || 0
           })
         } else {
-          throw new Error('Failed to fetch orders')
+          throw new Error('Failed to fetch disputed orders')
         }
       } catch (err) {
-        console.error('Error fetching orders:', err)
-        setError(err.response?.data?.message || 'Failed to load orders data')
+        console.error('Error fetching disputed orders:', err)
+        setError(err.response?.data?.message || 'Failed to load disputed orders data')
       } finally {
         setLoading(false)
       }
     }
     
-    fetchOrders()
-  }, [sellerId, location.search])
+    fetchDisputedOrders()
+  }, [location.search])
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -94,31 +93,26 @@ export function SellerOrders({ sellerId: propSellerId }) {
   const handleDropdownClick = (orderId, event) => {
     const button = event.currentTarget
     const rect = button.getBoundingClientRect()
-    
-    // Calculate position relative to viewport
-    const left = rect.left - 120 // Position dropdown to the left of the button
-    
     setDropdownPosition({
-      top: rect.bottom + window.scrollY,
-      left: Math.max(10, left) // Ensure dropdown doesn't go off-screen to the left
+      top: rect.bottom,
+      left: rect.left - 120 // Position to the left of the button
     })
-    
     setActiveDropdownId(activeDropdownId === orderId ? null : orderId)
   }
 
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > pagination.totalPages) return;
-    navigate(`/admindashboard/sellers/${sellerId}/orders?page=${newPage}`);
+    navigate(`/admin/disputed-orders?page=${newPage}`);
   }
 
-  const handleRefundOrder = async (orderId) => {
+  const handleResolveDispute = async (orderId, resolution) => {
     // Ask for confirmation before proceeding
-    if (!window.confirm('Are you sure you want to refund this order? This will:\n- Return the full payment to the customer\n- Deduct funds from the seller\'s wallet\n- Set the account status back to active\n\nThis action cannot be undone.')) {
+    if (!window.confirm(`Are you sure you want to ${resolution} this dispute? This action cannot be undone.`)) {
       return;
     }
 
     try {
-      setRefunding(true);
+      setProcessing(true);
       // Get auth token
       let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token');
       
@@ -127,9 +121,10 @@ export function SellerOrders({ sellerId: propSellerId }) {
         token = token.slice(1, -1);
       }
       
+      // This endpoint should be updated to the correct one for resolving disputes
       const response = await axios.post(
-        `http://localhost:3003/orders/${orderId}/refund`,
-        {},
+        `http://localhost:3003/orders/${orderId}/resolve-dispute`,
+        { resolution },
         {
           headers: {
             Authorization: token ? `Bearer ${token}` : undefined
@@ -142,38 +137,41 @@ export function SellerOrders({ sellerId: propSellerId }) {
         setOrders(prevOrders => 
           prevOrders.map(order => 
             order.id === orderId
-              ? { ...order, status: 'Refunded' }
+              ? { ...order, status: resolution === 'refund' ? 'Refunded' : 'Completed' }
               : order
           )
         );
         
         // Show success message
-        alert('Order has been successfully refunded.');
+        alert(`Dispute has been ${resolution === 'refund' ? 'refunded to customer' : 'resolved in favor of seller'}.`);
         
         // Close dropdown
         setActiveDropdownId(null);
       }
     } catch (err) {
-      console.error('Error refunding order:', err);
-      alert(`Failed to refund order: ${err.response?.data?.message || 'Unknown error'}`);
+      console.error('Error resolving dispute:', err);
+      alert(`Failed to resolve dispute: ${err.response?.data?.message || 'Unknown error'}`);
     } finally {
-      setRefunding(false);
+      setProcessing(false);
     }
   };
 
   const filteredOrders = orders.filter(
     (order) =>
-      order.id.includes(searchQuery) ||
-      order.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customerId.includes(searchQuery) ||
-      (order.gameType && order.gameType.toLowerCase().includes(searchQuery.toLowerCase())),
+      order.id?.toString().includes(searchQuery) ||
+      (order.customer && order.customer.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (order.seller && order.seller.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (order.customerId && order.customerId.toString().includes(searchQuery)) ||
+      (order.sellerId && order.sellerId.toString().includes(searchQuery)) ||
+      (order.gameType && order.gameType.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (order.disputeReason && order.disputeReason.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
   if (loading) {
     return (
       <div className="loading-state">
         <div className="loader-spinner"></div>
-        <div className="loader-text">Loading order data...</div>
+        <div className="loader-text">Loading disputed orders...</div>
       </div>
     )
   }
@@ -185,20 +183,14 @@ export function SellerOrders({ sellerId: propSellerId }) {
   return (
     <div className="orders-container">
       <div className="listings-header">
-        <h1 className="listings-title">Orders for Seller: {sellerId}</h1>
-        <Link 
-          to={`/admindashboard/sellers/${sellerId}`} 
-          className="back-button"
-        >
-          Back to Seller
-        </Link>
+        <h1 className="listings-title">Disputed Orders</h1>
       </div>
       <div className="orders-toolbar">
         <div className="search-container">
           <Search className="search-icon" />
           <input
             type="text"
-            placeholder="Search orders..."
+            placeholder="Search disputed orders..."
             className="search-input"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -211,10 +203,11 @@ export function SellerOrders({ sellerId: propSellerId }) {
           <thead>
             <tr>
               <th className="table-header">ORDER ID</th>
-              <th className="table-header">CUSTOMER ID</th>
+              <th className="table-header">CUSTOMER</th>
+              <th className="table-header">SELLER</th>
               <th className="table-header">GAME TYPE</th>
-              <th className="table-header">STATUS</th>
               <th className="table-header">AMOUNT</th>
+              <th className="table-header">DISPUTE REASON</th>
               <th className="table-header">DATE</th>
               <th className="table-header"></th>
             </tr>
@@ -222,8 +215,8 @@ export function SellerOrders({ sellerId: propSellerId }) {
           <tbody>
             {filteredOrders.length === 0 ? (
               <tr>
-                <td colSpan="7" className="no-orders-message">
-                  This seller has no orders yet.
+                <td colSpan="8" className="no-orders-message">
+                  No disputed orders found.
                 </td>
               </tr>
             ) : (
@@ -234,21 +227,25 @@ export function SellerOrders({ sellerId: propSellerId }) {
                       #{order.id}
                     </Link>
                   </td>
-                  <td className="table-cell">{order.customerId}</td>
-                  <td className="table-cell">{order.gameType}</td>
-                  <td className="table-cell">
-                    <span className={`status-badge ${
-                      order.status === "Completed"
-                        ? "badge-completed"
-                        : order.status === "Processing"
-                          ? "badge-processing"
-                          : "badge-refunded"
-                    }`}>
-                      {order.status}
-                    </span>
+                  <td 
+                    className="table-cell" 
+                  >
+                    {order.customer || 'Unknown Customer'}
                   </td>
-                  <td className="table-cell">{order.amount}</td>
-                  <td className="table-cell">{order.date}</td>
+                  <td 
+                    className="table-cell"
+                  >
+                    {order.seller || 'Unknown Seller'}
+                  </td>
+                  <td className="table-cell">{order.gameType || 'Unknown'}</td>
+                  <td className="table-cell">{order.amount || '$0.00'}</td>
+                  <td 
+                    className="table-cell dispute-reason" 
+                    title={order.disputeReason || 'No reason provided'}
+                  >
+                    {order.disputeReason || 'No reason provided'}
+                  </td>
+                  <td className="table-cell">{order.date || 'Unknown Date'}</td>
                   <td className="table-cell actions-cell">
                     <Link to={`/order/${order.id}`}>
                       <button className="action-icon-button">
@@ -296,25 +293,28 @@ export function SellerOrders({ sellerId: propSellerId }) {
           ref={dropdownRef}
           className="dropdown-container"
           style={{
-            position: 'fixed',
-            top: `${dropdownPosition.top}px`,
-            left: `${dropdownPosition.left}px`,
+            top: dropdownPosition.top,
+            left: dropdownPosition.left,
           }}
         >
           <div className="dropdown-menu">
-            <button className="dropdown-item dropdown-item-danger"
-              onClick={() => handleRefundOrder(activeDropdownId)}
-              disabled={refunding}
+            <button 
+              className="dropdown-item dropdown-item-success"
+              onClick={() => handleResolveDispute(activeDropdownId, 'approve')}
+              disabled={processing}
             >
-              {refunding ? "Processing..." : "Refund Order"}
+              {processing ? "Processing..." : "Resolve for Seller"}
+            </button>
+            <button 
+              className="dropdown-item dropdown-item-danger"
+              onClick={() => handleResolveDispute(activeDropdownId, 'refund')}
+              disabled={processing}
+            >
+              {processing ? "Processing..." : "Refund to Customer"}
             </button>
           </div>
         </div>
       )}
     </div>
   )
-}
-
-SellerOrders.propTypes = {
-  sellerId: PropTypes.string
-}
+} 

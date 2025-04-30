@@ -142,7 +142,7 @@ function TicketsPage() {
         </div>
       </div>
 
-      <div className="listings-toolbar">
+      <div className="orders-toolbar">
         <div className="search-container">
           <Search className="search-icon" />
           <Input

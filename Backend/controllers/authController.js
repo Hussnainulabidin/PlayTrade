@@ -65,10 +65,43 @@ exports.login = catchAsync(async (req, res, next) => {
         return next(new AppError("Incorrect email or password" , 401));  //unauthorized
     }
 
-    //3. If everything is ok, send token to client
-    user.password = undefined
+    // 3. Check if 2FA is enabled
+    if (user.twoFactorEnabled) {
+        // Generate a 6-digit code
+        const twoFactorCode = user.generateTwoFactorCode();
+        await user.save({ validateBeforeSave: false });
+        
+        // Send the code via email
+        try {
+            console.log(`Sending 2FA code to user: ${user._id}, email: ${user.email}...`);
+            
+            await sendEmail({
+                email: user.email,
+                subject: 'Your Authentication Code (valid for 5 minutes)',
+                message: `Your PlayTrade verification code is: ${twoFactorCode}`
+            });
+            
+            // Return a response indicating 2FA is required
+            return res.status(200).json({
+                status: 'success',
+                message: 'Two-factor authentication required',
+                requiresTwoFactor: true,
+                userId: user._id
+            });
+        } catch (err) {
+            // Clear the 2FA fields since we couldn't send the email
+            user.twoFactorCode = undefined;
+            user.twoFactorCodeExpires = undefined;
+            await user.save({ validateBeforeSave: false });
+            
+            console.error('2FA email sending failed:', err);
+            return next(new AppError('There was an error sending the verification code. Please try again later!', 500));
+        }
+    }
 
-    createSendToken(user , 200 , res);
+    //4. If everything is ok and no 2FA required, send token to client
+    user.password = undefined;
+    createSendToken(user, 200, res);
 })
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -126,21 +159,26 @@ exports.forgotPassword = catchAsync (async (req , res , next)  => {
     const message = `Forgot your password? Press the link to Reset \n ${resetURL}.
                     \n If you didn't perform this action, please ignore this email`
     try {
+        console.log(`Sending password reset email to: ${user.email}`);
+        
         await sendEmail({
             email: user.email,
+            subject: 'Your Password Reset Link (valid for 10 hours)',
             resetURL : message
-    })
+        })
 
         res.status(200).json({
             status : "success",
             message : "Token sent to email!"
         })
     } catch (err) {
+        console.error('Password reset email failed:', err);
+        
         user.passwordResetToken = undefined
         user.passwordResetExpires = undefined
         await user.save({validateBeforeSave : false , })
 
-        return next(new AppError('There was error sending email. Try again later!' , 500))
+        return next(new AppError('There was an error sending the password reset email. Please try again later!', 500))
     }
 })
 
@@ -229,4 +267,34 @@ exports.logoutAllSessions = catchAsync(async (req, res, next) => {
         success: true,
         message: 'Logged out from all sessions'
     });
+});
+
+exports.verifyTwoFactorCode = catchAsync(async (req, res, next) => {
+    const { userId, verificationCode } = req.body;
+    
+    if (!userId || !verificationCode) {
+        return next(new AppError('Please provide both user ID and verification code', 400));
+    }
+    
+    // Find the user with the given verification code
+    const user = await User.findOne({
+        _id: userId,
+        twoFactorCode: verificationCode,
+        twoFactorCodeExpires: { $gt: Date.now() }
+    });
+    
+    if (!user) {
+        console.log('Invalid 2FA attempt:', { userId, codeProvided: verificationCode });
+        return next(new AppError('Invalid or expired verification code', 401));
+    }
+    
+    // Clear the 2FA fields
+    user.twoFactorCode = undefined;
+    user.twoFactorCodeExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+    
+    console.log('Successful 2FA verification for user:', userId);
+    
+    // Issue token and log the user in
+    createSendToken(user, 200, res);
 });

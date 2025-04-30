@@ -8,6 +8,7 @@ const { createOrderChat } = require("../utils/chatUtils");
 const Chat = require("../models/chatModel");
 const mongoose = require("mongoose");
 const walletActions = require("../models/wallet");
+const sendEmail = require("../utils/email");
 
 // Import all game models with error handling
 let PUBG, Fortnite, LeagueOfLegends, BrawlStars, ClashOfClans;
@@ -328,6 +329,7 @@ exports.createOrder = catchAsync(async (req, res, next) => {
 
   // Set client ID from authenticated user
   const clientID = req.user._id;
+  const buyer = await User.findById(clientID).select('username');
 
   // Find seller and other account details based on game type
   let account;
@@ -368,6 +370,12 @@ exports.createOrder = catchAsync(async (req, res, next) => {
   sellerID = account.sellerID;
   price = account.price;
 
+  // Fetch seller information for email
+  const seller = await User.findById(sellerID);
+  if (!seller) {
+    return next(new AppError("Seller not found", 404));
+  }
+
   // Create the order
   const order = await Orders.create({
     accountID,
@@ -382,6 +390,33 @@ exports.createOrder = catchAsync(async (req, res, next) => {
   // Update account status to sold
   account.status = "sold";
   await account.save();
+
+  // Only send email notification if seller has opted in
+  if (seller.notificationPreferences && seller.notificationPreferences.newOrder) {
+    try {
+      // Send email to seller about the new order
+      await sendEmail({
+        email: seller.email,
+        subject: `Your Account Has Been Sold! - ${account.title || 'Account'} (${game})`,
+        message: `Your ${game} account has been sold!`,
+        orderDetails: {
+          orderId: order._id,
+          accountId: accountID,
+          accountTitle: account.title || 'Game Account',
+          accountRefId: account.referenceId || `REF-${accountID.toString().substring(0, 8)}`,
+          buyerUsername: buyer ? buyer.username : 'A customer',
+          game: game,
+          price: price,
+          sellerName: seller.username
+        }
+      });
+      
+      console.log(`Order notification email sent to seller: ${seller.email}`);
+    } catch (error) {
+      console.error('Failed to send order email notification:', error);
+      // Don't fail the order creation if email fails
+    }
+  }
 
   res.status(201).json({
     status: "success",
@@ -602,7 +637,7 @@ exports.markOrderAsReceived = catchAsync(async (req, res, next) => {
       if (chat) {
         const systemMessage = {
           sender: userId,
-          content: `Order has been marked as received by the buyer.`,
+          content: `(System)Order has been marked as received by the buyer.`,
           timestamp: Date.now(),
           isSystemMessage: true,
           read: true
@@ -755,7 +790,7 @@ exports.refundOrder = catchAsync(async (req, res, next) => {
         if (chat) {
           const refundMessage = {
             sender: req.user._id,
-            content: `Order has been refunded by an administrator.`,
+            content: `(System)Order has been refunded by an System.`,
             timestamp: Date.now(),
             isSystemMessage: true,
             read: true
@@ -994,7 +1029,7 @@ exports.cancelOrder = catchAsync(async (req, res, next) => {
         if (chat) {
           const systemMessage = {
             sender: userId,
-            content: `Order has been cancelled by the seller.`,
+            content: `(System)Order has been cancelled by the seller.`,
             timestamp: Date.now(),
             isSystemMessage: true,
             read: true
@@ -1026,6 +1061,315 @@ exports.cancelOrder = catchAsync(async (req, res, next) => {
   } catch (error) {
     console.error("Cancel order error:", error);
     return next(new AppError("Failed to cancel order. Please try again later.", 500));
+  }
+});
+
+exports.disputeOrder = catchAsync(async (req, res, next) => {
+  const orderId = req.params.id;
+  const userId = req.user._id;
+  const { disputeReason } = req.body;
+
+  // Find the order
+  const order = await Orders.findById(orderId);
+  
+  if (!order) {
+    return next(new AppError("No order found with that ID", 404));
+  }
+
+  // Only the buyer can dispute an order
+  if (order.clientID.toString() !== userId.toString()) {
+    return next(new AppError("Only the buyer can dispute this order", 403));
+  }
+
+  // Check if the order is already disputed or refunded
+  if (order.status === "disputed") {
+    return next(new AppError("This order is already disputed", 400));
+  }
+
+  if (order.status === "refunded") {
+    return next(new AppError("This order has already been refunded", 400));
+  }
+
+  // Update order status to disputed
+  order.status = "disputed";
+  
+  // Save dispute reason if provided
+  if (disputeReason) {
+    order.disputeReason = disputeReason;
+  }
+  
+  await order.save();
+
+  // Add notification to chat if it exists
+  try {
+    const chat = await Chat.findOne({ orderId: order._id });
+    if (chat) {
+      console.log("chat found");
+      const systemMessage = {
+        sender: "system",
+        content: `(System)Order status updated to: disputed${disputeReason ? '\nReason: ' + disputeReason : ''}`,
+        timestamp: Date.now(),
+        isSystemMessage: true,
+        read: true
+      };
+      console.log("systemMessage", systemMessage);
+      chat.messages.push(systemMessage);
+      chat.lastActivity = Date.now();
+      await chat.save();
+    }
+  } catch (chatError) {
+    console.error("Error adding dispute message to chat:", chatError);
+    // Don't fail the dispute if adding chat message fails
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Order has been disputed successfully",
+    data: {
+      orderId: order._id,
+      status: "disputed"
+    }
+  });
+});
+
+exports.closeDispute = catchAsync(async (req, res, next) => {
+  const orderId = req.params.id;
+  const userId = req.user._id;
+
+  // Find the order
+  const order = await Orders.findById(orderId);
+  if (!order) {
+    return next(new AppError("No order found with that ID", 404));
+  }
+
+  // Check if the user is the buyer
+  if (order.clientID.toString() !== userId.toString()) {
+    return next(new AppError("Only the buyer can close a dispute", 403));
+  }
+
+  // Check if the order is actually in disputed status
+  if (order.status !== "disputed") {
+    return next(new AppError("This order is not currently disputed", 400));
+  }
+
+  // Update the order status to completed
+  order.status = "completed";
+  await order.save();
+  
+  // Add a system message to the chat
+  try {
+    const chat = await Chat.findOne({ orderId: order._id });
+    if (chat) {
+      const systemMessage = {
+        sender: userId,
+        content: "(System)Dispute closed by the buyer. Order marked as received.",
+        timestamp: Date.now(),
+        isSystemMessage: true,
+        read: true
+      };
+      
+      chat.messages.push(systemMessage);
+      chat.lastActivity = Date.now();
+      await chat.save();
+    }
+  } catch (chatError) {
+    console.error('Error adding system message to chat:', chatError);
+    // Don't fail the operation if adding a chat message fails
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Dispute closed and order marked as completed",
+  });
+});
+
+exports.getDisputedOrders = catchAsync(async (req, res, next) => {
+  // Check if user is authorized (only admin should see all disputed orders)
+  if (req.user.role !== "admin") {
+    return next(
+      new AppError("You are not authorized to access disputed orders", 403)
+    );
+  }
+
+  // Pagination parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 12;
+  const skip = (page - 1) * limit;
+
+  // Get total count for pagination
+  const totalOrders = await Orders.countDocuments({ status: "disputed" });
+  const totalPages = Math.ceil(totalOrders / limit);
+
+  // Get only disputed orders
+  const disputedOrders = await Orders.find({ status: "disputed" })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .populate({
+      path: "accountID",
+      select: "title gameType",
+    });
+
+  // Get all unique client and seller IDs
+  const clientIds = [...new Set(disputedOrders.map(order => order.clientID))];
+  const sellerIds = [...new Set(disputedOrders.map(order => order.sellerID))];
+  
+  // Fetch all users in one query for efficiency
+  const users = await User.find({
+    _id: { $in: [...clientIds, ...sellerIds] }
+  }).select('_id username email');
+  
+  // Create a map for quick lookups
+  const userMap = {};
+  users.forEach(user => {
+    userMap[user._id.toString()] = {
+      username: user.username,
+      email: user.email
+    };
+  });
+
+  // Format the orders for the frontend
+  const formattedOrders = await Promise.all(disputedOrders.map(async (order) => {
+    // Determine game type based on available data
+    const gameType =
+      order.game || (order.accountID && order.accountID.gameType) || "Valorant"; // Default to Valorant
+
+    // Get price from order schema
+    const orderPrice = order.price || order.amount || 0;
+
+    // Format creation date
+    const creationDate = order.createdAt || order.creartedAT || new Date();
+    const formattedDate = new Date(creationDate).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+
+    // Format amount with currency symbol
+    const formattedAmount = `$${parseFloat(orderPrice).toFixed(2)}`;
+    
+    // Get customer and seller info from user map
+    const clientIdStr = order.clientID.toString();
+    const sellerIdStr = order.sellerID.toString();
+    
+    const customerInfo = userMap[clientIdStr] || { username: 'Unknown Customer' };
+    const sellerInfo = userMap[sellerIdStr] || { username: 'Unknown Seller' };
+
+    return {
+      id: order._id,
+      customer: customerInfo.username,
+      customerEmail: customerInfo.email || 'Unknown Email',
+      customerId: clientIdStr,
+      seller: sellerInfo.username,
+      sellerEmail: sellerInfo.email || 'Unknown Email',
+      sellerId: sellerIdStr,
+      gameType: gameType,
+      amount: formattedAmount,
+      disputeReason: order.disputeReason || "No reason provided",
+      date: formattedDate,
+    };
+  }));
+
+  res.status(200).json({
+    status: "success",
+    results: formattedOrders.length,
+    totalOrders,
+    totalPages,
+    currentPage: page,
+    data: formattedOrders,
+  });
+});
+
+exports.resolveDispute = catchAsync(async (req, res, next) => {
+  const orderId = req.params.id;
+  const { resolution } = req.body;
+
+  // Check if user is authorized (only admin can resolve disputes)
+  if (req.user.role !== "admin") {
+    return next(
+      new AppError("You are not authorized to resolve disputes", 403)
+    );
+  }
+
+  // Validate resolution type
+  if (!resolution || !['approve', 'refund'].includes(resolution)) {
+    return next(
+      new AppError("Resolution must be either 'approve' or 'refund'", 400)
+    );
+  }
+
+  // Find the order
+  const order = await Orders.findById(orderId);
+  
+  if (!order) {
+    return next(new AppError("No order found with that ID", 404));
+  }
+
+  // Check if the order is actually disputed
+  if (order.status !== "disputed") {
+    return next(new AppError("This order is not currently disputed", 400));
+  }
+
+  // Update the order based on resolution
+  if (resolution === 'approve') {
+    // If approving, mark as completed
+    order.status = "completed";
+    await order.save();
+    
+    // Add a system message to the chat
+    try {
+      const chat = await Chat.findOne({ orderId: order._id });
+      if (chat) {
+        const systemMessage = {
+          sender: req.user._id,
+          content: "(System)Dispute resolved by admin. Order approved and marked as completed.",
+          timestamp: Date.now(),
+          isSystemMessage: true,
+          read: true
+        };
+        
+        chat.messages.push(systemMessage);
+        chat.lastActivity = Date.now();
+        await chat.save();
+      }
+    } catch (chatError) {
+      console.error('Error adding system message to chat:', chatError);
+      // Don't fail the operation if adding a chat message fails
+    }
+    
+    res.status(200).json({
+      status: "success",
+      message: "Dispute resolved in favor of seller. Order marked as completed.",
+    });
+  } else {
+    // If refunding, use the refund function
+    // We're reusing the existing refundOrder functionality
+    // Save the order ID for the refund process
+    req.params.id = orderId;
+    
+    // Add a system message to the chat
+    try {
+      const chat = await Chat.findOne({ orderId: order._id });
+      if (chat) {
+        const systemMessage = {
+          sender: req.user._id,
+          content: "(System)Dispute resolved by admin. Order refunded to buyer.",
+          timestamp: Date.now(),
+          isSystemMessage: true,
+          read: true
+        };
+        
+        chat.messages.push(systemMessage);
+        chat.lastActivity = Date.now();
+        await chat.save();
+      }
+    } catch (chatError) {
+      console.error('Error adding system message to chat:', chatError);
+      // Don't fail the operation if adding a chat message fails
+    }
+    
+    // Call the refundOrder function
+    return exports.refundOrder(req, res, next);
   }
 });
 

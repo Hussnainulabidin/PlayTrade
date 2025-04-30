@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import LeagueComponent from '../components/Accounts/League/League';
 import LeagueDetail from '../components/Accounts/League/League-detail';
-import './League.css';
+import './games.css';
 
 function LeaguePage() {
   return (

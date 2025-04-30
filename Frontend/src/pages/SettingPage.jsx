@@ -27,11 +27,11 @@ const SettingPage = () => {
   
   // Notification preferences state
   const [notificationPrefs, setNotificationPrefs] = useState({
-    newOrder: true,
-    newMessage: true,
-    orderDisputed: true,
-    paymentUpdated: true,
-    withdrawUpdates: true
+    newOrder: false,
+    newMessage: false,
+    orderDisputed: false,
+    paymentUpdated: false,
+    withdrawUpdates: false
   });
   
   useEffect(() => {
@@ -47,8 +47,8 @@ const SettingPage = () => {
       setPreviewUrl(user.profilePicture || null);
       
       // Load notification preferences from user data if available
-      if (user.notificationPrefs) {
-        setNotificationPrefs(user.notificationPrefs);
+      if (user.notificationPreferences) {
+        setNotificationPrefs(user.notificationPreferences);
       }
     }
   }, [user]);
@@ -225,8 +225,11 @@ const SettingPage = () => {
         // Update local state
         setNotificationPrefs(updatedPrefs);
         
-        // Update user context
-        updateUser({ ...user, notificationPrefs: updatedPrefs });
+        // Update user context with the new preferences
+        updateUser({ 
+          ...user, 
+          notificationPreferences: response.data.data.notificationPreferences 
+        });
         
         // Show success message
         setSuccess(`${name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} notifications ${updatedPrefs[name] ? 'enabled' : 'disabled'}`);
@@ -242,7 +245,7 @@ const SettingPage = () => {
 
   return (
     <div className="admin-settings-container">
-      <div className="dashboard-header">
+      <div className="settings-header">
         <h1 className="dashboard-title">Account settings</h1>
       </div>
       
@@ -369,116 +372,128 @@ const SettingPage = () => {
             </div>
           </div>
           
-          {/* Notifications Section */}
-          <div>
-            <h2 className="section-title">Email Notifications</h2>
-            <div className="notification-section">
-              <div className="notification-option">
-                <div className="notification-info">
-                  <div className="notification-title">New Order</div>
-                  <div className="notification-description">
-                    Receive email notifications when you get a new order
+          {/* Notifications Section - Only show for sellers and clients with appropriate options */}
+          {user?.role !== 'admin' && (
+            <div>
+              <h2 className="section-title">Email Notifications</h2>
+              <div className="notification-section">
+                
+                {/* New Order - Show for both clients and sellers */}
+                <div className="notification-option">
+                  <div className="notification-info">
+                    <div className="notification-title">New Order</div>
+                    <div className="notification-description">
+                      Receive email notifications when you get a new order
+                    </div>
+                  </div>
+                  
+                  <div className="notification-toggle">
+                    <label className="switch">
+                      <input 
+                        type="checkbox" 
+                        checked={notificationPrefs.newOrder} 
+                        onChange={() => handleNotificationToggle('newOrder')}
+                        disabled={isLoading}
+                      />
+                      <span className="slider round"></span>
+                    </label>
                   </div>
                 </div>
-                
-                <div className="notification-toggle">
-                  <label className="switch">
-                    <input 
-                      type="checkbox" 
-                      checked={notificationPrefs.newOrder} 
-                      onChange={() => handleNotificationToggle('newOrder')}
-                      disabled={isLoading}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </div>
-              </div>
 
-              <div className="notification-option">
-                <div className="notification-info">
-                  <div className="notification-title">New Message</div>
-                  <div className="notification-description">
-                    Receive email notifications when you get a new message
+                {/* New Message - Show for both clients and sellers */}
+                <div className="notification-option">
+                  <div className="notification-info">
+                    <div className="notification-title">New Message</div>
+                    <div className="notification-description">
+                      Receive email notifications when you get a new message
+                    </div>
+                  </div>
+                  
+                  <div className="notification-toggle">
+                    <label className="switch">
+                      <input 
+                        type="checkbox" 
+                        checked={notificationPrefs.newMessage} 
+                        onChange={() => handleNotificationToggle('newMessage')}
+                        disabled={isLoading}
+                      />
+                      <span className="slider round"></span>
+                    </label>
                   </div>
                 </div>
-                
-                <div className="notification-toggle">
-                  <label className="switch">
-                    <input 
-                      type="checkbox" 
-                      checked={notificationPrefs.newMessage} 
-                      onChange={() => handleNotificationToggle('newMessage')}
-                      disabled={isLoading}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </div>
-              </div>
 
-              <div className="notification-option">
-                <div className="notification-info">
-                  <div className="notification-title">Order Disputed</div>
-                  <div className="notification-description">
-                    Receive email notifications when an order is disputed
+                {/* Order Disputed - Only show for sellers */}
+                {user?.role === 'seller' && (
+                  <div className="notification-option">
+                    <div className="notification-info">
+                      <div className="notification-title">Order Disputed</div>
+                      <div className="notification-description">
+                        Receive email notifications when an order is disputed
+                      </div>
+                    </div>
+                    
+                    <div className="notification-toggle">
+                      <label className="switch">
+                        <input 
+                          type="checkbox" 
+                          checked={notificationPrefs.orderDisputed} 
+                          onChange={() => handleNotificationToggle('orderDisputed')}
+                          disabled={isLoading}
+                        />
+                        <span className="slider round"></span>
+                      </label>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="notification-toggle">
-                  <label className="switch">
-                    <input 
-                      type="checkbox" 
-                      checked={notificationPrefs.orderDisputed} 
-                      onChange={() => handleNotificationToggle('orderDisputed')}
-                      disabled={isLoading}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </div>
-              </div>
+                )}
 
-              <div className="notification-option">
-                <div className="notification-info">
-                  <div className="notification-title">Payment Updated</div>
-                  <div className="notification-description">
-                    Receive email notifications when a payment is updated
+                {/* Payment Updated - Show for both clients and sellers */}
+                <div className="notification-option">
+                  <div className="notification-info">
+                    <div className="notification-title">Payment Updated</div>
+                    <div className="notification-description">
+                      Receive email notifications when a payment is updated
+                    </div>
+                  </div>
+                  
+                  <div className="notification-toggle">
+                    <label className="switch">
+                      <input 
+                        type="checkbox" 
+                        checked={notificationPrefs.paymentUpdated} 
+                        onChange={() => handleNotificationToggle('paymentUpdated')}
+                        disabled={isLoading}
+                      />
+                      <span className="slider round"></span>
+                    </label>
                   </div>
                 </div>
-                
-                <div className="notification-toggle">
-                  <label className="switch">
-                    <input 
-                      type="checkbox" 
-                      checked={notificationPrefs.paymentUpdated} 
-                      onChange={() => handleNotificationToggle('paymentUpdated')}
-                      disabled={isLoading}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </div>
-              </div>
 
-              <div className="notification-option">
-                <div className="notification-info">
-                  <div className="notification-title">Withdraw Updates</div>
-                  <div className="notification-description">
-                    Receive email notifications about withdrawal status changes
+                {/* Withdraw Updates - Only show for sellers */}
+                {user?.role === 'seller' && (
+                  <div className="notification-option">
+                    <div className="notification-info">
+                      <div className="notification-title">Withdraw Updates</div>
+                      <div className="notification-description">
+                        Receive email notifications about withdrawal status changes
+                      </div>
+                    </div>
+                    
+                    <div className="notification-toggle">
+                      <label className="switch">
+                        <input 
+                          type="checkbox" 
+                          checked={notificationPrefs.withdrawUpdates} 
+                          onChange={() => handleNotificationToggle('withdrawUpdates')}
+                          disabled={isLoading}
+                        />
+                        <span className="slider round"></span>
+                      </label>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="notification-toggle">
-                  <label className="switch">
-                    <input 
-                      type="checkbox" 
-                      checked={notificationPrefs.withdrawUpdates} 
-                      onChange={() => handleNotificationToggle('withdrawUpdates')}
-                      disabled={isLoading}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </div>
+                )}
               </div>
             </div>
-          </div>
+          )}
         </div>
         
         {/* Password Change Modal */}

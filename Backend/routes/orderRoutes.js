@@ -17,6 +17,12 @@ router.route("/seller/:id").get(authController.restrictTo("admin" , "seller"),or
 router.route("/").post(orderController.createOrder);
 router.route("/").get(authController.restrictTo("admin"),orderController.getAllOrders);
 
+// Get all disputed orders - admin only
+router.route("/disputed").get(
+  authController.restrictTo("admin"),
+  orderController.getDisputedOrders
+);
+
 // Get specific order by ID - any authenticated user can access if they are buyer or seller
 router.route("/myorder/:id").get(orderController.getOrderById);
 
@@ -25,6 +31,18 @@ router.route("/:id/mark-received").post(orderController.markOrderAsReceived);
 
 // Cancel an order - restricted to the seller who owns the order
 router.route("/:id/cancel").post(orderController.cancelOrder);
+
+// Dispute an order - for buyers to report issues
+router.route("/:id/dispute").post(orderController.disputeOrder);
+
+// Close a dispute - for buyers to close a dispute and mark order as received
+router.route("/:id/close-dispute").post(orderController.closeDispute);
+
+// Resolve a dispute (admin only) - approve or refund
+router.route("/:id/resolve-dispute").post(
+  authController.restrictTo("admin"),
+  orderController.resolveDispute
+);
 
 // Refund an order - restricted to admin only
 router.route("/:id/refund")

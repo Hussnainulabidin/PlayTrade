@@ -1,0 +1,320 @@
+/* Common Table Styles for Admin Dashboard */
+
+.table-container, .listings-table {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3651 #1f1b31;
+  width: 100%;
+}
+
+.table-container::-webkit-scrollbar, .listings-table::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.table-container::-webkit-scrollbar-track, .listings-table::-webkit-scrollbar-track {
+  background: #1f1b31;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb, .listings-table::-webkit-scrollbar-thumb {
+  background: #3a3651;
+  border-radius: 4px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-header {
+  background-color: #1f1b31;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  padding: 12px 16px;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.table-header:first-child {
+  border-top-left-radius: 8px;
+}
+
+.table-header:last-child {
+  border-top-right-radius: 8px;
+}
+
+.table-row {
+  transition: background-color 0.2s;
+}
+
+.table-row:hover {
+  background-color: rgba(124, 58, 237, 0.1);
+}
+
+.table-cell {
+  border-bottom: 1px solid #1f1b31;
+  color: #e5e7eb;
+  font-size: 14px;
+  padding: 16px;
+  white-space: nowrap;
+}
+
+.order-id, .listing-id {
+  font-weight: 500;
+}
+
+.order-link {
+  color: #e9e3f1;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.seller-link {
+  color: #e5e7eb;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.order-link:hover {
+  color: #9061f9;
+}
+
+.seller-link:hover {
+  color: #ffffff;
+}
+
+.status-badge {
+  padding: 3px 8px;
+  border-radius: 1px;
+  font-size: 8px;
+  font-weight: 200;
+  /* text-transform: uppercase; */
+  letter-spacing: 0.02em;
+}
+
+.badge-completed, .badge-listed {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.badge-processing {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.badge-draft {
+  background-color: rgba(90, 77, 77, 0.15);
+  color: #d1b9b9;
+}
+
+.badge-refunded {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.badge-sold {
+  background-color: rgba(37, 99, 235, 0.15);
+  color: #3b82f6;
+}
+
+.badge-other {
+  background-color: rgba(240, 91, 65, 0.15);
+  color: #f37500;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.action-icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1f1b31;
+  border: none;
+  border-radius: 3px;
+  color: #9ca3af;
+  cursor: pointer;
+  height: 32px;
+  width: 32px;
+  transition: all 0.2s;
+}
+
+.action-icon-button:hover {
+  background-color: #2e2a4a;
+  color: #fff;
+}
+
+.dropdown-container {
+  position: fixed;
+  z-index: 100;
+}
+
+.dropdown-menu {
+  background-color: #1f1b31;
+  border-radius: 6px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  min-width: 180px;
+  overflow: hidden;
+}
+
+.dropdown-item {
+  background: none;
+  border: none;
+  color: #e5e7eb;
+  cursor: pointer;
+  display: block;
+  font-size: 14px;
+  padding: 10px 16px;
+  text-align: left;
+  width: 100%;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #2e2a4a;
+}
+
+.dropdown-item-danger, .delete-item {
+  color: #ef4444;
+}
+
+.dropdown-item-danger:hover, .delete-item:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.dropdown-item-success {
+  color: #10b981;
+}
+
+.dropdown-item-success:hover {
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24px;
+  gap: 12px;
+}
+
+.pagination-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1f1b31;
+  border: none;
+  border-radius: 4px;
+  color: #9ca3af;
+  cursor: pointer;
+  height: 36px;
+  width: 36px;
+  transition: all 0.2s;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: #2e2a4a;
+  color: #fff;
+}
+
+.pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination-info {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.no-orders-message, .no-listings-message {
+  color: #9ca3af;
+  font-style: italic;
+  padding: 24px;
+  text-align: center;
+}
+
+/* Updated dispute-reason style with tooltip appearing above */
+.dispute-reason {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+  transition: color 0.2s ease;
+  cursor: default;
+}
+
+.dispute-reason:hover {
+  color: #9061f9; /* Purple text color on hover */
+}
+
+/* Define the fade-in animation */
+@keyframes tooltip-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Arrow for tooltip (appears first in DOM) */
+.dispute-reason:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px;
+  border-style: solid;
+  border-color: #3a3448 transparent transparent transparent;
+  margin-bottom: -12px;
+  z-index: 10;
+  animation: tooltip-fade-in 0.2s ease-out;
+}
+
+/* Main tooltip content */
+.dispute-reason:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 100%;
+  margin-bottom: 8px;
+  z-index: 10;
+  background: #1a172b;
+  padding: 12px 16px;
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(124, 58, 237, 0.1); /* Added purple glow */
+  white-space: normal;
+  width: 300px;
+  max-width: min(300px, 100vw - 40px);
+  color: #e5e7eb;
+  animation: tooltip-fade-in 0.2s ease-out;
+  border: 1px solid #3a3448;
+  border-top: 2px solid #7c3aed; /* Purple top border accent */
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Styling for cells with hover tooltips */
+.table-cell[title]:not([title=""]) {
+  border-bottom: 1px dashed #3a3651;
+  cursor: help;
+}
+
+.table-cell[title]:not([title=""]):hover {
+  border-bottom-color: #7c3aed;
+} 

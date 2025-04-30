@@ -21,6 +21,40 @@ const login = async (email, password) => {
       password,
     });
 
+    // Check if 2FA is required
+    if (response.data.requiresTwoFactor) {
+      return {
+        requiresTwoFactor: true,
+        userId: response.data.userId,
+        message: response.data.message
+      };
+    }
+
+    if (response.data.token) {
+      const userData = { ...response.data.data.user };
+      delete userData.passwordResetToken;
+      delete userData.passwordResetExpires;
+      delete userData.password;
+      
+      setAuthHeader(response.data.token);
+      userData.token = response.data.token
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userId", userData._id);
+      return userData;
+    }
+    return null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const verifyTwoFactorCode = async (userId, verificationCode) => {
+  try {
+    const response = await axios.post(`${API_URL}/users/verify-2fa`, {
+      userId,
+      verificationCode
+    });
+
     if (response.data.token) {
       const userData = { ...response.data.data.user };
       delete userData.passwordResetToken;
@@ -99,6 +133,7 @@ const AuthService = {
   logout,
   isAuthenticated,
   initAuthHeader,
+  verifyTwoFactorCode
 };
 
 export default AuthService;

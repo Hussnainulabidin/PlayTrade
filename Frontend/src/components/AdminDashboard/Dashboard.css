@@ -5,6 +5,11 @@
   padding: 1.5rem;
   border-bottom: 1px solid #2a2438;
   background-color: #1e1a2e;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .dashboard-title {
@@ -22,6 +27,9 @@
 .dashboard-content-container {
   padding: 1.5rem;
   background-color: #1a172b;
+  min-height: calc(100vh - 80px); /* Accounting for the header */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .dashboard-toolbar {
@@ -30,12 +38,17 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .search-container {
   position: relative;
   flex: 1;
   min-width: 200px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .search-icon {
@@ -47,6 +60,7 @@
   width: 1rem;
   color: #a1a1aa;
   pointer-events: none;
+  z-index: 1;
 }
 
 .search-input {
@@ -56,6 +70,7 @@
   border: 1px solid #3a3448;
   border-radius: 10px;
   color: white;
+  box-sizing: border-box;
 }
 
 .search-input:focus {

@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react"
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom"
 import { Search, MoreVertical, Edit, ChevronLeft, ChevronRight } from "lucide-react"
 import axios from "axios"
-import "./SellerListing.css"
+import "./common/Common.css"
+import "./common/TableStyles.css"
 import { formatDate } from "../../lib/utils"
 
 export function SellerListings() {
@@ -275,14 +276,14 @@ export function SellerListings() {
                   <th className="table-header">STATUS</th>
                   <th className="table-header">PRICE</th>
                   <th className="table-header">CREATED DATE</th>
-                  <th className="table-header">ACTIONS</th>
+                  <th className="table-header"></th>
                 </tr>
               </thead>
               <tbody>
                 {filteredListings.map((listing) => (
                   <tr key={listing.id} className="table-row">
                     <td className="table-cell listing-id">
-                      <Link to={`/admindashboard/sellers/${id}/listings/${listing.id}`} className="seller-link">
+                      <Link to={`/admindashboard/sellers/${id}/listings/${listing.id}`} className="order-link">
                         #{listing.id}
                       </Link>
                     </td>

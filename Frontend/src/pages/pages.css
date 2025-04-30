@@ -2,16 +2,29 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    min-height: 100vh;
   }
   
   .dashboard-layout {
     display: flex;
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
   }
   
   .dashboard-content {
     flex: 1;
     overflow: auto;
+    background-color: #1a172b;
+    min-height: 100vh;
+    margin-left: 16rem; /* 256px (width of sidebar) */
+    width: calc(100% - 16rem);
+  }
+  
+  /* Responsive styles for mobile devices */
+  @media (max-width: 768px) {
+    .dashboard-content {
+      margin-left: 0;
+      width: 100%;
+      margin-top: 3rem; /* Add space for mobile navigation */
+    }
   }
   
