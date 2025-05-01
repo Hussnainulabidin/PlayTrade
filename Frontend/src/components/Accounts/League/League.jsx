@@ -8,6 +8,7 @@ import { LoginModal } from "../../LoginModal/LoginModal"
 import { SignupModal } from "../../SignupModal/SignupModal"
 import { useUser } from "../../userContext/UserContext"
 import { UserMenu } from "../../UserMenu/UserMenu"
+import '../AccountCarousel.css' // Import shared CSS for animations
 
 export default function League() {
   const navigate = useNavigate()
@@ -21,11 +22,12 @@ export default function League() {
   const [sellers, setSellers] = useState({})
   const [searchQuery, setSearchQuery] = useState("")
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
-  
+  const [currentImageIndexes, setCurrentImageIndexes] = useState({})
+
   // Add pagination states
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 12 // 3 rows × 4 columns
-  
+
   // Add filter states
   const [selectedServer, setSelectedServer] = useState("")
   const [selectedRank, setSelectedRank] = useState("")
@@ -87,7 +89,7 @@ export default function League() {
       try {
         setLoading(true)
         let queryParams = new URLSearchParams()
-        
+
         if (debouncedSearchQuery) {
           queryParams.append('search', debouncedSearchQuery)
         }
@@ -107,8 +109,16 @@ export default function League() {
           // Shuffle the accounts array
           const shuffledAccounts = [...response.data.data.accounts].sort(() => Math.random() - 0.5)
           setAccounts(shuffledAccounts)
+
+          // Initialize image indexes for each account
+          const imageIndexes = {}
+          shuffledAccounts.forEach(account => {
+            imageIndexes[account._id] = 0
+          })
+          setCurrentImageIndexes(imageIndexes)
+
           // Fetch seller data for each account
-          const sellerPromises = shuffledAccounts.map(account => 
+          const sellerPromises = shuffledAccounts.map(account =>
             axios.get(`http://localhost:3003/users/${account.sellerID}`)
               .then(res => ({
                 sellerId: account.sellerID,
@@ -119,7 +129,7 @@ export default function League() {
                 sellerData: null
               }))
           )
-          
+
           const sellerResults = await Promise.all(sellerPromises)
           const sellerMap = {}
           sellerResults.forEach(result => {
@@ -141,6 +151,26 @@ export default function League() {
 
     fetchAccounts()
   }, [debouncedSearchQuery, selectedServer, selectedRank, selectedPrice])
+
+  // Add image slideshow interval
+  useEffect(() => {
+    if (accounts.length === 0) return
+
+    const interval = setInterval(() => {
+      setCurrentImageIndexes(prevIndexes => {
+        const newIndexes = { ...prevIndexes }
+        accounts.forEach(account => {
+          if (account.gallery && account.gallery.length > 1) {
+            const currentIndex = prevIndexes[account._id] || 0
+            newIndexes[account._id] = (currentIndex + 1) % account.gallery.length
+          }
+        })
+        return newIndexes
+      })
+    }, 2000)
+
+    return () => clearInterval(interval)
+  }, [accounts])
 
   const handleLoginSuccess = async (userData) => {
     await login(userData)
@@ -237,7 +267,7 @@ export default function League() {
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div 
+              <div
                 className="flex items-center gap-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:opacity-90"
                 onClick={() => navigate('/')}
               >
@@ -325,7 +355,7 @@ export default function League() {
               onClick={() => navigate("/accounts/leagueoflegends/support")}
               className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center hover:bg-gray-700"
             >
-             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
                 <path
                   fillRule="evenodd"
                   d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
@@ -383,7 +413,7 @@ export default function League() {
 
             <div className="flex gap-4 ml-auto">
               <div className="relative" ref={serverDropdownRef}>
-                <button 
+                <button
                   className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
                   onClick={() => {
                     setIsServerDropdownOpen(!isServerDropdownOpen)
@@ -425,7 +455,7 @@ export default function League() {
               </div>
 
               <div className="relative" ref={rankDropdownRef}>
-                <button 
+                <button
                   className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
                   onClick={() => {
                     setIsRankDropdownOpen(!isRankDropdownOpen)
@@ -467,7 +497,7 @@ export default function League() {
               </div>
 
               <div className="relative" ref={priceDropdownRef}>
-                <button 
+                <button
                   className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
                   onClick={() => {
                     setIsPriceDropdownOpen(!isPriceDropdownOpen)
@@ -548,8 +578,8 @@ export default function League() {
             </div>
           ) : (
             currentItems.map((account) => (
-              <div 
-                key={account._id} 
+              <div
+                key={account._id}
                 className="bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden cursor-pointer hover:border-blue-500 transition-colors"
                 onClick={() => handleAccountClick(account._id)}
               >
@@ -569,15 +599,41 @@ export default function League() {
                       </span>
                       {account.verified && <span className="bg-green-600 text-xs px-1 rounded">✓</span>}
                     </div>
-                    
+
                   </div>
                 </div>
-                <div className="relative">
-                  <img
-                    src={account.imageUrl || "/placeholder.svg?height=180&width=320"}
-                    alt="Account screenshot"
-                    className="w-full h-[180px] object-cover"
-                  />
+                <div className="relative overflow-hidden">
+                  <div
+                    className="carousel-container"
+                    style={{
+                      display: 'flex',
+                      width: '100%',
+                      height: '180px',
+                      transition: 'transform 0.5s ease-in-out',
+                      transform: `translateX(-${currentImageIndexes[account._id] || 0}00%)`
+                    }}
+                  >
+                    {account.gallery && account.gallery.length > 0 ? (
+                      account.gallery.map((image, index) => (
+                        <img
+                          key={index}
+                          src={image}
+                          alt={`Account screenshot ${index + 1}`}
+                          className="w-full h-[180px] object-cover flex-shrink-0"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/images/placeholder.png";
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <img
+                        src="/images/placeholder.png"
+                        alt="Account screenshot"
+                        className="w-full h-[180px] object-cover flex-shrink-0"
+                      />
+                    )}
+                  </div>
                   <div className="absolute bottom-2 right-2 bg-black/70 rounded px-1 py-0.5 text-xs flex items-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -592,11 +648,24 @@ export default function League() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    {account.screenshots || "0"}+
+                    {account.gallery?.length || "0"}+
                   </div>
+                  {account.gallery && account.gallery.length > 1 && (
+                    <div className="absolute bottom-2 left-2 flex gap-1">
+                      {account.gallery.map((_, index) => (
+                        <div
+                          key={index}
+                          className={`w-1.5 h-1.5 rounded-full ${index === (currentImageIndexes[account._id] || 0)
+                              ? "bg-blue-500"
+                              : "bg-gray-500"
+                            }`}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="p-3 border-t border-gray-800 grid grid-cols-4 gap-2 text-xs text-gray-400">
-                  
+
                   <div className="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
                       <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
@@ -625,16 +694,16 @@ export default function League() {
                   </div>
                   <div className="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
-                        <path
+                      <path
                         fillRule="evenodd"
                         d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z"
                         clipRule="evenodd"
-                        />
+                      />
                     </svg>
                     {account.account_data.riotPoints || 0} RP
-                    </div>
+                  </div>
                 </div>
-                
+
                 <div className="p-4 border-t border-gray-800 flex items-center justify-between">
                   <div className="text-2xl font-bold">
                     ${account.price?.toFixed(2) || "0.00"}
@@ -705,11 +774,10 @@ export default function League() {
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-4 py-2 rounded-md border ${
-                  currentPage === page
+                className={`px-4 py-2 rounded-md border ${currentPage === page
                     ? "bg-blue-600 border-blue-500 text-white"
                     : "border-gray-700 text-gray-300 hover:bg-gray-700"
-                }`}
+                  }`}
               >
                 {page}
               </button>

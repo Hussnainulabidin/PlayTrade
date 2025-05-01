@@ -8,6 +8,7 @@ import { LoginModal } from "../../LoginModal/LoginModal"
 import { SignupModal } from "../../SignupModal/SignupModal"
 import { useUser } from "../../userContext/UserContext"
 import { UserMenu } from "../../UserMenu/UserMenu"
+import './Valorant.css'
 
 export default function Valorant() {
   const navigate = useNavigate()
@@ -21,7 +22,8 @@ export default function Valorant() {
   const [sellers, setSellers] = useState({})
   const [searchQuery, setSearchQuery] = useState("")
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
-  
+  const [currentImageIndexes, setCurrentImageIndexes] = useState({})
+
   // Add pagination states
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 12 // 3 rows × 4 columns
@@ -107,8 +109,16 @@ export default function Valorant() {
           // Shuffle the accounts array
           const shuffledAccounts = [...response.data.data.accounts].sort(() => Math.random() - 0.5)
           setAccounts(shuffledAccounts)
+
+          // Initialize image indexes for each account
+          const imageIndexes = {}
+          shuffledAccounts.forEach(account => {
+            imageIndexes[account._id] = 0
+          })
+          setCurrentImageIndexes(imageIndexes)
+
           // Fetch seller data for each account
-          const sellerPromises = shuffledAccounts.map(account => 
+          const sellerPromises = shuffledAccounts.map(account =>
             axios.get(`http://localhost:3003/users/${account.sellerID}`)
               .then(res => ({
                 sellerId: account.sellerID,
@@ -141,6 +151,26 @@ export default function Valorant() {
 
     fetchAccounts()
   }, [debouncedSearchQuery, selectedServer, selectedRank, selectedPrice])
+
+  // Add image slideshow interval
+  useEffect(() => {
+    if (accounts.length === 0) return
+
+    const interval = setInterval(() => {
+      setCurrentImageIndexes(prevIndexes => {
+        const newIndexes = { ...prevIndexes }
+        accounts.forEach(account => {
+          if (account.gallery && account.gallery.length > 1) {
+            const currentIndex = prevIndexes[account._id] || 0
+            newIndexes[account._id] = (currentIndex + 1) % account.gallery.length
+          }
+        })
+        return newIndexes
+      })
+    }, 2000)
+
+    return () => clearInterval(interval)
+  }, [accounts])
 
   const handleLoginSuccess = async (userData) => {
     await login(userData)
@@ -320,7 +350,7 @@ export default function Valorant() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button 
+            <button
               onClick={() => navigate("/accounts/valorant/support")}
               className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center hover:bg-gray-700"
             >
@@ -547,8 +577,8 @@ export default function Valorant() {
             </div>
           ) : (
             currentItems.map((account) => (
-              <div 
-                key={account._id} 
+              <div
+                key={account._id}
                 className="bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden cursor-pointer hover:border-blue-500 transition-colors"
                 onClick={() => handleAccountClick(account._id)}
               >
@@ -591,12 +621,38 @@ export default function Valorant() {
                     </div>
                   </div>
                 </div>
-                <div className="relative">
-                  <img
-                    src={account.gallery[0] || "/placeholder.svg?height=180&width=320"}
-                    alt="Account screenshot"
-                    className="w-full h-[180px] object-cover"
-                  />
+                <div className="relative overflow-hidden">
+                  <div
+                    className="carousel-container"
+                    style={{
+                      display: 'flex',
+                      width: '100%',
+                      height: '180px',
+                      transition: 'transform 0.5s ease-in-out',
+                      transform: `translateX(-${currentImageIndexes[account._id] || 0}00%)`
+                    }}
+                  >
+                    {account.gallery && account.gallery.length > 0 ? (
+                      account.gallery.map((image, index) => (
+                        <img
+                          key={index}
+                          src={image}
+                          alt={`Account screenshot ${index + 1}`}
+                          className="w-full h-[180px] object-cover flex-shrink-0"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/images/placeholder.png";
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <img
+                        src="/images/placeholder.png"
+                        alt="Account screenshot"
+                        className="w-full h-[180px] object-cover flex-shrink-0"
+                      />
+                    )}
+                  </div>
                   <div className="absolute bottom-2 right-2 bg-black/70 rounded px-1 py-0.5 text-xs flex items-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -611,8 +667,21 @@ export default function Valorant() {
                         clipRule="evenodd"
                       />
                     </svg>
-                    {account.gallery || "0"}+
+                    {account.gallery?.length || "0"}+
                   </div>
+                  {account.gallery && account.gallery.length > 1 && (
+                    <div className="absolute bottom-2 left-2 flex gap-1">
+                      {account.gallery.map((_, index) => (
+                        <div
+                          key={index}
+                          className={`w-1.5 h-1.5 rounded-full ${index === (currentImageIndexes[account._id] || 0)
+                            ? "bg-blue-500"
+                            : "bg-gray-500"
+                            }`}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="p-3 border-t border-gray-800 grid grid-cols-4 gap-2 text-xs text-gray-400">
 
@@ -724,11 +793,10 @@ export default function Valorant() {
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-4 py-2 rounded-md border ${
-                  currentPage === page
-                    ? "bg-blue-600 border-blue-500 text-white"
-                    : "border-gray-700 text-gray-300 hover:bg-gray-700"
-                }`}
+                className={`px-4 py-2 rounded-md border ${currentPage === page
+                  ? "bg-blue-600 border-blue-500 text-white"
+                  : "border-gray-700 text-gray-300 hover:bg-gray-700"
+                  }`}
               >
                 {page}
               </button>
