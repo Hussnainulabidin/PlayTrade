@@ -1,5 +1,5 @@
-/* Custom styling for client orders page */
-.orders-page-container {
+/* Custom styling for client tickets page */
+.tickets-page-container {
   width: 100%;
   min-height: 100vh;
   background-color: #12111f;
@@ -7,61 +7,66 @@
   color: white;
 }
 
-.orders-header {
+.tickets-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 2rem;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
-.orders-title-section {
+.tickets-title-section {
   flex: 1;
 }
 
-.orders-title {
+.tickets-title {
   font-size: 1.8rem;
   color: white;
   margin: 0;
   font-weight: 600;
 }
 
-.orders-subtitle {
+.tickets-subtitle {
   color: #9ca3af;
   margin: 0.5rem 0 0;
   font-size: 0.95rem;
 }
 
-.search-container {
-  position: relative;
-  width: 350px;
+.tickets-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
-.search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280;
-}
-
-.search-input {
-  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
-  border: 1px solid #2a2438;
+.create-ticket-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
   border-radius: 8px;
-  background-color: #1a172b;
+  background-color: #7c3aed;
   color: white;
-  width: 100%;
   font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.search-input:focus {
-  outline: none;
-  border-color: #7c3aed;
+.create-ticket-button:hover {
+  background-color: #6d28d9;
 }
 
-.orders-table-container {
+.success-message {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background-color: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  border-radius: 8px;
+  color: #10b981;
+}
+
+.tickets-table-container {
   overflow-x: auto;
   width: 100%;
   border-radius: 8px;
@@ -69,14 +74,14 @@
   border: 1px solid #2a2438;
 }
 
-.orders-table {
+.tickets-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   table-layout: fixed;
 }
 
-.order-table-header {
+.ticket-table-header {
   background-color: #1a172b;
   color: #9ca3af;
   font-size: 0.75rem;
@@ -87,73 +92,38 @@
   letter-spacing: 0.05em;
 }
 
-/* Adjust column widths for better spacing */
-.order-id-column {
-  width: 15%;
-  padding-right: 1.5rem;
-}
-
-.game-type-column {
-  width: 15%;
-  padding-left: 1.5rem;
-}
-
-.order-table-header:first-child {
+.ticket-table-header:first-child {
   padding-left: 1.5rem;
   border-top-left-radius: 8px;
 }
 
-.order-table-header:last-child {
+.ticket-table-header:last-child {
   text-align: center;
   border-top-right-radius: 8px;
 }
 
-.order-table-cell {
+.ticket-table-cell {
   padding: 1rem;
   border-bottom: 1px solid #1f1b31;
   color: #e5e7eb;
   font-size: 0.875rem;
 }
 
-.order-table-cell:first-child {
+.ticket-table-cell:first-child {
   padding-left: 1.5rem;
 }
 
-.order-id .order-link {
-  color: #e9e3f1;
-  text-decoration: none;
-  transition: color 0.2s;
-  font-weight: 500;
-}
-
-.order-id .order-link:hover {
-  color: #9061f9;
-}
-
-.seller-display {
+.ticket-id-wrapper {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
-.seller-avatar {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background-color: #6c5ce7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
+.ticket-icon {
+  color: #7c3aed;
 }
 
-.seller-name {
-  color: #e5e7eb;
-  font-size: 0.875rem;
-}
-
-.order-status-badge {
+.ticket-status-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -164,31 +134,26 @@
   text-transform: capitalize;
 }
 
-.status-processing {
+.status-open {
+  background-color: rgba(124, 58, 237, 0.15);
+  color: #7c3aed;
+}
+
+.status-in-progress {
   background-color: rgba(245, 158, 11, 0.15);
   color: #f59e0b;
 }
 
-.status-completed {
+.status-closed {
   background-color: rgba(16, 185, 129, 0.15);
   color: #10b981;
-}
-
-.status-refunded {
-  background-color: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-}
-
-.status-disputed {
-  background-color: rgba(240, 91, 65, 0.15);
-  color: #f37500;
 }
 
 .actions-cell {
   text-align: center;
 }
 
-.order-action-link {
+.ticket-action-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -200,13 +165,13 @@
   background-color: #1f1b31;
 }
 
-.order-action-link:hover {
+.ticket-action-link:hover {
   background-color: #2a2438;
   color: white;
   transform: scale(1.05);
 }
 
-.no-orders-message {
+.no-tickets-message {
   padding: 2rem;
   text-align: center;
   color: #9ca3af;
@@ -256,4 +221,21 @@
   font-size: 1rem;
   padding: 1.5rem;
   text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .tickets-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .tickets-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-container {
+    width: 100%;
+  }
 } 

@@ -63,12 +63,12 @@ exports.getChat = catchAsync(async (req, res, next) => {
 
   // Check if the user is a participant in this chat
   const senderId = typeof chat.sender === 'object' && chat.sender._id ? chat.sender._id.toString() : chat.sender.toString();
-  const receiverId = typeof chat.receiver === 'object' && chat.receiver._id ? chat.receiver._id.toString() : chat.receiver.toString();
+  const receiverId = chat.receiver ? (typeof chat.receiver === 'object' && chat.receiver._id ? chat.receiver._id.toString() : chat.receiver.toString()) : null;
   const userIdStr = userId.toString();
   
   console.log("Comparing IDs:", senderId, receiverId, userIdStr);
   
-  if (senderId !== userIdStr && receiverId !== userIdStr) {
+  if (senderId !== userIdStr && (receiverId === null || receiverId !== userIdStr)) {
     console.log("Authorization check failed for chat");
     return next(new AppError('You are not authorized to access this chat', 403));
   }
@@ -143,23 +143,26 @@ exports.addMessage = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
   
   const chat = await Chat.findById(chatId);
+
   
   if (!chat) {
     return next(new AppError('No chat found with that ID', 404));
   }
-  
+
   // Check if the user is a participant in this chat
   const senderId = typeof chat.sender === 'object' && chat.sender._id ? chat.sender._id.toString() : chat.sender.toString();
-  const receiverId = typeof chat.receiver === 'object' && chat.receiver._id ? chat.receiver._id.toString() : chat.receiver.toString();
+  const receiverId = chat.receiver ? (typeof chat.receiver === 'object' && chat.receiver._id ? chat.receiver._id.toString() : chat.receiver.toString()) : null;
   const userIdStr = userId.toString();
   
   console.log("Comparing IDs:", senderId, receiverId, userIdStr);
   
   // Check if the user is an admin or a participant in this chat
-  if (req.user.role !== 'admin' && senderId !== userIdStr && receiverId !== userIdStr) {
+  if (req.user.role !== 'admin' && senderId !== userIdStr && (receiverId === null || receiverId !== userIdStr)) {
     console.log("Authorization check failed for chat");
     return next(new AppError('You are not authorized to add messages to this chat', 403));
   }
+
+  
   
   const newMessage = {
     sender: userId,
@@ -216,13 +219,13 @@ exports.getChatByOrderId = catchAsync(async (req, res, next) => {
   
   // Check if the user is a participant in this chat
   const senderId = typeof chat.sender === 'object' && chat.sender._id ? chat.sender._id.toString() : chat.sender.toString();
-  const receiverId = typeof chat.receiver === 'object' && chat.receiver._id ? chat.receiver._id.toString() : chat.receiver.toString();
+  const receiverId = chat.receiver ? (typeof chat.receiver === 'object' && chat.receiver._id ? chat.receiver._id.toString() : chat.receiver.toString()) : null;
   const userIdStr = userId.toString();
   
   console.log("Comparing IDs:", senderId, receiverId, userIdStr);
   
   // Check if the user is an admin or a participant in this chat
-  if (req.user.role !== 'admin' && senderId !== userIdStr && receiverId !== userIdStr) {
+  if (req.user.role !== 'admin' && senderId !== userIdStr && (receiverId === null || receiverId !== userIdStr)) {
     console.log("Authorization check failed for order chat");
     return next(new AppError('You are not authorized to access this chat', 403));
   }
@@ -249,13 +252,13 @@ exports.markAllAsRead = catchAsync(async (req, res, next) => {
   
   // Check if the user is a participant in this chat
   const senderId = typeof chat.sender === 'object' && chat.sender._id ? chat.sender._id.toString() : chat.sender.toString();
-  const receiverId = typeof chat.receiver === 'object' && chat.receiver._id ? chat.receiver._id.toString() : chat.receiver.toString();
+  const receiverId = chat.receiver ? (typeof chat.receiver === 'object' && chat.receiver._id ? chat.receiver._id.toString() : chat.receiver.toString()) : null;
   const userIdStr = userId.toString();
   
   console.log("Comparing IDs:", senderId, receiverId, userIdStr);
   
   // Check if the user is an admin or a participant in this chat
-  if (req.user.role !== 'admin' && senderId !== userIdStr && receiverId !== userIdStr) {
+  if (req.user.role !== 'admin' && senderId !== userIdStr && (receiverId === null || receiverId !== userIdStr)) {
     console.log("Authorization check failed for chat");
     return next(new AppError('You are not authorized to access this chat', 403));
   }
@@ -284,6 +287,8 @@ exports.addMessageToOrderChat = catchAsync(async (req, res, next) => {
   const orderId = req.params.orderId;
   const { content } = req.body;
   const userId = req.user.id;
+
+  console.log("0-------------->Chat messages:");
   
   // Find the chat for this order
   const chat = await Chat.findOne({ orderId });
@@ -328,13 +333,13 @@ exports.addMessageToOrderChat = catchAsync(async (req, res, next) => {
   
   // Check if the user is a participant in this chat
   const senderId = typeof chat.sender === 'object' && chat.sender._id ? chat.sender._id.toString() : chat.sender.toString();
-  const receiverId = typeof chat.receiver === 'object' && chat.receiver._id ? chat.receiver._id.toString() : chat.receiver.toString();
+  const receiverId = chat.receiver ? (typeof chat.receiver === 'object' && chat.receiver._id ? chat.receiver._id.toString() : chat.receiver.toString()) : null;
   const userIdStr = userId.toString();
   
   console.log("Comparing IDs:", senderId, receiverId, userIdStr);
   
   // Check if the user is an admin or a participant in this chat
-  if (req.user.role !== 'admin' && senderId !== userIdStr && receiverId !== userIdStr) {
+  if (req.user.role !== 'admin' && senderId !== userIdStr && (receiverId === null || receiverId !== userIdStr)) {
     console.log("Authorization check failed for order chat");
     return next(new AppError('You are not authorized to access this chat', 403));
   }
@@ -351,6 +356,7 @@ exports.addMessageToOrderChat = catchAsync(async (req, res, next) => {
   chat.lastActivity = Date.now();
   
   await chat.save();
+  
   
   // Return only the new message
   const addedMessage = chat.messages[chat.messages.length - 1];

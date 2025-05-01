@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronRight, Paperclip, SmilePlus, ThumbsUp, ThumbsDown, X, AlertTriangle } from 'lucide-react';
-import { orderApi } from '../../api';
-import useChat from '../../hooks/useChat';
+import { orderApi, chatApi } from '../../api';
+import { socketService } from '../../services';
 import styles from './OrderDetails.module.css';
 
 function OrderDetails() {
@@ -21,16 +21,160 @@ function OrderDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Use the chat hook
-  const {
-    messages,
-    isConnected,
-    isTyping,
-    sendMessage,
-    handleTyping,
-    messagesEndRef,
-  } = useChat(orderData);
+  // Socket-related states
+  const messagesEndRef = useRef(null);
+  const [messages, setMessages] = useState([]);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
+  // Auto-scroll to newest messages
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Fetch chat messages for an order
+  const fetchChatMessages = async (orderId) => {
+    if (!orderId) {
+      console.error("Cannot fetch chat messages: orderId is missing");
+      return;
+    }
+    
+    try {
+      console.log("Fetching chat messages for orderId:", orderId);
+      
+      // Use chatApi from the API folder
+      const response = await chatApi.getChatByOrderId(orderId);
+      
+      if (response.data.status === 'success') {
+        // Handle different response formats
+        const responseMessages = response.data.data.messages || 
+                              (response.data.data.chat ? response.data.data.chat.messages : []);
+        
+        console.log("Received messages:", responseMessages);
+        
+        // Store the chatId for socket connection
+        if (response.data.data.chat && response.data.data.chat._id) {
+          // Store the actual chatId for socket communication
+          console.log("Setting chat ID for socket connection:", response.data.data.chat._id);
+          socketService.leaveChat(orderId); // Leave the order ID chat if connected
+          socketService.joinChat(response.data.data.chat._id); // Join with the actual chat ID
+        }
+                           
+        if (responseMessages && Array.isArray(responseMessages)) {
+          setMessages(responseMessages);
+          scrollToBottom();
+        } else {
+          console.log("No messages found or invalid format");
+          setMessages([]);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching chat messages:', err);
+      if (err.response) {
+        console.error('Error response:', err.response.data);
+      }
+    }
+  };
+
+  // Handle sending messages
+  const handleSendMessage = async (content) => {
+    if (!content.trim() || !orderData?.id) {
+      console.log("[Socket] Cannot send message: missing content or orderData");
+      return false;
+    }
+    
+    const orderId = orderData.id;
+    console.log("[Socket] Attempting to send message for orderId:", orderId);
+    
+    try {
+      // First, ensure we have the actual chatId by getting the chat for this order
+      console.log("[Socket] Fetching chat data for order to get chatId");
+      const chatResponse = await chatApi.getChatByOrderId(orderId);
+      
+      if (!chatResponse.data || chatResponse.data.status !== 'success' || !chatResponse.data.data.chat || !chatResponse.data.data.chat._id) {
+        console.error("[Socket] Could not find chat for order:", orderId, "Response:", chatResponse.data);
+        return false;
+      }
+      
+      const chatId = chatResponse.data.data.chat._id;
+      console.log("[Socket] Using chatId for socket communication:", chatId);
+      
+      // Check socket status
+      const socketConnected = socketService.isConnected();
+      console.log("[Socket] Current socket connection status:", socketConnected);
+      
+      // Make sure socket is initialized
+      if (!socketConnected) {
+        console.log("[Socket] Initializing socket...");
+        socketService.initializeSocket();
+        
+        // Check if initialization was successful
+        if (!socketService.isConnected()) {
+          console.log("[Socket] Could not initialize socket, using API fallback");
+        } else {
+          console.log("[Socket] Socket connected successfully!");
+          // Make sure we're connected to the right chat
+          socketService.joinChat(chatId);
+          console.log("[Socket] Joined chat:", chatId);
+        }
+      }
+      
+      // Try to send via socket first
+      if (socketService.isConnected()) {
+        console.log("[Socket] Sending message via socket. chatId:", chatId, "content:", content);
+        // Use the actual chatId from the database, not the orderId
+        const success = socketService.sendMessage(chatId, content);
+        console.log("[Socket] Message send result:", success ? "success" : "failed");
+        
+        if (success) {
+          console.log("[Socket] Message sent successfully via socket");
+          return true;
+        } else {
+          console.log("[Socket] Socket message send failed, will try API fallback");
+        }
+      } 
+      
+      // Fall back to REST API if socket is not connected
+      console.log("[Socket] Using API fallback to send message");
+      
+      // Use the sendMessage method with the actual chatId
+      const response = await chatApi.sendMessage(chatId, { content });
+      console.log("[Socket] API send response:", response.data);
+      
+      if (response.data.status === 'success') {
+        const newMessage = response.data.data.message;
+        const formattedMessage = {
+          ...newMessage,
+          sender: newMessage.sender
+        };
+        
+        console.log("[Socket] Message sent successfully via API:", formattedMessage);
+        
+        setMessages(prev => [...prev, formattedMessage]);
+        scrollToBottom();
+        return true;
+      } else {
+        console.error("[Socket] API send failed:", response.data);
+      }
+    } catch (err) {
+      console.error('[Socket] Error sending message:', err);
+      if (err.response) {
+        console.error("[Socket] API response error:", err.response.data);
+      }
+    }
+    return false;
+  };
+
+  // Handle typing status
+  const handleTyping = (isTypingStatus) => {
+    if (orderData?.id) {
+      socketService.sendTypingStatus(orderData.id, isTypingStatus);
+    }
+  };
+
+  // Fetch order details
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
@@ -52,6 +196,110 @@ function OrderDetails() {
     fetchOrderDetails();
   }, [id]);
 
+  // Socket connection and chat setup
+  useEffect(() => {
+    if (!orderData || !orderData.id) return;
+    
+    const orderId = orderData.id;
+    console.log("[Socket] Initializing socket connection for order:", orderId);
+    
+    // Initialize socket if not already connected
+    if (!socketService.isConnected()) {
+      console.log("[Socket] Socket not connected, initializing...");
+      const socket = socketService.initializeSocket();
+      console.log("[Socket] Socket initialization result:", socket ? "success" : "failed");
+    } else {
+      console.log("[Socket] Socket already connected:", socketService.getSocket()?.id);
+    }
+    
+    // Set initial connection status
+    const connected = socketService.isConnected();
+    console.log("[Socket] Initial connection status:", connected);
+    setIsConnected(connected);
+    
+    // Fetch existing messages - this will also handle joining the correct chat
+    fetchChatMessages(orderId);
+    
+    // Set up event listeners
+    const handleConnect = () => {
+      console.log("[Socket] Connected event received");
+      setIsConnected(true);
+      // Re-fetch messages to get the chat ID and join the chat
+      fetchChatMessages(orderId);
+    };
+    
+    const handleDisconnect = () => {
+      console.log("[Socket] Disconnected event received");
+      setIsConnected(false);
+    };
+    
+    // This will be updated later with the actual chatId
+    const handleNewMessage = (data) => {
+      console.log("Received message event:", data);
+      // Check if this is for a chat we're interested in
+      if (data.chatId && data.message) {
+        setMessages(prev => {
+          // Format the message based on the server's structure
+          const newMsg = {
+            _id: data.message._id,
+            content: data.message.content,
+            timestamp: data.message.timestamp || new Date().toISOString(),
+            sender: data.message.sender || {
+              _id: data.message.sender?._id,
+              username: data.message.sender?.username
+            }
+          };
+          
+          // Check if message is already in the list to prevent duplicates
+          const isDuplicate = prev.some(msg => msg._id === newMsg._id);
+          if (!isDuplicate) {
+            console.log("Adding new message to state:", newMsg);
+            const updatedMessages = [...prev, newMsg];
+            setTimeout(() => scrollToBottom(), 100);
+            return updatedMessages;
+          }
+          return prev;
+        });
+      } else {
+        console.log("Received message event but missing required data");
+      }
+    };
+    
+    const handleUserTyping = (data) => {
+      console.log("Received typing event:", data);
+      // Make sure this typing event is for a chat we're interested in
+      if (data.chatId) {
+        setIsTyping(data.isTyping);
+      }
+    };
+    
+    // Register event listeners
+    socketService.on('connect', handleConnect);
+    socketService.on('disconnect', handleDisconnect);
+    socketService.on('newMessage', handleNewMessage);
+    socketService.on('userTyping', handleUserTyping);
+    
+    // Clean up on unmount
+    return () => {
+      // Will leave whatever chat we're in
+      if (socketService.isConnected()) {
+        // We don't know exactly which chat we joined, so we'll leave by order ID just to be safe
+        socketService.leaveChat(orderId);
+      }
+      
+      // Remove event listeners
+      socketService.off('connect', handleConnect);
+      socketService.off('disconnect', handleDisconnect);
+      socketService.off('newMessage', handleNewMessage);
+      socketService.off('userTyping', handleUserTyping);
+    };
+  }, [orderData?.id]); // Using orderData.id as dependency to be more specific
+
+  // Scroll to bottom when messages update
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const handleGoBack = () => {
     navigate(-1);
   };
@@ -62,15 +310,36 @@ function OrderDetails() {
     handleTyping(text.length > 0);
   };
 
-  const handleSendMessage = async () => {
-    const success = await sendMessage(message);
+  const handleSendMessageClick = async () => {
+    if (!orderData) {
+      console.log("Cannot send message: orderData is not available");
+      return;
+    }
+    
+    if (!message.trim()) {
+      console.log("Cannot send empty message");
+      return;
+    }
+    
+    console.log("Sending message:", message);
+    
+    try {
+      const success = await handleSendMessage(message);
     if (success) {
+        console.log("Message sent successfully, clearing input");
       setMessage('');
       handleTyping(false);
+      } else {
+        console.log("Failed to send message");
+      }
+    } catch (error) {
+      console.error("Error in handleSendMessageClick:", error);
     }
   };
 
   const getUserType = () => {
+    if (!orderData) return '';
+    
     const userId = localStorage.getItem('userId');
     if (userId === orderData.seller?._id) {
       return 'Buyer';
@@ -240,6 +509,22 @@ function OrderDetails() {
     }
   };
 
+  // Format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true
+    });
+  };
+
+  console.log(orderData);
+
   if (loading) {
     return (
       <div className={styles['loader-container']}>
@@ -261,26 +546,8 @@ function OrderDetails() {
     return <div className={styles.error}>Order not found</div>;
   }
 
-  // Format date
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-      hour12: true
-    });
-  };
-
-  // Get status text and capitalized status
   const statusText = `Order ${orderData.status}`;
   const statusDate = orderData.createdAt ? formatDate(orderData.createdAt) : 'N/A';
-
-  console.log(orderData);
-
 
   return (
     <div className={styles['order-container']}>
@@ -553,13 +820,13 @@ function OrderDetails() {
               {/* Order action buttons */}
               {orderData.status !== 'cancelled' && (
                 <div className={styles['order-actions']}>
-                  {localStorage.getItem('userId') === orderData.seller?.id ? (
+                  {localStorage.getItem('userId') === orderData?.seller?.id ? (
                     <button className={styles['cancel-btn']} onClick={handleCancelOrder}>
                       Cancel order
                     </button>
                   ) : (
                     <div className={styles['buyer-actions']}>
-                      {orderData.status === 'refunded' || orderData.status === 'completed' ? (
+                      {(orderData.status === 'refunded' || orderData.status === 'completed') ? (
                         // For completed or refunded orders
                         <>
                           {/* Only hide feedback button if feedback exists */}
@@ -756,9 +1023,14 @@ function OrderDetails() {
                   className={styles['input-field']}
                   value={message}
                   onChange={handleMessageChange}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSendMessageClick();
+                    }
+                  }}
                 />
-                <button className={styles['send-btn']} onClick={handleSendMessage}>
+                <button className={styles['send-btn']} onClick={handleSendMessageClick}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>

@@ -189,7 +189,7 @@ export function OrdersList() {
                           ? "badge-processing"
                           : order.status === "Refunded"
                             ? "badge-refunded"
-                            : "badge-other"
+                            : "badge-dispute"
                     }`}>
                       {order.status}
                     </span>

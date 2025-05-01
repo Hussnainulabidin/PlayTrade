@@ -113,8 +113,8 @@ function ClientOrdersPage() {
         <table className="orders-table">
           <thead>
             <tr>
-              <th className="order-table-header">ORDER ID</th>
-              <th className="order-table-header">GAME TYPE</th>
+              <th className="order-table-header order-id-column">ORDER ID</th>
+              <th className="order-table-header game-type-column">GAME TYPE</th>
               <th className="order-table-header">TITLE</th>
               <th className="order-table-header">SELLER</th>
               <th className="order-table-header">STATUS</th>
@@ -131,12 +131,12 @@ function ClientOrdersPage() {
             ) : (
               filteredOrders.map((order) => (
                 <tr key={order.id} className="order-table-row">
-                  <td className="order-table-cell order-id">
+                  <td className="order-table-cell order-id order-id-column">
                     <Link to={`/order/${order.id}`} className="order-link">
                       #{order.id}
                     </Link>
                   </td>
-                  <td className="order-table-cell">{order.gameType}</td>
+                  <td className="order-table-cell game-type-column">{order.gameType}</td>
                   <td className="order-table-cell">{order.title}</td>
                   <td className="order-table-cell">
                     <div className="seller-display">

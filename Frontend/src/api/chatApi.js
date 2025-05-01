@@ -5,6 +5,10 @@ const chatApi = {
   getMyChats: () => API.get('/chats/my-chats'),
   getChatById: (chatId) => API.get(`/chats/${chatId}`),
   
+  // Order chat methods
+  getChatByOrderId: (orderId) => API.get(`/chats/order/${orderId}`),
+  sendMessageToOrderChat: (orderId, messageData) => API.post(`/chats/order/${orderId}/messages`, messageData),
+  
   // Messages
   sendMessage: (chatId, messageData) => API.post(`/chats/${chatId}/messages`, messageData),
   markAsRead: (chatId) => API.patch(`/chats/${chatId}/read`),

@@ -46,25 +46,36 @@ export function SellerListings() {
           console.log('API Response:', response.data)
 
           if (response.data.status === 'success') {
-            const accountsData = response.data.data.gameAccounts.map(account => ({
-              id: account._id,
-              title: account.title,
-              game: account.gameType || "Valorant",
-              status: account.status,
-              price: `€${account.price}`,
-              views: 0,
-              createdDate: account.createdAt,
-            }))
+            // Check if gameAccounts exists and is an array
+            if (response.data.data && response.data.data.gameAccounts && Array.isArray(response.data.data.gameAccounts)) {
+              const accountsData = response.data.data.gameAccounts.map(account => ({
+                id: account._id,
+                title: account.title,
+                game: account.gameType || "Valorant",
+                status: account.status,
+                price: `€${account.price}`,
+                views: 0,
+                createdDate: account.createdAt,
+              }))
 
-            setListings(accountsData)
-            setPagination({
-              currentPage: response.data.currentPage || 1,
-              totalPages: response.data.totalPages || 1,
-              totalAccounts: response.data.totalAccounts || 0
-            })
+              console.log('Processed accounts data:', accountsData)
+              setListings(accountsData)
+              setPagination({
+                currentPage: response.data.currentPage || 1,
+                totalPages: response.data.totalPages || 1,
+                totalAccounts: response.data.totalAccounts || 0
+              })
+            } else {
+              console.warn('No game accounts found in API response:', response.data)
+              setListings([])
+            }
+          } else {
+            console.warn('API response status is not success:', response.data.status)
+            setListings([])
           }
         } catch (apiError) {
           console.error("API Error Details:", apiError.response ? apiError.response.data : apiError.message)
+          setError("Error fetching listings. Please try again.")
         }
       } catch (err) {
         console.error("Error in fetch operation:", err)
@@ -193,7 +204,7 @@ export function SellerListings() {
         </Link>
       </div>
 
-      <div className="listings-toolbar">
+      <div className="orders-toolbar">
         <div className="search-container">
           <Search className="search-icon" />
           <input
@@ -206,9 +217,9 @@ export function SellerListings() {
         </div>
       </div>
 
-      {listings.length === 0 ? (
+      {filteredListings.length === 0 ? (
         <div className="no-listings-message">
-          This seller has no listings yet.
+          {searchQuery ? "No listings found matching your search." : "This seller has no listings yet."}
         </div>
       ) : (
         <>

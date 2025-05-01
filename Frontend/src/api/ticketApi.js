@@ -5,6 +5,8 @@ const ticketApi = {
   getAllTickets: (filter = 'all') => API.get(`/tickets?filter=${filter}`),
   getSellerTickets: (sellerId, filter = 'all') => API.get(`/tickets/seller/${sellerId}?filter=${filter}`),
   getTicketById: (id) => API.get(`/tickets/${id}`),
+  getClientTickets: (clientId) => API.get(`/tickets/client/${clientId}`),
+  getClientTicketById: (clientId, ticketId) => API.get(`/tickets/client/${clientId}/${ticketId}`),
   
   // Ticket actions
   createTicket: (ticketData) => API.post('/tickets', ticketData),

@@ -45,6 +45,7 @@ import SellerSettingPage from "./pages/Seller/SellerSettingPage"
 import ClientOrdersPage from "./pages/Client/ClientOrdersPage"
 import ClientChatPage from "./pages/Client/ClientChatPage"
 import AccountsSupport from "./pages/Client/AccountsSupport"
+import ClientTicketsPage from "./pages/Client/ClientTicketsPage"
 
 const App = () => {
   return (
@@ -138,6 +139,17 @@ const App = () => {
           <Route path="/client/settings" element={
             <ClientDashboardLayout>
               <SettingPage />
+            </ClientDashboardLayout>
+          } />
+          <Route path="/client/tickets" element={
+            <ClientDashboardLayout>
+              <ClientTicketsPage />
+            </ClientDashboardLayout>
+          } />
+          <Route path="/client/tickets/:id" element={<TicketDetailPage />} />
+          <Route path="/client/support" element={
+            <ClientDashboardLayout>
+              <AccountsSupport />
             </ClientDashboardLayout>
           } />
 

@@ -1,56 +1,157 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { ArrowLeft, Send, Paperclip, Smile } from "lucide-react"
 import { Button } from "../../components/AdminDashboard/ui/button"
 import { Badge } from "../../components/AdminDashboard/ui/badge"
 import { Textarea } from "../../components/AdminDashboard/ui/textarea"
 import { ticketApi, chatApi } from "../../api"
-import io from "socket.io-client"
+import axios from "axios"
+import { socketService } from "../../services"
+import { useUser } from "../../components/userContext/UserContext"
 import "./TicketDetails.css"
 
 function TicketDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
+  const { user } = useUser()
   const [message, setMessage] = useState("")
   const [ticket, setTicket] = useState(null)
-  const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const typingTimeoutRef = useRef(null)
+  const messagesEndRef = useRef(null)
+  const [messages, setMessages] = useState([])
   const [isConnected, setIsConnected] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
-  const socketRef = useRef(null)
-  const messagesEndRef = useRef(null)
-  const typingTimeoutRef = useRef(null)
+  
+  // Determine if this is a client or admin view based on the URL path
+  const isClientView = location.pathname.includes('/client/tickets/')
 
-  // Fetch ticket data
+  // Auto-scroll to newest messages
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Fetch chat messages
+  const fetchChatMessages = async (chatId) => {
+    if (!chatId) {
+      console.error("Cannot fetch chat messages: chatId is missing");
+      return;
+    }
+    
+    try {
+      console.log("Fetching chat messages for chatId:", chatId);
+      
+      // Use the chat API to get chat by ID
+      const response = await chatApi.getChatById(chatId);
+      
+      if (response.data.status === 'success') {
+        // Handle different response formats
+        const chat = response.data.data.chat;
+        
+        console.log("Received chat data:", chat);
+        
+        if (chat && chat.messages && Array.isArray(chat.messages)) {
+          setMessages(chat.messages);
+          scrollToBottom();
+        } else {
+          console.log("No messages found or invalid format");
+          setMessages([]);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching chat messages:', err);
+      if (err.response) {
+        console.error('Error response:', err.response.data);
+      }
+    }
+  };
+
+  // Handle sending messages
+  const handleSendMessage = async (content) => {
+    if (!content.trim() || !ticket?.chatId) {
+      console.log("Message empty or chatData not available");
+      return false;
+    }
+    
+    const chatId = typeof ticket.chatId === 'object' ? ticket.chatId._id : ticket.chatId;
+    
+    // Check if this is a system message (admin only)
+    const isSystemMessage = !isClientView && user?.role === 'admin' && content.startsWith("(System)");
+    
+    // Try to send via socket first
+    if (socketService.isConnected()) {
+      const success = socketService.sendMessage(chatId, content, isSystemMessage);
+      if (success) {
+        return true;
+      }
+    } 
+    
+    // Fall back to REST API if socket is not connected
+    try {
+      console.log("Socket not connected, sending via REST API");
+      
+      // Use the chat API to send a message
+      const response = await chatApi.sendMessage(chatId, { 
+        content,
+        isSystemMessage 
+      });
+      
+      if (response.data.status === 'success') {
+        const newMessage = response.data.data.message;
+        const formattedMessage = {
+          ...newMessage,
+          sender: newMessage.sender,
+          isSystemMessage
+        };
+        
+        console.log("Message sent successfully via API:", formattedMessage);
+        
+        setMessages(prev => [...prev, formattedMessage]);
+        scrollToBottom();
+        return true;
+      }
+    } catch (err) {
+      console.error('Error sending message:', err);
+      if (err.response) {
+        console.error("API response error:", err.response.data);
+      }
+    }
+    return false;
+  };
+
+  // Handle typing status
+  const handleTyping = (isTypingStatus) => {
+    if (ticket?.chatId) {
+      const chatId = typeof ticket.chatId === 'object' ? ticket.chatId._id : ticket.chatId;
+      socketService.sendTypingStatus(chatId, isTypingStatus);
+    }
+  };
+
+  // Fetch ticket data - modified to handle both admin and client views
   useEffect(() => {
     const fetchTicketDetails = async () => {
       try {
         setLoading(true)
-        const response = await ticketApi.getTicketById(id);
+        
+        // Use different API endpoints based on user role
+        let response
+        
+        if (isClientView && user?._id) {
+          // For client view
+          response = await ticketApi.getClientTicketById(user._id, id)
+        } else {
+          // For admin view
+          response = await ticketApi.getTicketById(id)
+        }
 
         if (response.data.status === 'success') {
           setTicket(response.data.data.ticket)
-
-          // Fetch chat messages if chatId exists - make sure chatId is a string
-          if (response.data.data.ticket.chatId) {
-            try {
-              const chatId = response.data.data.ticket.chatId._id || response.data.data.ticket.chatId;
-
-              const chatResponse = await chatApi.getChatById(chatId);
-
-              if (chatResponse.data.status === 'success') {
-                setMessages(chatResponse.data.data.chat.messages || [])
-              }
-            } catch (chatError) {
-              console.error('Error fetching chat data:', chatError)
-              // Don't set error state for chat fetch issues - we can still show the ticket
-              // Just set empty messages
-              setMessages([])
-            }
-          }
         } else {
           setError('Failed to fetch ticket details')
         }
@@ -65,263 +166,225 @@ function TicketDetailPage() {
     if (id) {
       fetchTicketDetails()
     }
-  }, [id])
+  }, [id, user, isClientView])
 
-  // Socket connection
+  // Socket connection and chat setup
   useEffect(() => {
-    // Only attempt socket connection if ticket exists
-    if (!ticket) return;
+    if (!ticket?.chatId) return;
+    
+    const chatId = typeof ticket.chatId === 'object' ? ticket.chatId._id : ticket.chatId;
+    console.log("Initializing socket for chatId:", chatId);
+    
+    // Initialize socket if not already connected
+    socketService.initializeSocket();
 
-    // Handle case where chatId doesn't exist or may be invalid
-    if (!ticket.chatId) {
-      console.log('No chat ID available for this ticket');
-      setIsConnected(false);
-      return;
-    }
+    // Set initial connection status
+    setIsConnected(socketService.isConnected());
+    
+    // Join the chat
+    socketService.joinChat(chatId);
+    
+    // Fetch existing messages
+    fetchChatMessages(chatId);
 
-    // Get the actual chatId value, being defensive about possible formats
-    let chatId;
-    try {
-      chatId = typeof ticket.chatId === 'object' && ticket.chatId._id
-        ? ticket.chatId._id
-        : ticket.chatId;
-
-      // Additional validation to ensure chatId is a valid string
-      if (!chatId || typeof chatId !== 'string') {
-        console.error('Invalid chat ID format:', ticket.chatId);
-        setIsConnected(false);
-        return;
-      }
-    } catch (error) {
-      console.error('Error extracting chat ID:', error);
-      setIsConnected(false);
-      return;
-    }
-
-    console.log('Attempting to connect to socket with chat ID:', chatId);
-
-    // Get authentication token
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error('No authentication token found');
-      setIsConnected(false);
-      return;
-    }
-
-    // Connect to socket with correct authentication
-    const socket = io('http://localhost:3003', {
-      auth: {
-        token: token
-      },
-      withCredentials: true,
-      transports: ['polling', 'websocket'],
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000
-    })
-
-    socketRef.current = socket;
-
-    // Socket event handlers
-    socket.on('connect', () => {
-      console.log('Socket connected successfully with ID:', socket.id);
+    // Set up event listeners
+    const handleConnect = () => {
       setIsConnected(true);
+      socketService.joinChat(chatId);
+    };
 
-      // Join chat room - in this case we need to use joinChat for the backend
-      socket.emit('joinChat', chatId);
-      console.log('Emitted joinChat event for chat ID:', chatId);
-    });
-
-    socket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error.message);
+    const handleDisconnect = () => {
       setIsConnected(false);
-    });
-
-    socket.on('disconnect', (reason) => {
-      console.log('Socket disconnected. Reason:', reason);
-      setIsConnected(false);
-    });
-
-    socket.on('error', (error) => {
-      console.error('Socket error:', error);
-      setIsConnected(false);
-    });
-
-    socket.on('joinedChat', (data) => {
-      console.log('Successfully joined chat room:', data);
-    });
-
-    socket.on('newMessage', (data) => {
-      // Handle new message event from socket
-      console.log('Received new message:', data);
-      if (data.message) {
+    };
+    
+    const handleNewMessage = (data) => {
+      if (data.chatId === chatId) {
+        setMessages(prev => {
         const newMsg = {
-          sender: data.message.sender._id,
-          senderName: data.message.sender.username,
-          content: data.message.content,
-          timestamp: data.message.timestamp
-        };
-        setMessages(prev => [...prev, newMsg]);
+            ...data.message,
+            sender: data.message.sender || {
+              _id: data.message.sender._id,
+              username: data.message.sender.username
+            }
+          };
+          // Check if message is already in the list to prevent duplicates
+          const isDuplicate = prev.some(msg => msg._id === newMsg._id);
+          if (!isDuplicate) {
+            const updatedMessages = [...prev, newMsg];
+            setTimeout(() => scrollToBottom(), 100);
+            return updatedMessages;
+          }
+          return prev;
+        });
       }
-    });
-
-    socket.on('userTyping', (data) => {
+    };
+    
+    const handleUserTyping = (data) => {
+      if (data.chatId === chatId) {
       setIsTyping(data.isTyping);
-    });
+      }
+    };
+    
+    // Register event listeners
+    socketService.on('connect', handleConnect);
+    socketService.on('disconnect', handleDisconnect);
+    socketService.on('newMessage', handleNewMessage);
+    socketService.on('userTyping', handleUserTyping);
 
     // Clean up on unmount
     return () => {
-      if (socket) {
-        console.log('Cleaning up socket connection');
-        socket.disconnect();
-      }
-    }
-  }, [ticket])
+      socketService.leaveChat(chatId);
+      
+      // Remove event listeners
+      socketService.off('connect', handleConnect);
+      socketService.off('disconnect', handleDisconnect);
+      socketService.off('newMessage', handleNewMessage);
+      socketService.off('userTyping', handleUserTyping);
+    };
+  }, [ticket?.chatId]);
 
-  // Scroll to bottom of messages
+  // Scroll to bottom when messages update
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    scrollToBottom();
   }, [messages]);
 
-  const handleTyping = (isCurrentlyTyping) => {
-    if (!socketRef.current || !ticket?.chatId) return;
+  const handleSendMessageClick = () => {
+    if (!message.trim() || !ticket?.chatId) return;
 
-    const chatId = ticket.chatId._id || ticket.chatId;
+    const success = handleSendMessage(message);
+    if (success) {
+      setMessage('');
 
-    // Clear previous timeout
+      // Clear typing indicator
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = null;
+      }
+      handleTyping(false);
+  }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessageClick();
+    }
+  };
+
+  const handleMessageChange = (e) => {
+    setMessage(e.target.value);
+    
+    // Debounce typing status
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-
-    // Emit typing event
-    socketRef.current.emit('typing', {
-      chatId: chatId,
-      isTyping: isCurrentlyTyping
-    });
-
-    // Set timeout to stop typing indicator after 2 seconds
-    if (isCurrentlyTyping) {
-      typingTimeoutRef.current = setTimeout(() => {
-        if (socketRef.current) {
-          socketRef.current.emit('typing', {
-            chatId: chatId,
-            isTyping: false
-          });
-        }
-      }, 2000);
-    }
-  }
-
-  const handleSendMessage = () => {
-    if (!message.trim() || !ticket?.chatId) return;
-
-    const chatId = ticket.chatId._id || ticket.chatId;
-
-    // Send message through socket for real-time updates
-    socketRef.current.emit('sendMessage', {
-      chatId: chatId,
-      content: message
-    });
-
-    // Also send message through API to ensure it's saved
-    chatApi.sendMessage(chatId, { content: message })
-      .then(response => {
-        console.log('Message sent successfully:', response.data);
-      })
-      .catch(error => {
-        console.error('Error sending message:', error);
-        alert('Failed to send message. Please try again.');
-      });
-
-    // Clear message input
-    setMessage('');
-  }
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
-    }
-  }
-
-  const handleMessageChange = (e) => {
-    const text = e.target.value
-    setMessage(text)
-    handleTyping(text.length > 0)
-  }
-
-  const handleGoBack = () => {
-    navigate('/dashboard/tickets')
-  }
-
-  // Helper function to format date
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-
-    const date = new Date(dateString);
-
-    // Format: Apr 16, 10:45 PM
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
+    
+    // Send typing indicator if there's content
+    handleTyping(e.target.value.length > 0);
+    
+    // Clear typing indicator after 3 seconds of no typing
+    typingTimeoutRef.current = setTimeout(() => {
+      handleTyping(false);
+    }, 3000);
   };
 
-  // Add a detailed date formatting function
-  const formatDetailedDate = (dateString) => {
-    if (!dateString) return 'N/A';
+  const handleGoBack = () => {
+    // Redirect to the appropriate tickets page based on user role
+    if (isClientView) {
+      navigate('/client/tickets')
+    } else {
+      navigate(-1)
+    }
+  };
 
+  const formatDate = (dateString) => {
     const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    // Format: Tuesday, April 16, 2024 at 10:45 PM
-    return date.toLocaleString('en-US', {
+    if (diffDays === 0) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays === 1) {
+      return 'Yesterday';
+    } else if (diffDays < 7) {
+      return date.toLocaleDateString([], { weekday: 'long' });
+    } else {
+      return date.toLocaleDateString();
+    }
+  };
+
+  const formatDetailedDate = (dateString) => {
+    const date = new Date(dateString);
+    const datePart = date.toLocaleDateString(undefined, {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+      day: 'numeric'
     });
+    const timePart = date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    return `${datePart} at ${timePart}`;
   };
 
-  // Helper to determine message type for rendering
   const getMessageType = (message) => {
-    const userId = localStorage.getItem('userId');
-    return message.sender === userId ? 'current-user' : 'other-user';
+    const currentUserId = user?._id;
+    
+    // Handle different sender formats that might come from the API or socket
+    if (!message.sender) {
+      return 'incoming';
+    }
+    
+    if (typeof message.sender === 'string') {
+      return message.sender === currentUserId ? 'outgoing' : 'incoming';
+    }
+    
+    if (typeof message.sender === 'object') {
+      return message.sender._id === currentUserId ? 'outgoing' : 'incoming';
+    }
+    
+    return 'incoming';
   };
 
-  // Update the getChatParticipantInfo to use the component-level currentUserId
   const getChatParticipantInfo = () => {
-    // If current user is the assigned admin, show seller info
-    if (isCurrentUserAdmin) {
-      if (ticket.sellerId) {
-        return {
-          name: ticket.sellerId.username || 'Seller',
-          username: ticket.sellerId.username,
-          avatar: ticket.sellerId.username ? ticket.sellerId.username.charAt(0).toUpperCase() : 'S',
-          role: 'Seller'
-        };
-      }
-      return { name: 'Seller', avatar: 'S', role: 'Seller' };
+    if (!ticket) return { name: 'User', isOnline: false, avatar: 'U', role: 'User' };
+
+    // For client view
+    if (isClientView) {
+      // The other participant is the admin
+      return {
+        name: ticket.assignedAdmin?.username || 'Support Agent',
+        isOnline: isConnected,
+        avatar: (ticket.assignedAdmin?.username?.charAt(0).toUpperCase()) || 'S',
+        role: 'Support Agent'
+      };
     }
-    // If current user is seller, show admin info
-    else {
-      if (ticket.assignedAdmin) {
-        return {
-          name: ticket.assignedAdmin.username || 'Support Agent',
-          username: ticket.assignedAdmin.username,
-          avatar: ticket.assignedAdmin.username ? ticket.assignedAdmin.username.charAt(0).toUpperCase() : 'A',
-          role: 'Support Agent'
-        };
-      }
-      return { name: 'Support Team', avatar: 'S', role: 'Support Agent' };
+    
+    // For admin view
+    const currentUserId = user?._id
+    const isAdmin = ticket.assignedAdmin?._id === currentUserId
+    
+    // Determine the other participant (seller or client)
+    let name, isOnline, avatar, role
+    
+    if (ticket.ticketType === 'Client Ticket') {
+      // For client tickets, show client info
+      name = ticket.clientId?.username || 'Client'
+      avatar = name.charAt(0).toUpperCase() || 'C'
+      role = 'Client'
+    } else {
+      // For seller tickets, show seller info
+      name = ticket.sellerId?.username || 'Seller'
+      avatar = name.charAt(0).toUpperCase() || 'S'
+      role = 'Seller'
     }
+    
+    isOnline = isConnected // This can be improved to check actual user status
+    
+    return { name, isOnline, avatar, role }
   };
 
   const handleCloseTicket = async () => {
@@ -331,7 +394,8 @@ function TicketDetailPage() {
     }
 
     try {
-      const response = await ticketApi.updateTicketStatus(id, 'closed');
+      // Use the ticketApi to close the ticket
+      const response = await ticketApi.closeTicket(id);
 
       if (response.data.status === 'success') {
         // Update the local state
@@ -344,12 +408,11 @@ function TicketDetailPage() {
         if (ticket.chatId) {
           const chatId = ticket.chatId._id || ticket.chatId;
 
-          const messageData = {
+          // Use the chatApi to send a system message
+          await chatApi.sendMessage(chatId, {
             content: 'Ticket has been closed by support agent.',
             isSystemMessage: true
-          };
-
-          await chatApi.sendMessage(chatId, messageData);
+          });
         }
 
         // Show success message
@@ -368,6 +431,7 @@ function TicketDetailPage() {
     }
 
     try {
+      // Use the ticketApi to update the ticket status to 'open'
       const response = await ticketApi.updateTicketStatus(id, 'open');
 
       if (response.data.status === 'success') {
@@ -381,12 +445,11 @@ function TicketDetailPage() {
         if (ticket.chatId) {
           const chatId = ticket.chatId._id || ticket.chatId;
 
-          const messageData = {
+          // Use the chatApi to send a system message
+          await chatApi.sendMessage(chatId, {
             content: 'Ticket has been reopened by support agent.',
             isSystemMessage: true
-          };
-
-          await chatApi.sendMessage(chatId, messageData);
+          });
         }
 
         // Show success message
@@ -468,9 +531,12 @@ function TicketDetailPage() {
   }
 
   // Calculate if the current user is the assigned admin
-  const currentUserId = localStorage.getItem('userId');
   const isCurrentUserAdmin = ticket && ticket.assignedAdmin &&
-    ticket.assignedAdmin._id === currentUserId;
+    ticket.assignedAdmin._id === user?._id;
+
+  // Get status text and capitalized status
+  const statusText = `Order ${ticket.status}`;
+  const statusDate = ticket.createdAt ? formatDate(ticket.createdAt) : 'N/A';
 
   return (
     <div className="ticket-detail-page">
@@ -496,7 +562,6 @@ function TicketDetailPage() {
                   <div className="user-details">
                     <h4 className="user-name">
                       {getChatParticipantInfo().name}
-                      {getChatParticipantInfo().username && ` (@${getChatParticipantInfo().username})`}
                     </h4>
                     <p className="user-type">{getChatParticipantInfo().role}</p>
                   </div>
@@ -513,54 +578,64 @@ function TicketDetailPage() {
             {messages.length === 0 ? (
               <div className="no-messages">No messages yet. Start the conversation!</div>
             ) : (
-              messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`message ${msg.isSystemMessage
-                      ? 'system-message'
-                      : getMessageType(msg) === 'current-user'
-                        ? 'current-user-message'
-                        : 'other-user-message'
-                    }`}
-                >
-                  {!msg.isSystemMessage ? (
-                    <>
-                      <div className="message-avatar">
-                        {getMessageType(msg) === 'current-user'
-                          ? (localStorage.getItem('username')?.charAt(0).toUpperCase() || 'Y')
-                          : (isCurrentUserAdmin
-                            ? (ticket.sellerId?.username?.charAt(0).toUpperCase() || 'S')
-                            : (ticket.assignedAdmin?.username?.charAt(0).toUpperCase() || 'A'))}
-                      </div>
-                      <div className="message-content">
-                        <div className="message-sender">
-                          {getMessageType(msg) === 'current-user'
-                            ? 'You'
+              messages.map((msg, index) => {
+                // Check if message starts with "(System)" to display as system message
+                const isSystemStyleMessage = msg.isSystemMessage || 
+                  (msg.content && typeof msg.content === 'string' && msg.content.startsWith("(System)"));
+                
+                return (
+                  <div
+                    key={index}
+                    className={`message ${isSystemStyleMessage
+                        ? 'system-message'
+                        : getMessageType(msg) === 'outgoing'
+                          ? 'current-user-message'
+                          : 'other-user-message'
+                      }`}
+                  >
+                    {!isSystemStyleMessage ? (
+                      <>
+                        <div className="message-avatar">
+                          {getMessageType(msg) === 'outgoing'
+                            ? (user?.username?.charAt(0).toUpperCase() || 'Y')
                             : (isCurrentUserAdmin
-                              ? (ticket.sellerId?.username || 'Seller')
-                              : (ticket.assignedAdmin?.username || 'Support Agent'))}
+                              ? (ticket.sellerId?.username?.charAt(0).toUpperCase() || 'S')
+                              : (ticket.assignedAdmin?.username?.charAt(0).toUpperCase() || 'A'))}
                         </div>
-                        <p className="message-text">{msg.content}</p>
+                        <div className="message-content">
+                          <div className="message-sender">
+                            {getMessageType(msg) === 'outgoing'
+                              ? 'You'
+                              : (isCurrentUserAdmin
+                                ? (ticket.sellerId?.username || 'Seller')
+                                : (ticket.assignedAdmin?.username || 'Support Agent'))}
+                          </div>
+                          <p className="message-text">{msg.content}</p>
+                          <div className="message-time" title={formatDetailedDate(msg.timestamp)}>
+                            {formatDate(msg.timestamp)}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="system-message-content">
+                        <div className="system-message-icon">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM11 7H13V13H11V7ZM11 15H13V17H11V15Z" fill="currentColor" />
+                          </svg>
+                        </div>
+                        <p className="system-message-text">
+                          {isSystemStyleMessage && msg.content.startsWith("(System)") 
+                            ? msg.content.substring(8).trim() // Remove the "(System)" prefix
+                            : msg.content}
+                        </p>
                         <div className="message-time" title={formatDetailedDate(msg.timestamp)}>
                           {formatDate(msg.timestamp)}
                         </div>
                       </div>
-                    </>
-                  ) : (
-                    <div className="system-message-content">
-                      <div className="system-message-icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM11 7H13V13H11V7ZM11 15H13V17H11V15Z" fill="currentColor" />
-                        </svg>
-                      </div>
-                      <p className="system-message-text">{msg.content}</p>
-                      <div className="message-time" title={formatDetailedDate(msg.timestamp)}>
-                        {formatDate(msg.timestamp)}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))
+                    )}
+                  </div>
+                );
+              })
             )}
 
             {isTyping && (
@@ -592,7 +667,7 @@ function TicketDetailPage() {
               <Smile size={20} />
             </Button>
             <Button
-              onClick={handleSendMessage}
+              onClick={handleSendMessageClick}
               className="send-btn"
               disabled={!message.trim() || !isConnected || !ticket.chatId}
             >

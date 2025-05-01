@@ -7,15 +7,11 @@ const router = express.Router();
 // Protect all routes
 router.use(authController.protect);
 
-router.use(authController.restrictTo('admin', 'seller'));
 
 router.post('/', ticketController.createTicket);
 
 // Get tickets by client - allow clients to view their own tickets
 router.get('/client/:clientId', authController.restrictTo('admin', 'user'), ticketController.getTicketsByClient);
-
-// Admin and seller only routes for the rest
-router.use(authController.restrictTo('admin', 'seller'));
 
 // Get all tickets with filtering
 router.get('/', ticketController.getAllTickets);

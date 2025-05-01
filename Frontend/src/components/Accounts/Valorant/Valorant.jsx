@@ -600,18 +600,20 @@ export default function Valorant() {
                   <div className="space-y-1 text-sm">
                     <div className="flex items-center gap-1">
                       <span>
-                        {account.title ||
-                          `[${account.server || "N/A"}] ${account.description?.substring(0, 30) || "Valorant Account"}`}
+                        {account.title?.length > 90 ?
+                          `${account.title?.substring(0, 90)} . . .` :
+                          account.title
+                        }
                       </span>
                       {account.verified && <span className="bg-green-600 text-xs px-1 rounded">✓</span>}
                     </div>
                     <div className="flex items-center gap-1 text-gray-400">
-                      {account.readyForCompetitive && (
+                      {/* {account.readyForCompetitive && (
                         <>
                           <span className="text-green-500">✓</span>
                           <span>Ready For Competitive</span>
                         </>
-                      )}
+                      )} */}
                       {account.firstEmail && (
                         <>
                           <span className="text-green-500 ml-1">✓</span>

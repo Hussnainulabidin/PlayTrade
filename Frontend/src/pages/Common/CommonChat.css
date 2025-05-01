@@ -1,0 +1,28 @@
+/* Override styles from AdminChat.css to fix spacing issues */
+.chat-container {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.chat-content {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .chat-container {
+    padding: 0 !important;
+  }
+  
+  .chat-content {
+    padding: 0.5rem !important;
+  }
+}
+
+/* System message improvements */
+.message.system-message {
+  max-width: 95%;
+} 

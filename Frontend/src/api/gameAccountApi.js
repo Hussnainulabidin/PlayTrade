@@ -40,6 +40,10 @@ const commonAccountMethods = {
 
 // Game-specific account APIs
 const gameAccountApi = {
+  // Common methods at top level for direct access
+  updateStatus: commonAccountMethods.updateStatus,
+  getSellerAccounts: commonAccountMethods.getSellerAccounts,
+
   // Valorant accounts
   valorant: {
     getAccounts: (filters = {}) => {

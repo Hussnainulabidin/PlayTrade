@@ -8,7 +8,8 @@ import {
   MessageSquare,
   TicketIcon,
   Settings,
-  AlertTriangle
+  AlertTriangle,
+  Crown
 } from "lucide-react"
 import { useState, useEffect } from "react"
 
@@ -41,12 +42,14 @@ export function Sidebar() {
     <>
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 bg-[#0f0d1d] border-b border-[#1f1b31] p-3 flex items-center justify-between z-50">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="bg-blue-600 p-1.5 rounded">
-              <Wallet className="w-4 h-4 text-white" />
+              <Crown className="w-4 h-4 text-white" />
             </div>
-            <h1 className="text-lg font-medium text-white">Admin Panel</h1>
-          </div>
+            <h1 className="text-lg font-medium text-white">
+              <span className="text-blue-500">PLAY</span>TRADE
+            </h1>
+          </Link>
           <button 
             onClick={() => setIsOpen(!isOpen)}
             className="p-1.5 text-gray-400 hover:bg-[#1f1b31] rounded-lg"
@@ -63,10 +66,17 @@ export function Sidebar() {
       >
         {!isMobile && (
           <div className="flex items-center gap-2 p-4 border-b border-[#1f1b31]">
-            <div className="bg-blue-600 p-1.5 rounded">
-              <Wallet className="w-4 h-4 text-white" />
-            </div>
-            <h1 className="text-lg font-medium text-white">Admin Panel</h1>
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <div className="bg-blue-600 p-1.5 rounded">
+                <Crown className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-medium text-white">
+                  <span className="text-blue-500">PLAY</span>TRADE
+                </h1>
+                <p className="text-xs text-gray-400">Admin Panel</p>
+              </div>
+            </Link>
           </div>
         )}
 

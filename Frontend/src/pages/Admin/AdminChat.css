@@ -355,4 +355,28 @@
   .chat-main {
     height: calc(100vh - 420px);
   }
+}
+
+/* System message style */
+.message.system-message {
+  align-self: center;
+  max-width: 90%;
+  margin: 0.5rem 0;
+}
+
+.system-message-content {
+  background-color: #2a2438;
+  color: #a1a1aa;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  text-align: center;
+  font-style: italic;
+  border: 1px solid #3b326a;
+}
+
+.message.system-message .message-time {
+  text-align: center;
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
 } 
