@@ -9,6 +9,7 @@ import { LoginModal } from "../../LoginModal/LoginModal"
 import { SignupModal } from "../../SignupModal/SignupModal"
 import { UserMenu } from "../../UserMenu/UserMenu"
 import { ChevronDown, Moon, Zap, Crown, ArrowLeft } from "lucide-react"
+import '../AccountCarousel.css' // Import shared CSS for animations
 
 export default function ValorantDetail() {
   const { id } = useParams()
@@ -24,6 +25,7 @@ export default function ValorantDetail() {
   const [activeTab, setActiveTab] = useState("details")
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [isProcessingOrder, setIsProcessingOrder] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   useEffect(() => {
     const fetchAccountDetails = async () => {
@@ -61,6 +63,17 @@ export default function ValorantDetail() {
     }
   }, [id])
 
+  // Add image rotation effect
+  useEffect(() => {
+    if (!account || !account.gallery || account.gallery.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % account.gallery.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [account]);
+
   const handleLoginSuccess = async (userData) => {
     await login(userData)
   }
@@ -88,18 +101,18 @@ export default function ValorantDetail() {
 
     try {
       setIsProcessingOrder(true)
-      
+
       // Get the auth token
       let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
-      
+
       // Remove quotes if they exist
       if (token && token.startsWith('"') && token.endsWith('"')) {
         token = token.slice(1, -1)
       }
-      
+
       // Create the order
       const response = await axios.post(
-        "http://localhost:3003/orders", 
+        "http://localhost:3003/orders",
         {
           accountID: id,
           gameType: "Valorant"
@@ -110,7 +123,7 @@ export default function ValorantDetail() {
           }
         }
       )
-      
+
       if (response.data.status === 'success') {
         // Navigate to the order details page
         const orderId = response.data.data._id
@@ -169,14 +182,6 @@ export default function ValorantDetail() {
       </button>
     )
   }
-
-  // Mock data for screenshots (replace with actual data when available)
-  const screenshots = [
-    "/placeholder.svg?height=600&width=800",
-    "/placeholder.svg?height=600&width=800",
-    "/placeholder.svg?height=600&width=800",
-    "/placeholder.svg?height=600&width=800",
-  ]
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-white">
@@ -263,11 +268,51 @@ export default function ValorantDetail() {
                   </div>
                 </div>
                 <div>
-                  <img
-                    src={account.imageUrl || "/placeholder.svg?height=400&width=800"}
-                    alt="Account screenshot"
-                    className="w-full h-[400px] object-cover"
-                  />
+                  <div className="relative overflow-hidden">
+                    <div
+                      className="carousel-container"
+                      style={{
+                        display: 'flex',
+                        width: '100%',
+                        height: '400px',
+                        transition: 'transform 0.5s ease-in-out',
+                        transform: `translateX(-${currentImageIndex}00%)`
+                      }}
+                    >
+                      {account.gallery && account.gallery.length > 0 ? (
+                        account.gallery.map((image, index) => (
+                          <img
+                            key={index}
+                            src={image}
+                            alt={`Account screenshot ${index + 1}`}
+                            className="w-full h-[400px] object-cover flex-shrink-0"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/images/placeholder.png";
+                            }}
+                          />
+                        ))
+                      ) : (
+                        <img
+                          src="/images/placeholder.png"
+                          alt="Account screenshot"
+                          className="w-full h-[400px] object-cover flex-shrink-0"
+                        />
+                      )}
+                    </div>
+                    {account.gallery && account.gallery.length > 1 && (
+                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+                        {account.gallery.map((_, index) => (
+                          <div
+                            key={index}
+                            className={`w-2 h-2 rounded-full ${index === currentImageIndex ? "bg-blue-500" : "bg-gray-500"}`}
+                            onClick={() => setCurrentImageIndex(index)}
+                            style={{ cursor: 'pointer' }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="p-5">
                   <h2 className="text-xl font-semibold mb-3">Description</h2>
@@ -317,7 +362,7 @@ export default function ValorantDetail() {
                       <span className="bg-[#1f2228] text-xs px-2 py-1 rounded-full text-gray-300">Ready For Comp</span>
                     )}
                   </div>
-                  <button 
+                  <button
                     className={`w-full ${isProcessingOrder ? 'bg-blue-800 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} py-3 rounded-md font-semibold flex items-center justify-center`}
                     onClick={handleBuyNow}
                     disabled={isProcessingOrder}

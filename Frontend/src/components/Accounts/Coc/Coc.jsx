@@ -8,6 +8,7 @@ import { LoginModal } from "../../LoginModal/LoginModal"
 import { SignupModal } from "../../SignupModal/SignupModal"
 import { useUser } from "../../userContext/UserContext"
 import { UserMenu } from "../../UserMenu/UserMenu"
+import '../AccountCarousel.css' // Import shared CSS for animations
 
 export default function Coc() {
   const navigate = useNavigate()
@@ -21,11 +22,12 @@ export default function Coc() {
   const [sellers, setSellers] = useState({})
   const [searchQuery, setSearchQuery] = useState("")
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
-  
+  const [currentImageIndexes, setCurrentImageIndexes] = useState({})
+
   // Add pagination states
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 12 // 3 rows × 4 columns
-  
+
   // Add filter states
   const [selectedServer, setSelectedServer] = useState("")
   const [selectedPrice, setSelectedPrice] = useState("")
@@ -84,7 +86,7 @@ export default function Coc() {
       try {
         setLoading(true)
         let queryParams = new URLSearchParams()
-        
+
         if (debouncedSearchQuery) {
           queryParams.append('search', debouncedSearchQuery)
         }
@@ -101,8 +103,16 @@ export default function Coc() {
           // Shuffle the accounts array
           const shuffledAccounts = [...response.data.data.accounts].sort(() => Math.random() - 0.5)
           setAccounts(shuffledAccounts)
+
+          // Initialize image indexes for each account
+          const imageIndexes = {}
+          shuffledAccounts.forEach(account => {
+            imageIndexes[account._id] = 0
+          })
+          setCurrentImageIndexes(imageIndexes)
+
           // Fetch seller data for each account
-          const sellerPromises = shuffledAccounts.map(account => 
+          const sellerPromises = shuffledAccounts.map(account =>
             axios.get(`http://localhost:3003/users/${account.sellerID}`)
               .then(res => ({
                 sellerId: account.sellerID,
@@ -113,7 +123,7 @@ export default function Coc() {
                 sellerData: null
               }))
           )
-          
+
           const sellerResults = await Promise.all(sellerPromises)
           const sellerMap = {}
           sellerResults.forEach(result => {
@@ -135,6 +145,26 @@ export default function Coc() {
 
     fetchAccounts()
   }, [debouncedSearchQuery, selectedServer, selectedPrice])
+
+  // Add image slideshow interval
+  useEffect(() => {
+    if (accounts.length === 0) return
+
+    const interval = setInterval(() => {
+      setCurrentImageIndexes(prevIndexes => {
+        const newIndexes = { ...prevIndexes }
+        accounts.forEach(account => {
+          if (account.gallery && account.gallery.length > 1) {
+            const currentIndex = prevIndexes[account._id] || 0
+            newIndexes[account._id] = (currentIndex + 1) % account.gallery.length
+          }
+        })
+        return newIndexes
+      })
+    }, 2000)
+
+    return () => clearInterval(interval)
+  }, [accounts])
 
   const handleLoginSuccess = async (userData) => {
     await login(userData)
@@ -230,7 +260,7 @@ export default function Coc() {
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div 
+              <div
                 className="flex items-center gap-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:opacity-90"
                 onClick={() => navigate('/')}
               >
@@ -318,7 +348,7 @@ export default function Coc() {
               onClick={() => navigate("/accounts/clashofclans/support")}
               className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center hover:bg-gray-700"
             >
-             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
                 <path
                   fillRule="evenodd"
                   d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
@@ -376,7 +406,7 @@ export default function Coc() {
 
             <div className="flex gap-4 ml-auto">
               <div className="relative" ref={serverDropdownRef}>
-                <button 
+                <button
                   className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
                   onClick={() => {
                     setIsServerDropdownOpen(!isServerDropdownOpen)
@@ -417,7 +447,7 @@ export default function Coc() {
               </div>
 
               <div className="relative" ref={priceDropdownRef}>
-                <button 
+                <button
                   className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
                   onClick={() => {
                     setIsPriceDropdownOpen(!isPriceDropdownOpen)
@@ -497,8 +527,8 @@ export default function Coc() {
             </div>
           ) : (
             currentItems.map((account) => (
-              <div 
-                key={account._id} 
+              <div
+                key={account._id}
                 className="bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden cursor-pointer hover:border-blue-500 transition-colors"
                 onClick={() => handleAccountClick(account._id)}
               >
@@ -522,12 +552,38 @@ export default function Coc() {
                     </div>
                   </div>
                 </div>
-                <div className="relative">
-                  <img
-                    src={account.gallery?.[0] || "/placeholder.svg?height=180&width=320"}
-                    alt="Account screenshot"
-                    className="w-full h-[180px] object-cover"
-                  />
+                <div className="relative overflow-hidden">
+                  <div
+                    className="carousel-container"
+                    style={{
+                      display: 'flex',
+                      width: '100%',
+                      height: '180px',
+                      transition: 'transform 0.5s ease-in-out',
+                      transform: `translateX(-${currentImageIndexes[account._id] || 0}00%)`
+                    }}
+                  >
+                    {account.gallery && account.gallery.length > 0 ? (
+                      account.gallery.map((image, index) => (
+                        <img
+                          key={index}
+                          src={image}
+                          alt={`Account screenshot ${index + 1}`}
+                          className="w-full h-[180px] object-cover flex-shrink-0"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/images/placeholder.png";
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <img
+                        src="/images/placeholder.png"
+                        alt="Account screenshot"
+                        className="w-full h-[180px] object-cover flex-shrink-0"
+                      />
+                    )}
+                  </div>
                   <div className="absolute bottom-2 right-2 bg-black/70 rounded px-1 py-0.5 text-xs flex items-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -544,6 +600,19 @@ export default function Coc() {
                     </svg>
                     {account.gallery?.length || "0"}+
                   </div>
+                  {account.gallery && account.gallery.length > 1 && (
+                    <div className="absolute bottom-2 left-2 flex gap-1">
+                      {account.gallery.map((_, index) => (
+                        <div
+                          key={index}
+                          className={`w-1.5 h-1.5 rounded-full ${index === (currentImageIndexes[account._id] || 0)
+                              ? "bg-blue-500"
+                              : "bg-gray-500"
+                            }`}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="p-3 border-t border-gray-800 grid grid-cols-2 gap-2 text-xs text-gray-400">
                   <div className="flex items-center gap-1">
@@ -583,7 +652,7 @@ export default function Coc() {
                     {account.account_data.ClanLevel || 0} Clan Level
                   </div>
                 </div>
-                
+
                 <div className="p-4 border-t border-gray-800 flex items-center justify-between">
                   <div className="text-2xl font-bold">
                     ${account.price?.toFixed(2) || "0.00"}
@@ -654,11 +723,10 @@ export default function Coc() {
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-4 py-2 rounded-md border ${
-                  currentPage === page
+                className={`px-4 py-2 rounded-md border ${currentPage === page
                     ? "bg-blue-600 border-blue-500 text-white"
                     : "border-gray-700 text-gray-300 hover:bg-gray-700"
-                }`}
+                  }`}
               >
                 {page}
               </button>
