@@ -1,55 +1,76 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
 import { UserProvider } from "./components/userContext/UserContext"
-import LandingPage from "./pages/landingPage"
-import SellerDashboardAccountsPage from "./pages/SellerDashboardAccountsPage"
-import SellerDashboardTicketsPage from "./pages/SellerDashboardTicketsPage"
-import SellerDashboardCreateTicketPage from "./pages/SellerDashboardCreateTicketPage"
-import SellerDashboardChatPage from "./pages/SellerDashboardChatPage"
-import SellerDashboardLayout from "./components/layouts/SellerDashboardLayout"
-import SellerTicketDetailPage from "./pages/SellerTicketDetail"
-import SellerSettingPage from "./pages/SellerSettingPage"
-import SellersPage from "./pages/AdminDashboardSellerPage"
-import DashboardLayout from "./pages/AdminDashboardLayout"
-import SellerDetailsPage from "./pages/AdminDashboardSellerDetails"
-import SellerListingsPage from "./pages/AdminDashboardSellerListing"
-import SellerWalletPage from "./pages/AdminDashboardSellerWallet"
-import SellerOrdersPage from "./pages/AdminDasboardSellerOrders"
-import DisputedOrdersPage from "./pages/AdminDashboardDisputedOrder"
-import OrdersPage from "./pages/OrdersPage"
-import OrderDetailPage from "./pages/OrderDetails"
-import TicketsPage from "./pages/AdminDashboardTicketsPage"
-import TicketDetailPage from "./pages/TicketDetail"
-
-import ValorantPage from "./pages/valorant"
-import FortnitePage from "./pages/fortnite"
-import ClashofclansPage from "./pages/coc"
-import BrawlhallaPage from "./pages/Brawl"
-import LeaguePage from "./pages/league"
-
-import AccountsLayout from "./pages/AccountsLayout"
-import AdminChatPage from "./pages/AdminDashboardChatPage"
-import AccountsSupport from "./pages/AccountsSupport"
-import SettingPage from "./pages/SettingPage"
-import ClientDashboardLayout from "./components/layouts/ClientDashboardLayout"
-import ClientOrdersPage from "./pages/ClientOrdersPage"
-import ClientChatPage from "./pages/ClientChatPage"
 import "./App.css"
 import "./components/AdminDashboard/ui.css"
+
+// Landing Page
+import LandingPage from "./pages/landingPage"
+
+// Layout Components
+import DashboardLayout from "./pages/Admin/AdminDashboardLayout"
+import SellerDashboardLayout from "./components/layouts/SellerDashboardLayout"
+import ClientDashboardLayout from "./components/layouts/ClientDashboardLayout"
+import AccountsLayout from "./pages/Client/AccountsLayout"
+
+// Game Pages
+import ValorantPage from "./pages/Games/valorant"
+import FortnitePage from "./pages/Games/fortnite"
+import ClashofclansPage from "./pages/Games/coc"
+import BrawlhallaPage from "./pages/Games/Brawl"
+import LeaguePage from "./pages/Games/league"
+
+// Admin Pages
+import SellersPage from "./pages/Admin/AdminDashboardSellerPage"
+import SellerDetailsPage from "./pages/Admin/AdminDashboardSellerDetails"
+import SellerListingsPage from "./pages/Admin/AdminDashboardSellerListing"
+import SellerWalletPage from "./pages/Admin/AdminDashboardSellerWallet"
+import SellerOrdersPage from "./pages/Admin/AdminDasboardSellerOrders"
+import DisputedOrdersPage from "./pages/Admin/AdminDashboardDisputedOrder"
+import OrdersPage from "./pages/Admin/OrdersPage"
+import OrderDetailPage from "./pages/Admin/OrderDetails"
+import TicketsPage from "./pages/Admin/AdminDashboardTicketsPage"
+import TicketDetailPage from "./pages/Admin/TicketDetail"
+import AdminChatPage from "./pages/Admin/AdminDashboardChatPage"
+import SettingPage from "./pages/Admin/SettingPage"
+
+// Seller Pages
+import SellerDashboardAccountsPage from "./pages/Seller/SellerDashboardAccountsPage"
+import SellerDashboardTicketsPage from "./pages/Seller/SellerDashboardTicketsPage"
+import SellerDashboardCreateTicketPage from "./pages/Seller/SellerDashboardCreateTicketPage"
+import SellerDashboardChatPage from "./pages/Seller/SellerDashboardChatPage"
+import SellerTicketDetailPage from "./pages/Seller/SellerTicketDetail"
+import SellerSettingPage from "./pages/Seller/SellerSettingPage"
+
+// Client Pages
+import ClientOrdersPage from "./pages/Client/ClientOrdersPage"
+import ClientChatPage from "./pages/Client/ClientChatPage"
+import AccountsSupport from "./pages/Client/AccountsSupport"
 
 const App = () => {
   return (
     <UserProvider>
       <Router>
         <Routes>
+          {/* Main Landing Page */}
           <Route path="/" element={<LandingPage />} />
+
+          {/* Game Accounts Routes */}
           <Route path="/accounts" element={<AccountsLayout />}>
-            <Route path="valorant/*" element={<ValorantPage />} /> 
+            <Route path="valorant/*" element={<ValorantPage />} />
             <Route path="clashofclans/*" element={<ClashofclansPage />} />
             <Route path="fortnite/*" element={<FortnitePage />} />
             <Route path="brawlstars/*" element={<BrawlhallaPage />} />
             <Route path="leagueoflegends/*" element={<LeaguePage />} />
           </Route>
-          
+
+          {/* Account Support Routes */}
+          <Route path="/accounts/valorant/support" element={<AccountsSupport />} />
+          <Route path="/accounts/fortnite/support" element={<AccountsSupport />} />
+          <Route path="/accounts/leagueoflegends/support" element={<AccountsSupport />} />
+          <Route path="/accounts/clashofclans/support" element={<AccountsSupport />} />
+          <Route path="/accounts/brawlstars/support" element={<AccountsSupport />} />
+
+          {/* Admin Dashboard Routes */}
           <Route path="/order/:id" element={<OrderDetailPage />} />
           <Route path="/tickets/:id" element={<TicketDetailPage />} />
           <Route path="/admin/tickets" element={
@@ -57,7 +78,6 @@ const App = () => {
               <TicketsPage />
             </DashboardLayout>
           } />
-
           <Route path="/admin/orders" element={
             <DashboardLayout>
               <OrdersPage />
@@ -104,6 +124,7 @@ const App = () => {
             </DashboardLayout>
           } />
 
+          {/* Client Dashboard Routes */}
           <Route path="/client/orders" element={
             <ClientDashboardLayout>
               <ClientOrdersPage />
@@ -120,6 +141,7 @@ const App = () => {
             </ClientDashboardLayout>
           } />
 
+          {/* Seller Dashboard Routes */}
           <Route path="/seller/dashboard/accounts"
             element={
               <SellerDashboardLayout>
@@ -163,11 +185,6 @@ const App = () => {
               </SellerDashboardLayout>
             }
           />
-          <Route path="/accounts/valorant/support" element={<AccountsSupport />} />
-          <Route path="/accounts/fortnite/support" element={<AccountsSupport />} />
-          <Route path="/accounts/leagueoflegends/support" element={<AccountsSupport />} />
-          <Route path="/accounts/clashofclans/support" element={<AccountsSupport />} />
-          <Route path="/accounts/brawlstars/support" element={<AccountsSupport />} />
         </Routes >
       </Router >
     </UserProvider >

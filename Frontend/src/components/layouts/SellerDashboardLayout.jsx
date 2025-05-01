@@ -1,4 +1,4 @@
-import Sidebar from "../SellerSideBar/SideBar"
+import Sidebar from "../SellerDashboard/SellerSideBar/SideBar"
 import "./SellerDashboardLayout.css"
 
 const SellerDashboardLayout = ({ children }) => {

@@ -52,7 +52,7 @@ function PlayTradeLanding() {
     { name: "Brawl Stars", image: "/images/Bs.jpg", path: "/accounts/brawlstars" },
   ];
 
-  const filteredGames = games.filter(game => 
+  const filteredGames = games.filter(game =>
     game.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -71,12 +71,12 @@ function PlayTradeLanding() {
   useEffect(() => {
     const startAutoScroll = () => {
       if (autoScrollIntervalRef.current) return;
-      
+
       autoScrollIntervalRef.current = setInterval(() => {
         if (!isSliderPaused && gamesSliderRef.current) {
           const slider = gamesSliderRef.current;
           const maxScroll = slider.scrollWidth - slider.clientWidth;
-          
+
           if (slider.scrollLeft >= maxScroll) {
             // Reset to beginning when reaching the end
             slider.scrollTo({
@@ -190,10 +190,10 @@ function PlayTradeLanding() {
       const maxScroll = slider.scrollWidth - slider.clientWidth;
       const currentScroll = slider.scrollLeft;
       const totalGames = 5; // Total number of games in the slider
-      
+
       let newScroll;
       let newIndex;
-      
+
       if (direction === 'left') {
         if (currentScroll <= 0) {
           // If at the start, scroll to the end
@@ -219,12 +219,12 @@ function PlayTradeLanding() {
         newIndex = direction;
         newScroll = newIndex * cardWidth;
       }
-      
+
       slider.scrollTo({
         left: newScroll,
         behavior: 'smooth'
       });
-      
+
       setActiveGameIndex(newIndex);
     }
   };
@@ -246,7 +246,7 @@ function PlayTradeLanding() {
           const slider = gamesSliderRef.current;
           const maxScroll = slider.scrollWidth - slider.clientWidth;
           const totalGames = 5;
-          
+
           if (slider.scrollLeft >= maxScroll) {
             // Reset to beginning when reaching the end
             slider.scrollTo({
@@ -363,9 +363,8 @@ function PlayTradeLanding() {
             ].map((service, index) => (
               <div key={service.label} className="pt-service-item">
                 <div
-                  className={`pt-service-icon ${
-                    index === activeServiceIndex ? "pt-active" : ""
-                  }`}
+                  className={`pt-service-icon ${index === activeServiceIndex ? "pt-active" : ""
+                    }`}
                 >
                   <service.icon className="pt-icon" />
                 </div>
@@ -376,29 +375,29 @@ function PlayTradeLanding() {
         </div>
       </section>
 
-      
+
 
       {/* Popular Games */}
       <section className="pt-games">
         <div className="pt-container">
           <h2 className="pt-section-title pt-text-center">Popular Games</h2>
-          <div 
+          <div
             className="pt-games-slider-container"
             onMouseEnter={handleSliderMouseEnter}
             onMouseLeave={handleSliderMouseLeave}
           >
-            <button 
-              className="pt-slider-button pt-slider-button-left" 
+            <button
+              className="pt-slider-button pt-slider-button-left"
               onClick={() => scrollGamesSlider('left')}
               aria-label="Previous games"
             >
               <ChevronLeft className="pt-slider-icon" />
             </button>
-            
+
             <div className="pt-games-slider" ref={gamesSliderRef}>
               {[
                 { name: "Fortnite", image: "/images/Fort.png", path: "/accounts/fortnite" },
-                { name: "League of Legends", image: "/images/Log.png" , path: "/accounts/leagueoflegends" },
+                { name: "League of Legends", image: "/images/Log.png", path: "/accounts/leagueoflegends" },
                 { name: "Valorant", image: "/images/Val.jpg", path: "/accounts/valorant" },
                 { name: "Clash of Clans", image: "/images/Coc.png", path: "/accounts/clashofclans" },
                 { name: "Brawl Stars", image: "/images/Bs.jpg", path: "/accounts/brawlstars" },
@@ -424,15 +423,15 @@ function PlayTradeLanding() {
                 )
               ))}
             </div>
-            
-            <button 
-              className="pt-slider-button pt-slider-button-right" 
+
+            <button
+              className="pt-slider-button pt-slider-button-right"
               onClick={() => scrollGamesSlider('right')}
               aria-label="Next games"
             >
               <ChevronRight className="pt-slider-icon" />
             </button>
-            
+
             <div className="pt-slider-indicators">
               {[0, 1, 2, 3, 4].map((index) => (
                 <button
@@ -546,9 +545,8 @@ function PlayTradeLanding() {
             ].map((stat, index) => (
               <div
                 key={stat.label}
-                className={`pt-stat-card ${
-                  index === activeStatIndex ? "pt-active" : ""
-                }`}
+                className={`pt-stat-card ${index === activeStatIndex ? "pt-active" : ""
+                  }`}
               >
                 <div className="pt-stat-icon">
                   <stat.icon className="pt-icon" />
@@ -638,9 +636,8 @@ function PlayTradeLanding() {
               ].map((step, index) => (
                 <div
                   key={step.title}
-                  className={`pt-process-step ${
-                    index === activeProcessIndex ? "pt-active" : ""
-                  }`}
+                  className={`pt-process-step ${index === activeProcessIndex ? "pt-active" : ""
+                    }`}
                 >
                   <div className="pt-process-icon">
                     <step.icon className="pt-icon" />
@@ -729,9 +726,8 @@ function PlayTradeLanding() {
               ].map((item, index) => (
                 <div
                   key={index}
-                  className={`pt-faq-item ${
-                    index === activeFaqIndex ? "pt-active" : ""
-                  }`}
+                  className={`pt-faq-item ${index === activeFaqIndex ? "pt-active" : ""
+                    }`}
                 >
                   <div
                     className="pt-faq-question"
@@ -745,9 +741,8 @@ function PlayTradeLanding() {
                     )}
                   </div>
                   <div
-                    className={`pt-faq-answer ${
-                      openFaqItem === index ? "pt-open" : ""
-                    }`}
+                    className={`pt-faq-answer ${openFaqItem === index ? "pt-open" : ""
+                      }`}
                   >
                     {item.answer}
                   </div>
