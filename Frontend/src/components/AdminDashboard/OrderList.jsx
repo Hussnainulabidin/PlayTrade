@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Link } from "react-router-dom"
 import { Search, ExternalLink, MoreVertical, Plus } from "lucide-react"
-import axios from "axios"
+import { orderApi } from "../../api"
 import "./common/Common.css"
 import "./common/TableStyles.css"
 
@@ -51,22 +51,7 @@ export function OrdersList() {
       try {
         setLoading(true)
         
-        // Get the auth token (try different storage methods)
-        let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
-        
-        // Remove quotes if they exist
-        if (token && token.startsWith('"') && token.endsWith('"')) {
-          token = token.slice(1, -1)
-        }
-        
-        const response = await axios.get(
-          "http://localhost:3003/orders",
-          {
-            headers: {
-              Authorization: token ? `Bearer ${token}` : undefined
-            }
-          }
-        )
+        const response = await orderApi.getAllOrders()
         
         console.log("Orders response:", response.data)
         
@@ -93,21 +78,8 @@ export function OrdersList() {
 
     try {
       setRefunding(true);
-      let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token');
       
-      if (token && token.startsWith('"') && token.endsWith('"')) {
-        token = token.slice(1, -1);
-      }
-      
-      const response = await axios.post(
-        `http://localhost:3003/orders/${orderId}/refund`,
-        {},
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : undefined
-          }
-        }
-      );
+      const response = await orderApi.refundOrder(orderId);
       
       if (response.data.status === 'success') {
         setOrders(prevOrders => 

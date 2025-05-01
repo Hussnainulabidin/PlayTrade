@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { Search, ExternalLink, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react"
-import axios from "axios"
+import { orderApi } from "../../api"
 import "./common/Common.css"
 import "./common/TableStyles.css"
 
@@ -34,26 +34,10 @@ export function DisputedOrders() {
     const fetchDisputedOrders = async () => {
       try {
         setLoading(true)
-        
-        // Get the auth token (try different storage methods)
-        let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
-        
-        // Remove quotes if they exist
-        if (token && token.startsWith('"') && token.endsWith('"')) {
-          token = token.slice(1, -1)
-        }
-        
         const currentPage = getPageFromUrl();
         
-        // Using the correct endpoint for disputed orders
-        const response = await axios.get(
-          `http://localhost:3003/orders/disputed?page=${currentPage}&limit=12`,
-          {
-            headers: {
-              Authorization: token ? `Bearer ${token}` : undefined
-            }
-          }
-        )
+        // Using the API module for disputed orders
+        const response = await orderApi.getDisputedOrders(currentPage, 12);
         
         if (response.data.status === 'success') {
           console.log('Disputed orders response:', response.data);
@@ -113,24 +97,9 @@ export function DisputedOrders() {
 
     try {
       setProcessing(true);
-      // Get auth token
-      let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token');
       
-      // Remove quotes if they exist
-      if (token && token.startsWith('"') && token.endsWith('"')) {
-        token = token.slice(1, -1);
-      }
-      
-      // This endpoint should be updated to the correct one for resolving disputes
-      const response = await axios.post(
-        `http://localhost:3003/orders/${orderId}/resolve-dispute`,
-        { resolution },
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : undefined
-          }
-        }
-      );
+      // Using the API module for resolving disputes
+      const response = await orderApi.resolveDispute(orderId, resolution);
       
       if (response.data.status === 'success') {
         // Update the order status in the UI

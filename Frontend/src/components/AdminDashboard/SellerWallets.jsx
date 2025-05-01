@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
 import { ArrowUpRight, ArrowDownRight, Search, Plus, Minus } from "lucide-react"
 import PropTypes from "prop-types"
-import axios from "axios"
+import { userApi, walletApi } from "../../api"
 import "./SellerWallets.css"
 import { formatDate } from "../../lib/utils"
 
@@ -33,33 +33,12 @@ export function SellerWallet({ sellerId }) {
     const fetchWalletData = async () => {
       try {
         setLoading(true)
-        // Get the auth token
-        let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
-        
-        // Remove quotes if they exist
-        if (token && token.startsWith('"') && token.endsWith('"')) {
-          token = token.slice(1, -1)
-        }
         
         // Get user info for balance
-        const userResponse = await axios.get(
-          `http://localhost:3003/users/getSeller/${id}`,
-          {
-            headers: {
-              Authorization: token ? `Bearer ${token}` : undefined
-            }
-          }
-        )
+        const userResponse = await userApi.getSellerById(id);
         
         // Get wallet transactions
-        const transactionsResponse = await axios.get(
-          `http://localhost:3003/wallet/history/${id}?limit=50`,
-          {
-            headers: {
-              Authorization: token ? `Bearer ${token}` : undefined
-            }
-          }
-        )
+        const transactionsResponse = await walletApi.getSellerTransactions(id, 1, 50);
         
         if (userResponse.data.status === 'success' && transactionsResponse.data.status === 'success') {
           const userData = userResponse.data.data;
@@ -114,76 +93,48 @@ export function SellerWallet({ sellerId }) {
 
   const handleAddFunds = async () => {
     try {
-      // Get the auth token
-      let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
-      
-      if (token && token.startsWith('"') && token.endsWith('"')) {
-        token = token.slice(1, -1)
-      }
-      
-      const response = await axios.post(
-        `http://localhost:3003/wallet/credit/${id}`,
-        {
-          amount: parseFloat(addAmount),
-          message: addReason || "Funds added by admin"
-        },
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : undefined
-          }
-        }
-      )
+      const response = await walletApi.deposit({
+        userId: id,
+        amount: parseFloat(addAmount),
+        message: addReason || "Funds added by admin"
+      });
       
       if (response.data.status === 'success') {
-        alert(`Added €${addAmount} to wallet successfully`)
+        alert(`Added €${addAmount} to wallet successfully`);
         // Reload wallet data
-        window.location.reload()
+        window.location.reload();
       }
     } catch (err) {
-      console.error("Error adding funds:", err)
-      alert(`Failed to add funds: ${err.response?.data?.message || err.message}`)
+      console.error("Error adding funds:", err);
+      alert(`Failed to add funds: ${err.response?.data?.message || err.message}`);
     }
     
-    setAddAmount("")
-    setAddReason("")
-    setShowAddFundsDialog(false)
+    setAddAmount("");
+    setAddReason("");
+    setShowAddFundsDialog(false);
   }
 
   const handleRemoveFunds = async () => {
     try {
-      // Get the auth token
-      let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
-      
-      if (token && token.startsWith('"') && token.endsWith('"')) {
-        token = token.slice(1, -1)
-      }
-      
-      const response = await axios.post(
-        `http://localhost:3003/wallet/debit/${id}`,
-        {
-          amount: parseFloat(removeAmount),
-          message: removeReason || "Funds removed by admin"
-        },
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : undefined
-          }
-        }
-      )
+      const response = await walletApi.withdraw({
+        userId: id,
+        amount: parseFloat(removeAmount),
+        message: removeReason || "Funds removed by admin"
+      });
       
       if (response.data.status === 'success') {
-        alert(`Removed €${removeAmount} from wallet successfully`)
+        alert(`Removed €${removeAmount} from wallet successfully`);
         // Reload wallet data
-        window.location.reload()
+        window.location.reload();
       }
     } catch (err) {
-      console.error("Error removing funds:", err)
-      alert(`Failed to remove funds: ${err.response?.data?.message || err.message}`)
+      console.error("Error removing funds:", err);
+      alert(`Failed to remove funds: ${err.response?.data?.message || err.message}`);
     }
     
-    setRemoveAmount("")
-    setRemoveReason("")
-    setShowRemoveFundsDialog(false)
+    setRemoveAmount("");
+    setRemoveReason("");
+    setShowRemoveFundsDialog(false);
   }
 
   return (

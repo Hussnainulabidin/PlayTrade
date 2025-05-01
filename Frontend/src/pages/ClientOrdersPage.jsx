@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Search, ExternalLink } from "lucide-react"
-import axios from "axios"
+import { orderApi } from "../api"
 import { useUser } from "../components/userContext/UserContext"
 import "./pages.css"
 import "../components/AdminDashboard/common/Common.css"
@@ -21,22 +21,7 @@ function ClientOrdersPage() {
       try {
         setLoading(true)
         
-        // Get the auth token
-        let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
-        
-        // Remove quotes if they exist
-        if (token && token.startsWith('"') && token.endsWith('"')) {
-          token = token.slice(1, -1)
-        }
-        
-        const response = await axios.get(
-          "http://localhost:3003/orders/my-orders",
-          {
-            headers: {
-              Authorization: token ? `Bearer ${token}` : undefined
-            }
-          }
-        )
+        const response = await orderApi.getMyOrders();
         
         if (response.data.status === 'success') {
           setOrders(response.data.data)

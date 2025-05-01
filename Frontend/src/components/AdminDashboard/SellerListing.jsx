@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom"
 import { Search, MoreVertical, Edit, ChevronLeft, ChevronRight } from "lucide-react"
-import axios from "axios"
+import { gameAccountApi } from "../../api"
 import "./common/Common.css"
 import "./common/TableStyles.css"
 import { formatDate } from "../../lib/utils"
@@ -37,28 +37,11 @@ export function SellerListings() {
     const fetchSellerAccounts = async () => {
       try {
         setLoading(true)
-        // Get the auth token (try different storage methods)
-        let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
-        
-        // Remove quotes if they exist
-        if (token && token.startsWith('"') && token.endsWith('"')) {
-          token = token.slice(1, -1)
-        }
-        
-        console.log('Using token:', token ? 'Token exists' : 'No token found')
-        
         const currentPage = getPageFromUrl();
         
         // Make API request with proper error handling
         try {
-          const response = await axios.get(
-            `http://localhost:3003/gameAccounts/seller/${id}?page=${currentPage}&limit=12`,
-            {
-              headers: {
-                Authorization: token ? `Bearer ${token}` : undefined
-              }
-            }
-          )
+          const response = await gameAccountApi.getSellerAccounts(id, currentPage, 12);
           
           console.log('API Response:', response.data)
           
@@ -97,27 +80,8 @@ export function SellerListings() {
   const handleStatusUpdate = async (accountId, gameType, status) => {
     try {
       setUpdating(true)
-      // Get the auth token
-      let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
       
-      // Remove quotes if they exist
-      if (token && token.startsWith('"') && token.endsWith('"')) {
-        token = token.slice(1, -1)
-      }
-      
-      const response = await axios.patch(
-        `http://localhost:3003/gameAccounts/update-status`,
-        {
-          accountId,
-          gameType,
-          status
-        },
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : undefined
-          }
-        }
-      )
+      const response = await gameAccountApi.updateStatus(accountId, status);
       
       if (response.data.status === 'success') {
         // Update listings state with the new status
@@ -148,26 +112,8 @@ export function SellerListings() {
     
     try {
       setDeleting(true)
-      // Get the auth token
-      let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
       
-      // Remove quotes if they exist
-      if (token && token.startsWith('"') && token.endsWith('"')) {
-        token = token.slice(1, -1)
-      }
-      
-      const response = await axios.delete(
-        `http://localhost:3003/gameAccounts/delete-account`,
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : undefined
-          },
-          data: {
-            accountId,
-            gameType
-          }
-        }
-      )
+      const response = await gameAccountApi[gameType.toLowerCase()].deleteAccount(accountId, gameType.toLowerCase());
       
       if (response.data.status === 'success') {
         // Remove the deleted listing from state

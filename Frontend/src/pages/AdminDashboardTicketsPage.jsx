@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Link } from "react-router-dom"
 import { Search, Plus, MoreVertical, Edit, UserPlus, XCircle } from "lucide-react"
 import { Input } from "../components/AdminDashboard/ui/input"
-import axios from "axios"
+import { ticketApi } from "../api"
 import "./tickets.css"
 
 function TicketsPage() {
@@ -34,7 +34,7 @@ function TicketsPage() {
     const fetchTickets = async () => {
       try {
         setLoading(true)
-        const response = await axios.get(`http://localhost:3003/tickets?filter=${activeFilter}`)
+        const response = await ticketApi.getAllTickets(activeFilter)
         setTickets(response.data.data.tickets)
       } catch (err) {
         console.error("Error fetching tickets:", err)
@@ -48,9 +48,9 @@ function TicketsPage() {
 
   const handleJoinTicket = async (ticketId) => {
     try {
-      await axios.post(`http://localhost:3003/tickets/${ticketId}/join`)
+      await ticketApi.joinTicket(ticketId)
       // Refresh tickets after joining
-      const response = await axios.get(`http://localhost:3003/tickets?filter=${activeFilter}`)
+      const response = await ticketApi.getAllTickets(activeFilter)
       setTickets(response.data.data.tickets)
       // Navigate to the ticket page after joining
       window.location.href = `/tickets/${ticketId}`;
@@ -68,9 +68,7 @@ function TicketsPage() {
       }
       
       // Call the API to update ticket status to "Closed"
-      await axios.patch(`http://localhost:3003/tickets/${ticketId}/status`, {
-        status: "Closed"
-      });
+      await ticketApi.updateTicketStatus(ticketId, "Closed");
       
       // Update the local state
       setTickets(prevTickets => 

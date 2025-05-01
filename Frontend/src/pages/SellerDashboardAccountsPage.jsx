@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import axios from "axios"
+import { userApi, gameAccountApi } from "../api"
 import Header from "../components/SellerHeader/Header"
 import AccountsTable from "../components/AccountsTable/AccountsTable"
 import FilterBar from "../components/SellerFilterBar/FilterBar"
@@ -34,18 +34,11 @@ const SellerDashboardAccountsPage = () => {
             try {
                 setLoading(true)
                 // First get the seller ID from the backend
-                const sellerResponse = await axios.get("http://localhost:3003/users/me")
-                const sellerId = sellerResponse.data.data._id
+                const userResponse = await userApi.getMe();
+                const sellerId = userResponse.data.data._id
 
                 // Then fetch accounts using the seller ID
-                const response = await axios.get(`http://localhost:3003/gameAccounts/seller/${sellerId}`, {
-                    params: {
-                        page: currentPage,
-                        limit: rowsPerPage,
-                        search: searchQuery,
-                        ...filters
-                    }
-                })
+                const response = await gameAccountApi.getSellerAccounts(sellerId, currentPage, rowsPerPage);
                 setAccounts(response.data.data.gameAccounts)
                 setTotalRows(response.data.data.totalResults)
                 setTotalPages(Math.ceil(response.data.data.totalResults / rowsPerPage))

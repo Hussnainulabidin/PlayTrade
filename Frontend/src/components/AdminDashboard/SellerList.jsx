@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Link } from "react-router-dom"
 import { Search, MoreVertical, Plus, Edit } from "lucide-react"
 import { Input } from "./ui/input"
-import axios from "axios"
+import { userApi } from "../../api"
 import "./common/Common.css"
 import "./common/TableStyles.css"
 import { formatDate } from "../../lib/utils"
@@ -51,7 +51,7 @@ export function SellersList() {
     const fetchSellers = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:3003/users/getSeller");
+        const response = await userApi.getSellers();
         console.log(response.data.data)
         setSellers(response.data.data)
       } catch (err) {

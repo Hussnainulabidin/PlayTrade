@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import { User, Mail, Calendar, Package, ShoppingCart, Wallet } from "lucide-react"
 import "./SellerDetails.css"
-import axios from "axios"
+import { userApi } from "../../api"
 import { formatDate } from "../../lib/utils"
 
 export function SellerDetails() {
@@ -14,7 +14,7 @@ export function SellerDetails() {
   useEffect(() => {
     const fetchSellerDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:3003/users/getSeller/${id}`)
+        const response = await userApi.getSellerById(id)
         setSeller(response.data.data)
       } catch (err) {
         setError("Failed to fetch seller details")

@@ -6,7 +6,7 @@ import { ArrowLeft, Send, Paperclip, Smile } from "lucide-react"
 import { Button } from "../components/AdminDashboard/ui/button"
 import { Badge } from "../components/AdminDashboard/ui/badge"
 import { Textarea } from "../components/AdminDashboard/ui/textarea"
-import axios from "axios"
+import { ticketApi, chatApi } from "../api"
 import io from "socket.io-client"
 import "./TicketDetails.css"
 
@@ -29,11 +29,7 @@ function TicketDetailPage() {
     const fetchTicketDetails = async () => {
       try {
         setLoading(true)
-        const response = await axios.get(`http://localhost:3003/tickets/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        })
+        const response = await ticketApi.getTicketById(id);
 
         if (response.data.status === 'success') {
           setTicket(response.data.data.ticket)
@@ -43,11 +39,7 @@ function TicketDetailPage() {
             try {
               const chatId = response.data.data.ticket.chatId._id || response.data.data.ticket.chatId;
 
-              const chatResponse = await axios.get(`http://localhost:3003/chats/${chatId}`, {
-                headers: {
-                  'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-              })
+              const chatResponse = await chatApi.getChatById(chatId);
 
               if (chatResponse.data.status === 'success') {
                 setMessages(chatResponse.data.data.chat.messages || [])
@@ -223,19 +215,28 @@ function TicketDetailPage() {
   }
 
   const handleSendMessage = () => {
-    if (!message.trim() || !socketRef.current || !ticket?.chatId) return;
+    if (!message.trim() || !ticket?.chatId) return;
 
     const chatId = ticket.chatId._id || ticket.chatId;
 
-    // Send message through socket
+    // Send message through socket for real-time updates
     socketRef.current.emit('sendMessage', {
       chatId: chatId,
       content: message
     });
 
-    // Reset message input and typing status
-    setMessage("");
-    handleTyping(false);
+    // Also send message through API to ensure it's saved
+    chatApi.sendMessage(chatId, { content: message })
+      .then(response => {
+        console.log('Message sent successfully:', response.data);
+      })
+      .catch(error => {
+        console.error('Error sending message:', error);
+        alert('Failed to send message. Please try again.');
+      });
+
+    // Clear message input
+    setMessage('');
   }
 
   const handleKeyDown = (e) => {
@@ -324,74 +325,76 @@ function TicketDetailPage() {
   };
   
   const handleCloseTicket = async () => {
-    if (!ticket || !ticket._id) return;
-    
+    // Confirm before closing
+    if (!window.confirm('Are you sure you want to close this ticket? This action cannot be undone.')) {
+      return;
+    }
+
     try {
-      // Ask for confirmation
-      if (!window.confirm("Are you sure you want to close this ticket?")) {
-        return;
-      }
-      
-      // Call the API to update ticket status
-      const response = await axios.patch(
-        `http://localhost:3003/tickets/${ticket._id}/status`,
-        { status: 'Closed' },
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
-      
+      const response = await ticketApi.updateTicketStatus(id, 'closed');
+
       if (response.data.status === 'success') {
-        // Update the local ticket state
-        setTicket(prevTicket => ({
-          ...prevTicket,
+        // Update the local state
+        setTicket(prev => ({
+          ...prev,
           status: 'Closed'
         }));
-        
-        // Optionally show a success message
-        alert("Ticket has been closed successfully");
+
+        // Send system message to chat
+        if (ticket.chatId) {
+          const chatId = ticket.chatId._id || ticket.chatId;
+          
+          const messageData = {
+            content: 'Ticket has been closed by support agent.',
+            isSystemMessage: true
+          };
+          
+          await chatApi.sendMessage(chatId, messageData);
+        }
+
+        // Show success message
+        alert('Ticket has been closed successfully');
       }
-    } catch (error) {
-      console.error('Error closing ticket:', error);
-      alert("Failed to close ticket. Please try again.");
+    } catch (err) {
+      console.error('Error closing ticket:', err);
+      alert('Failed to close ticket. Please try again.');
     }
   };
   
   const handleReopenTicket = async () => {
-    if (!ticket || !ticket._id) return;
-    
+    // Confirm before reopening
+    if (!window.confirm('Are you sure you want to reopen this ticket?')) {
+      return;
+    }
+
     try {
-      // Ask for confirmation
-      if (!window.confirm("Are you sure you want to reopen this ticket?")) {
-        return;
-      }
-      
-      // Call the API to update ticket status
-      const response = await axios.patch(
-        `http://localhost:3003/tickets/${ticket._id}/status`,
-        { status: 'Open' },
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
-      
+      const response = await ticketApi.updateTicketStatus(id, 'open');
+
       if (response.data.status === 'success') {
-        // Update the local ticket state
-        setTicket(prevTicket => ({
-          ...prevTicket,
+        // Update the local state
+        setTicket(prev => ({
+          ...prev,
           status: 'Open'
         }));
-        
-        // Optionally show a success message
-        alert("Ticket has been reopened successfully");
+
+        // Send system message to chat
+        if (ticket.chatId) {
+          const chatId = ticket.chatId._id || ticket.chatId;
+          
+          const messageData = {
+            content: 'Ticket has been reopened by support agent.',
+            isSystemMessage: true
+          };
+          
+          await chatApi.sendMessage(chatId, messageData);
+        }
+
+        // Show success message
+        alert('Ticket has been reopened successfully');
       }
-    } catch (error) {
-      console.error('Error reopening ticket:', error);
-      alert("Failed to reopen ticket. Please try again.");
+    } catch (err) {
+      console.error('Error reopening ticket:', err);
+      alert('Failed to reopen ticket. Please try again.');
     }
   };
   

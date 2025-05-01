@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronRight, Paperclip, SmilePlus, ThumbsUp, ThumbsDown, X, AlertTriangle } from 'lucide-react';
-import axios from 'axios';
+import { orderApi } from '../api';
 import useChat from '../hooks/useChat';
 import styles from './OrderDetails.module.css';
 
@@ -35,11 +35,7 @@ function OrderDetails() {
     const fetchOrderDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3003/orders/myorder/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
+        const response = await orderApi.getOrderById(id);
         
         if (response.data.status === 'success') {
           setOrderData(response.data.data);
@@ -85,17 +81,7 @@ function OrderDetails() {
 
   const handleMarkAsReceived = async () => {
     try {
-      const response = await axios.post(
-        `http://localhost:3003/orders/${orderData.id}/mark-received`,
-        {
-          sendChatMessage: false // Do not send any system message to the chat
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
+      const response = await orderApi.markOrderAsReceived(orderData.id);
       
       if (response.data.status === 'success') {
         // Update the order status locally to 'completed'
@@ -121,15 +107,7 @@ function OrderDetails() {
     try {
       setClosingDispute(true);
       
-      const response = await axios.post(
-        `http://localhost:3003/orders/${orderData.id}/close-dispute`,
-        {},
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
+      const response = await orderApi.closeDispute(orderData.id);
       
       if (response.data.status === 'success') {
         // Update the order status locally to 'completed'
@@ -156,15 +134,7 @@ function OrderDetails() {
         return;
       }
       
-      const response = await axios.post(
-        `http://localhost:3003/orders/${orderData.id}/refund`,
-        {},
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
+      const response = await orderApi.cancelOrder(orderData.id);
       
       if (response.data.status === 'success') {
         // Update the local state
@@ -196,37 +166,31 @@ function OrderDetails() {
     try {
       setSubmittingDispute(true);
       
-      const response = await axios.post(
-        `http://localhost:3003/orders/${orderData.id}/dispute`,
-        { disputeReason },
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
+      const response = await orderApi.disputeOrder(orderData.id, disputeReason);
       
       if (response.data.status === 'success') {
-        // Update the order status locally
+        // Update the local state
         setOrderData(prev => ({
           ...prev,
           status: 'disputed'
         }));
         
-        // Close modal and show success message
+        // Close the modal
         setShowDisputeModal(false);
-        alert('Order has been marked as disputed. Our support team will review your case.');
+        setDisputeReason('');
+        
+        // Display success message
+        alert('Your dispute has been submitted. Our team will review it shortly.');
       }
     } catch (err) {
-      console.error('Error disputing order:', err);
-      alert('Failed to dispute order: ' + (err.response?.data?.message || 'Unknown error'));
+      console.error('Error submitting dispute:', err);
+      alert(`Failed to submit dispute: ${err.response?.data?.message || 'Unknown error'}`);
     } finally {
       setSubmittingDispute(false);
     }
   };
-
+  
   const handleGiveFeedback = () => {
-    // Open the feedback modal instead of navigating
     setShowFeedbackModal(true);
   };
   
@@ -237,38 +201,35 @@ function OrderDetails() {
   };
   
   const handleSubmitFeedback = async () => {
-    // Validate input
     if (!feedbackType) {
-      alert('Please select a feedback type (Positive or Negative)');
+      alert("Please select whether your experience was positive or negative.");
       return;
     }
     
     try {
       setSubmittingFeedback(true);
       
-      const response = await axios.post(
-        `http://localhost:3003/orders/${orderData.id}/feedback`,
-        {
-          review: feedbackType,
-          reviewMessage: feedbackMessage
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
+      const feedbackData = {
+        review: feedbackType.toLowerCase(),
+        reviewMessage: feedbackMessage
+      };
+      
+      const response = await orderApi.submitFeedback(orderData.id, feedbackData);
       
       if (response.data.status === 'success') {
-        // Update local order data with the feedback
+        // Update local state with feedback
         setOrderData(prev => ({
           ...prev,
-          review: feedbackType,
+          review: feedbackType.toLowerCase(),
           reviewMessage: feedbackMessage
         }));
         
-        // Close the modal and show success message
+        // Close the modal
         setShowFeedbackModal(false);
+        setFeedbackType(null);
+        setFeedbackMessage('');
+        
+        // Show success message
         alert('Thank you for your feedback!');
       }
     } catch (err) {
@@ -278,7 +239,7 @@ function OrderDetails() {
       setSubmittingFeedback(false);
     }
   };
-  
+
   if (loading) {
     return (
       <div className={styles['loader-container']}>

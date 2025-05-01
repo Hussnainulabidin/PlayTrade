@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom"
 import { Search, ExternalLink, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react"
 import PropTypes from "prop-types"
-import axios from "axios"
+import { orderApi } from "../../api"
 import "./common/Common.css"
 import "./common/TableStyles.css"
 
@@ -38,24 +38,9 @@ export function SellerOrders({ sellerId: propSellerId }) {
       try {
         setLoading(true)
         
-        // Get the auth token (try different storage methods)
-        let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
-        
-        // Remove quotes if they exist
-        if (token && token.startsWith('"') && token.endsWith('"')) {
-          token = token.slice(1, -1)
-        }
-        
         const currentPage = getPageFromUrl();
         
-        const response = await axios.get(
-          `http://localhost:3003/orders/seller/${sellerId}?page=${currentPage}&limit=12`,
-          {
-            headers: {
-              Authorization: token ? `Bearer ${token}` : undefined
-            }
-          }
-        )
+        const response = await orderApi.getOrdersBySellerId(sellerId, currentPage, 12);
         
         if (response.data.status === 'success') {
           setOrders(response.data.data)
@@ -119,23 +104,8 @@ export function SellerOrders({ sellerId: propSellerId }) {
 
     try {
       setRefunding(true);
-      // Get auth token
-      let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token');
       
-      // Remove quotes if they exist
-      if (token && token.startsWith('"') && token.endsWith('"')) {
-        token = token.slice(1, -1);
-      }
-      
-      const response = await axios.post(
-        `http://localhost:3003/orders/${orderId}/refund`,
-        {},
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : undefined
-          }
-        }
-      );
+      const response = await orderApi.refundOrder(orderId);
       
       if (response.data.status === 'success') {
         // Update the order status in the UI

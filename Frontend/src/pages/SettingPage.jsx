@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useUser } from '../components/userContext/UserContext';
-import axios from 'axios';
+import { userApi } from '../api';
 import './SettingPage.css';
 
 const SettingPage = () => {
@@ -91,12 +91,7 @@ const SettingPage = () => {
         formData.append('profilePicture', file);
       }
       
-      const response = await axios.post('http://localhost:3003/users/profile-picture', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await userApi.updateProfilePicture(formData);
       
       if (response.data.success) {
         updateUser({ ...user, profilePicture: response.data.profilePicture });
@@ -122,13 +117,9 @@ const SettingPage = () => {
     
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:3003/users/update-password', {
+      const response = await userApi.updatePassword({
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword
-      }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
       });
       
       if (response.data.status === "success") {
@@ -153,12 +144,8 @@ const SettingPage = () => {
   const handleTwoFactorToggle = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:3003/users/toggle-2fa', {
+      const response = await userApi.toggle2FA({
         enabled: !formData.twoFactorEnabled
-      }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
       });
       
       if (response.data.success) {
@@ -181,11 +168,7 @@ const SettingPage = () => {
   const handleLogoutAllDevices = async () => {
     try {
       setLoggingOut(true);
-      const response = await axios.post('http://localhost:3003/users/logout-all', {}, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await userApi.logoutAll();
       
       if (response.data.success) {
         setSuccess('Logged out from all devices. You will be redirected to login page shortly.');
@@ -206,33 +189,25 @@ const SettingPage = () => {
     try {
       setIsLoading(true);
       
-      // Create updated notification preferences
+      // Create a new preferences object with the toggled value
       const updatedPrefs = {
         ...notificationPrefs,
         [name]: !notificationPrefs[name]
       };
       
-      // API call to update notification preferences
-      const response = await axios.post('http://localhost:3003/users/update-notification-prefs', {
-        preferences: updatedPrefs
-      }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await userApi.updateNotificationPreferences(updatedPrefs);
       
       if (response.data.success) {
         // Update local state
         setNotificationPrefs(updatedPrefs);
         
-        // Update user context with the new preferences
-        updateUser({ 
-          ...user, 
-          notificationPreferences: response.data.data.notificationPreferences 
+        // Update user context
+        updateUser({
+          ...user,
+          notificationPreferences: updatedPrefs
         });
         
-        // Show success message
-        setSuccess(`${name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} notifications ${updatedPrefs[name] ? 'enabled' : 'disabled'}`);
+        setSuccess('Notification preferences updated');
         setTimeout(() => setSuccess(null), 3000);
       }
     } catch (err) {
