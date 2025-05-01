@@ -3,9 +3,8 @@
     flex-direction: column;
     border: 1px solid #30363d;
     border-radius: 8px;
-    overflow: hidden;
-    height: 600px;
-    /* Fixed height for the table container */
+    overflow: visible;
+    /* Allow content to expand */
 }
 
 .pt-table__header {
@@ -17,36 +16,13 @@
     color: #8b949e;
     border-bottom: 1px solid #30363d;
     align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 1;
 }
 
 .pt-table__body {
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    /* Enable vertical scrolling */
     flex: 1;
     /* Take up remaining space */
-}
-
-/* Custom Scrollbar Styles */
-.pt-table__body::-webkit-scrollbar {
-    width: 8px;
-}
-
-.pt-table__body::-webkit-scrollbar-track {
-    background: #161b22;
-}
-
-.pt-table__body::-webkit-scrollbar-thumb {
-    background: #30363d;
-    border-radius: 4px;
-}
-
-.pt-table__body::-webkit-scrollbar-thumb:hover {
-    background: #8b949e;
 }
 
 .pt-cell--checkbox {
