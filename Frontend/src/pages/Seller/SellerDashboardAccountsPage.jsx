@@ -17,7 +17,7 @@ const SellerDashboardAccountsPage = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [currentPage, setCurrentPage] = useState(1)
-    const [rowsPerPage, setRowsPerPage] = useState(10)
+    const [rowsPerPage, setRowsPerPage] = useState(15)
     const [totalRows, setTotalRows] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
     const [searchQuery, setSearchQuery] = useState("")
@@ -177,7 +177,7 @@ const SellerDashboardAccountsPage = () => {
                     totalRows={totalRows}
                     onPageChange={handlePageChange}
                     onRowsPerPageChange={handleRowsPerPageChange}
-                    rowsPerPageOptions={[5, 10, 15, 25]}
+                    rowsPerPageOptions={[10, 15, 25, 50]}
                 />
             </div>
         </div>

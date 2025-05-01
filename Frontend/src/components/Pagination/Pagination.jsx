@@ -2,21 +2,20 @@
 import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from "lucide-react"
 import "./Pagination.css"
 
-const Pagination = ({ currentPage, totalPages, rowsPerPage, totalRows, onPageChange, onRowsPerPageChange }) => {
+const Pagination = ({ currentPage, totalPages, rowsPerPage, totalRows, onPageChange, onRowsPerPageChange, rowsPerPageOptions = [10, 15, 25, 50] }) => {
     return (
         <div className="pagination">
             <div className="rows-per-page">
                 <span>Rows per page</span>
                 <select value={rowsPerPage} onChange={(e) => onRowsPerPageChange(Number(e.target.value))}>
-                    <option value={10}>10</option>
-                    <option value={15}>15</option>
-                    <option value={25}>25</option>
-                    <option value={50}>50</option>
+                    {rowsPerPageOptions.map(option => (
+                        <option key={option} value={option}>{option}</option>
+                    ))}
                 </select>
             </div>
 
             <div className="pagination-info">
-                {totalRows} rows - Page {currentPage} to {totalPages}
+                {totalRows} rows - Page {currentPage} of {totalPages}
             </div>
 
             <div className="pagination-controls">
@@ -56,14 +55,14 @@ const Pagination = ({ currentPage, totalPages, rowsPerPage, totalRows, onPageCha
                 <button
                     className="pagination-btn"
                     onClick={() => onPageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
+                    disabled={currentPage === totalPages || totalPages === 0}
                 >
                     <ChevronRight size={16} />
                 </button>
                 <button
                     className="pagination-btn"
                     onClick={() => onPageChange(totalPages)}
-                    disabled={currentPage === totalPages}
+                    disabled={currentPage === totalPages || totalPages === 0}
                 >
                     <ChevronLast size={16} />
                 </button>
