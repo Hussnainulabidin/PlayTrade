@@ -814,31 +814,31 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
     if (!isOpen) return null
 
     return (
-        <div className="modal-overlay">
-            <div className="modal-container">
-                <div className="modal-header">
+        <div className="acm-modal-overlay">
+            <div className="acm-modal-container">
+                <div className="acm-modal-header">
                     <h2>{isEditMode ? "Edit Account" : "Add new Account"}</h2>
-                    <button className="close-button" onClick={onClose}>
+                    <button className="acm-close-button" onClick={onClose}>
                         <X size={20} />
                     </button>
                 </div>
 
-                <div className="modal-steps">
-                    <div className={`step ${currentStep === 1 ? "active" : currentStep > 1 ? "completed" : ""}`}>
-                        <div className="step-number">1</div>
-                        <div className="step-label">Listing Info</div>
+                <div className="acm-modal-steps">
+                    <div className={`acm-step ${currentStep === 1 ? "active" : currentStep > 1 ? "completed" : ""}`}>
+                        <div className="acm-step-number">1</div>
+                        <div className="acm-step-label">Listing Info</div>
                     </div>
-                    <div className={`step ${currentStep === 2 ? "active" : currentStep > 2 ? "completed" : ""}`}>
-                        <div className="step-number">2</div>
-                        <div className="step-label">Game Data</div>
+                    <div className={`acm-step ${currentStep === 2 ? "active" : currentStep > 2 ? "completed" : ""}`}>
+                        <div className="acm-step-number">2</div>
+                        <div className="acm-step-label">Game Data</div>
                     </div>
-                    <div className={`step ${currentStep === 3 ? "active" : ""}`}>
-                        <div className="step-number">3</div>
-                        <div className="step-label">Credentials</div>
+                    <div className={`acm-step ${currentStep === 3 ? "active" : ""}`}>
+                        <div className="acm-step-number">3</div>
+                        <div className="acm-step-label">Credentials</div>
                     </div>
                 </div>
 
-                <div className="modal-content">
+                <div className="acm-modal-content">
                     {currentStep === 1 && (
                         <Step1ListingInfo
                             formData={formData}
@@ -897,28 +897,28 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                     )}
 
                     {submitError && (
-                        <div className="error-message">{submitError}</div>
+                        <div className="acm-error-message">{submitError}</div>
                     )}
                 </div>
 
-                <div className="modal-footer">
+                <div className="acm-modal-footer">
                     {currentStep > 1 ? (
-                        <button className="btn btn-secondary" onClick={prevStep} disabled={isSubmitting}>
+                        <button className="acm-btn acm-btn-secondary" onClick={prevStep} disabled={isSubmitting}>
                             ← Previous
                         </button>
                     ) : (
-                        <button className="btn btn-secondary" onClick={onClose} disabled={isSubmitting}>
+                        <button className="acm-btn acm-btn-secondary" onClick={onClose} disabled={isSubmitting}>
                             Cancel
                         </button>
                     )}
 
                     {currentStep < 3 ? (
-                        <button className="btn btn-primary" onClick={nextStep}>
+                        <button className="acm-btn acm-btn-primary" onClick={nextStep}>
                             Continue →
                         </button>
                     ) : (
                         <button
-                            className="btn btn-primary"
+                            className="acm-btn acm-btn-primary"
                             onClick={handleSubmit}
                             disabled={isSubmitting}
                         >

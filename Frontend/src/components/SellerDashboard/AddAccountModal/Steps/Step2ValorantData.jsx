@@ -17,15 +17,15 @@ const Step2ValorantData = ({ formData, handleChange, errors }) => {
     const serverOptions = ["Europe", "North America", "Asia Pasific", "Brazil", "Latin America"]
 
     return (
-        <div className="step-content">
-            <div className="form-group">
-                <label className="form-label" htmlFor="server">
+        <div className="acm-step-content">
+            <div className="acm-form-group">
+                <label className="acm-form-label" htmlFor="server">
                     Server
                 </label>
                 <select
                     id="server"
                     name="server"
-                    className={`form-select ${errors.server ? "error" : ""}`}
+                    className={`acm-form-select ${errors.server ? "error" : ""}`}
                     value={formData.server}
                     onChange={handleChange}
                 >
@@ -36,19 +36,19 @@ const Step2ValorantData = ({ formData, handleChange, errors }) => {
                         </option>
                     ))}
                 </select>
-                {errors.server && <div className="form-error">{errors.server}</div>}
+                {errors.server && <div className="acm-form-error">{errors.server}</div>}
             </div>
 
-            <div className="form-row">
-                <div className="form-col">
-                    <div className="form-group">
-                        <label className="form-label" htmlFor="current_rank">
+            <div className="acm-form-row">
+                <div className="acm-form-col">
+                    <div className="acm-form-group">
+                        <label className="acm-form-label" htmlFor="current_rank">
                             Current Rank
                         </label>
                         <select
                             id="current_rank"
                             name="current_rank"
-                            className="form-select"
+                            className="acm-form-select"
                             value={formData.current_rank}
                             onChange={handleChange}
                         >
@@ -60,16 +60,16 @@ const Step2ValorantData = ({ formData, handleChange, errors }) => {
                         </select>
                     </div>
                 </div>
-                <div className="form-col">
-                    <div className="form-group">
-                        <label className="form-label" htmlFor="level">
+                <div className="acm-form-col">
+                    <div className="acm-form-group">
+                        <label className="acm-form-label" htmlFor="level">
                             Account Level
                         </label>
                         <input
                             type="number"
                             id="level"
                             name="level"
-                            className="form-input"
+                            className="acm-form-input"
                             value={formData.level}
                             onChange={handleChange}
                             min="1"
@@ -78,33 +78,33 @@ const Step2ValorantData = ({ formData, handleChange, errors }) => {
                 </div>
             </div>
 
-            <div className="form-row">
-                <div className="form-col">
-                    <div className="form-group">
-                        <label className="form-label" htmlFor="valorant_points">
+            <div className="acm-form-row">
+                <div className="acm-form-col">
+                    <div className="acm-form-group">
+                        <label className="acm-form-label" htmlFor="valorant_points">
                             Valorant Points
                         </label>
                         <input
                             type="number"
                             id="valorant_points"
                             name="valorant_points"
-                            className="form-input"
+                            className="acm-form-input"
                             value={formData.valorant_points}
                             onChange={handleChange}
                             min="0"
                         />
                     </div>
                 </div>
-                <div className="form-col">
-                    <div className="form-group">
-                        <label className="form-label" htmlFor="radianite_points">
+                <div className="acm-form-col">
+                    <div className="acm-form-group">
+                        <label className="acm-form-label" htmlFor="radianite_points">
                             Radianite Points
                         </label>
                         <input
                             type="number"
                             id="radianite_points"
                             name="radianite_points"
-                            className="form-input"
+                            className="acm-form-input"
                             value={formData.radianite_points}
                             onChange={handleChange}
                             min="0"

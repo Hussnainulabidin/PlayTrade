@@ -1,11 +1,11 @@
-.selected-files {
+.acm-selected-files {
     display: flex;
     gap: 8px;
     margin-top: 8px;
     flex-wrap: wrap;
 }
 
-.selected-file {
+.acm-selected-file {
     position: relative;
     width: 80px;
     height: 80px;
@@ -14,13 +14,13 @@
     border: 1px solid #2a2438;
 }
 
-.file-preview {
+.acm-file-preview {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.remove-file {
+.acm-remove-file {
     position: absolute;
     top: 4px;
     right: 4px;
@@ -38,16 +38,16 @@
     transition: all 0.2s;
 }
 
-.remove-file:hover {
+.acm-remove-file:hover {
     background: rgba(220, 38, 38, 0.9);
 }
 
-.file-upload {
-    border: 1px dashed #2a2438;
+.acm-file-upload {
+    border: 1px dashed #30363d;
     border-radius: 6px;
     padding: 16px;
     text-align: center;
-    background-color: #1a172b;
+    background-color: #1a1d23;
     transition: all 0.2s;
     min-height: 80px;
     display: flex;
@@ -57,76 +57,119 @@
     gap: 8px;
 }
 
-.file-upload:hover {
+.acm-file-upload:hover {
     border-color: #8957e5;
-    background-color: #2a2438;
+    background-color: #21262d;
 }
 
-.file-upload-icon {
+.acm-file-upload-icon {
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0;
 }
 
-.file-upload-text {
+.acm-file-upload-text {
     color: #8b949e;
     font-size: 13px;
     margin: 0;
 }
 
-.form-hint {
+.acm-form-hint {
     color: #8b949e;
     font-size: 12px;
     margin-left: 4px;
 }
 
-.form-error {
-    color: #dc2626;
+.acm-form-error {
+    color: #f85149;
     font-size: 12px;
     margin-top: 4px;
 }
 
-.form-group {
+.acm-form-group {
     margin-bottom: 16px;
 }
 
-.form-label {
+.acm-form-label {
     display: flex;
     align-items: center;
-    color: #e5e7eb;
+    color: #c9d1d9;
     font-size: 14px;
+    font-weight: 500;
     margin-bottom: 8px;
 }
 
-/* Scrollbar Styles */
-.step-content {
-    max-height: 80vh;
-    overflow-y: auto;
+/* Form Inputs - using the modal's styles */
+.acm-form-input,
+.acm-form-select,
+.acm-form-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background-color: #1a1d23;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    font-size: 14px;
+    transition: border-color 0.2s;
 }
 
-.step-content::-webkit-scrollbar {
+.acm-form-input:hover,
+.acm-form-select:hover,
+.acm-form-textarea:hover {
+    border-color: #484f58;
+}
+
+.acm-form-input:focus,
+.acm-form-select:focus,
+.acm-form-textarea:focus {
+    outline: none;
+    border-color: #8957e5;
+    box-shadow: 0 0 0 2px rgba(137, 87, 229, 0.2);
+}
+
+.acm-form-input.error {
+    border-color: #f85149;
+}
+
+.acm-form-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Scrollbar Styles */
+.acm-step-content {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 16px;
+    background-color: #0d1117;
+    border-radius: 8px;
+    border: 1px solid #30363d;
+    margin-bottom: 8px;
+}
+
+.acm-step-content::-webkit-scrollbar {
     width: 8px;
 }
 
-.step-content::-webkit-scrollbar-track {
-    background: #2a2438;
+.acm-step-content::-webkit-scrollbar-track {
+    background: #161b22;
     border-radius: 4px;
 }
 
-.step-content::-webkit-scrollbar-thumb {
-    background: #3a3448;
+.acm-step-content::-webkit-scrollbar-thumb {
+    background: #30363d;
     border-radius: 4px;
 }
 
-.step-content::-webkit-scrollbar-thumb:hover {
-    background: #4a4458;
+.acm-step-content::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
 }
 
 /* For Firefox */
-.step-content {
+.acm-step-content {
     scrollbar-width: thin;
-    scrollbar-color: #3a3448 #2a2438;
+    scrollbar-color: #30363d #161b22;
 }
 
 /* Remove increment/decrement buttons from number inputs */
