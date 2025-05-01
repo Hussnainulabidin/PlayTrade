@@ -1,23 +1,27 @@
 /* Common Table Styles for Admin Dashboard */
 
-.table-container, .listings-table {
+.table-container,
+.listings-table {
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: #3a3651 #1f1b31;
   width: 100%;
 }
 
-.table-container::-webkit-scrollbar, .listings-table::-webkit-scrollbar {
+.table-container::-webkit-scrollbar,
+.listings-table::-webkit-scrollbar {
   height: 8px;
   width: 8px;
 }
 
-.table-container::-webkit-scrollbar-track, .listings-table::-webkit-scrollbar-track {
+.table-container::-webkit-scrollbar-track,
+.listings-table::-webkit-scrollbar-track {
   background: #1f1b31;
   border-radius: 4px;
 }
 
-.table-container::-webkit-scrollbar-thumb, .listings-table::-webkit-scrollbar-thumb {
+.table-container::-webkit-scrollbar-thumb,
+.listings-table::-webkit-scrollbar-thumb {
   background: #3a3651;
   border-radius: 4px;
 }
@@ -63,7 +67,8 @@
   white-space: nowrap;
 }
 
-.order-id, .listing-id {
+.order-id,
+.listing-id {
   font-weight: 500;
 }
 
@@ -96,7 +101,8 @@
   letter-spacing: 0.02em;
 }
 
-.badge-completed, .badge-listed {
+.badge-completed,
+.badge-listed {
   background-color: rgba(16, 185, 129, 0.15);
   color: #10b981;
 }
@@ -181,11 +187,13 @@
   background-color: #2e2a4a;
 }
 
-.dropdown-item-danger, .delete-item {
+.dropdown-item-danger,
+.delete-item {
   color: #ef4444;
 }
 
-.dropdown-item-danger:hover, .delete-item:hover {
+.dropdown-item-danger:hover,
+.delete-item:hover {
   background-color: rgba(239, 68, 68, 0.1);
 }
 
@@ -234,7 +242,8 @@
   font-size: 14px;
 }
 
-.no-orders-message, .no-listings-message {
+.no-orders-message,
+.no-listings-message {
   color: #9ca3af;
   font-style: italic;
   padding: 24px;
@@ -253,7 +262,8 @@
 }
 
 .dispute-reason:hover {
-  color: #9061f9; /* Purple text color on hover */
+  color: #9061f9;
+  /* Purple text color on hover */
 }
 
 /* Define the fade-in animation */
@@ -262,6 +272,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -295,14 +306,16 @@
   background: #1a172b;
   padding: 12px 16px;
   border-radius: 6px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(124, 58, 237, 0.1); /* Added purple glow */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(124, 58, 237, 0.1);
+  /* Added purple glow */
   white-space: normal;
   width: 300px;
   max-width: min(300px, 100vw - 40px);
   color: #e5e7eb;
   animation: tooltip-fade-in 0.2s ease-out;
   border: 1px solid #3a3448;
-  border-top: 2px solid #7c3aed; /* Purple top border accent */
+  border-top: 2px solid #7c3aed;
+  /* Purple top border accent */
   font-size: 13px;
   line-height: 1.5;
   font-weight: 400;
@@ -317,4 +330,4 @@
 
 .table-cell[title]:not([title=""]):hover {
   border-bottom-color: #7c3aed;
-} 
+}

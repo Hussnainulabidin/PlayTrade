@@ -1,4 +1,4 @@
-.accounts-table-seller {
+.pt-accounts-table {
     display: flex;
     flex-direction: column;
     border: 1px solid #30363d;
@@ -8,7 +8,7 @@
     /* Fixed height for the table container */
 }
 
-.table-header-seller {
+.pt-table__header {
     display: flex;
     background-color: #161b22;
     padding: 12px 16px;
@@ -22,7 +22,7 @@
     z-index: 1;
 }
 
-.table-body-seller {
+.pt-table__body {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -32,48 +32,48 @@
 }
 
 /* Custom Scrollbar Styles */
-.table-body-seller::-webkit-scrollbar {
+.pt-table__body::-webkit-scrollbar {
     width: 8px;
 }
 
-.table-body-seller::-webkit-scrollbar-track {
+.pt-table__body::-webkit-scrollbar-track {
     background: #161b22;
 }
 
-.table-body-seller::-webkit-scrollbar-thumb {
+.pt-table__body::-webkit-scrollbar-thumb {
     background: #30363d;
     border-radius: 4px;
 }
 
-.table-body-seller::-webkit-scrollbar-thumb:hover {
+.pt-table__body::-webkit-scrollbar-thumb:hover {
     background: #8b949e;
 }
 
-.checkbox-cell {
+.pt-cell--checkbox {
     flex: 0 0 30px;
     display: flex;
     align-items: center;
 }
 
-.title-cell {
+.pt-cell--title {
     flex: 3;
     padding-right: 16px;
     min-width: 300px;
 }
 
-.account-id-cell {
+.pt-cell--account-id {
     flex: 1;
     padding-right: 16px;
     min-width: 120px;
 }
 
-.credentials-cell {
+.pt-cell--credentials {
     flex: 2;
     padding-right: 16px;
     min-width: 200px;
 }
 
-.status-cell {
+.pt-cell--status {
     flex: 0 0 100px;
     display: flex;
     justify-content: center;
@@ -81,7 +81,7 @@
     text-align: center;
 }
 
-.views-cell {
+.pt-cell--views {
     flex: 0 0 80px;
     text-align: center;
     display: flex;
@@ -89,7 +89,7 @@
     align-items: center;
 }
 
-.price-cell {
+.pt-cell--price {
     flex: 0 0 100px;
     text-align: right;
     padding-right: 16px;
@@ -98,12 +98,12 @@
     align-items: center;
 }
 
-.rating-cell {
+.pt-cell--rating {
     flex: 0.5;
     text-align: center;
 }
 
-.last-updated-cell {
+.pt-cell--last-updated {
     flex: 1;
     text-align: right;
     padding-right: 16px;
@@ -113,14 +113,14 @@
     align-items: center;
 }
 
-.actions-cell {
+.pt-cell--actions {
     flex: 0 0 40px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.no-accounts {
+.pt-table__empty {
     padding: 24px;
     text-align: center;
     color: #8b949e;
@@ -128,7 +128,7 @@
 }
 
 /* Pill Style for STATUS column */
-.status-pill {
+.pt-status {
     padding: 4px 10px;
     font-size: 13px;
     font-weight: 600;
@@ -139,24 +139,24 @@
     text-align: center;
 }
 
-.status-listed {
+.pt-status--listed {
     background-color: transparent;
     border: 1px solid #1f6feb;
     color: #1f6feb;
 }
 
-.status-sold {
+.pt-status--sold {
     background-color: #3fb950;
     color: #3fb950;
 }
 
-.status-draft {
+.pt-status--draft {
     background-color: transparent;
     border: 1px solid #38413a;
     color: #38413a;
 }
 
-.status-active {
+.pt-status--active {
     background-color: transparent;
     border: 1px solid #8957e5;
     color: #8957e5;

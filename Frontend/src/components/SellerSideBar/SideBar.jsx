@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import {
     Package,
     LayoutDashboard,
@@ -13,54 +13,58 @@ import {
     Ticket,
     LogOut,
 } from "lucide-react"
-import "./SideBar.css"
+import "./SellerSideBar.css"
+import AuthService from "../AuthService/AuthService"
 
 import { FiMessageSquare } from 'react-icons/fi';
 
 const Sidebar = () => {
     const location = useLocation()
+    const navigate = useNavigate()
 
     const isActive = (path) => {
         return location.pathname.includes(path)
     }
 
     const handleLogout = () => {
-        // Add your logout logic here
-        console.log('Logging out...')
+        // Perform logout
+        AuthService.logout()
+        // Redirect to home page
+        navigate('/')
     }
 
     return (
-        <div className="sidebar">
-            <div className="logo-container">
-                <div className="logo">
+        <div className="pt-sidebar">
+            <div className="pt-sidebar__logo-container">
+                <div className="pt-sidebar__logo">
                     <Package size={24} color="#fff" />
                 </div>
-                <div className="logo-text">Offers</div>
+                <div className="pt-sidebar__logo-text">Offers</div>
             </div>
 
-            <nav className="sidebar-nav">
-                <Link to="/seller/dashboard/accounts" className={`nav-item ${isActive("/accounts") ? "active" : ""}`}>
+            <nav className="pt-sidebar__nav">
+                <Link to="/seller/dashboard/accounts" className={`pt-sidebar__nav-item ${isActive("/accounts") ? "pt-sidebar__nav-item--active" : ""}`}>
                     <LayoutDashboard size={18} />
                     <span>Accounts</span>
                 </Link>
-                <Link to="/seller-dashboard/chats" className={`nav-item ${isActive("/chats") ? "active" : ""}`}>
+                <Link to="/seller-dashboard/chats" className={`pt-sidebar__nav-item ${isActive("/chats") ? "pt-sidebar__nav-item--active" : ""}`}>
                     <FiMessageSquare size={18} />
                     <span>Chats</span>
                 </Link>
-                <Link to="/seller-dashboard/tickets" className={`nav-item ${isActive("/item-orders") ? "active" : ""}`}>
+                <Link to="/seller-dashboard/tickets" className={`pt-sidebar__nav-item ${isActive("/item-orders") ? "pt-sidebar__nav-item--active" : ""}`}>
                     <Ticket size={18} />
                     <span>Tickets</span>
                 </Link>
                 <Link
                     to="/seller-dashboard/settings"
-                    className={`nav-item ${isActive("/settings") ? "active" : ""}`}>
+                    className={`pt-sidebar__nav-item ${isActive("/settings") ? "pt-sidebar__nav-item--active" : ""}`}>
                     <Settings size={18} />
                     <span>Settings</span>
                 </Link>
             </nav>
 
-            <div className="logout-container">
-                <button onClick={handleLogout} className="logout-button">
+            <div className="pt-sidebar__logout-container">
+                <button onClick={handleLogout} className="pt-sidebar__logout-button">
                     <LogOut size={18} />
                     <span>Logout</span>
                 </button>

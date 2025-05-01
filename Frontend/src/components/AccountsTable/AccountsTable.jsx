@@ -1,28 +1,28 @@
 import AccountItem from "../AccountItem/AccountItem"
-import "./AccountsTable.css"
+import "./SellerAccountsTable.css"
 
 const AccountsTable = ({ accounts }) => {
     return (
-        <div className="accounts-table-seller">
-            <div className="table-header-seller">
-                <div className="checkbox-cell">
+        <div className="pt-accounts-table">
+            <div className="pt-table__header">
+                <div className="pt-cell--checkbox">
                     <input type="checkbox" />
                 </div>
-                <div className="title-cell">TITLE</div>
-                <div className="account-id-cell">ACCOUNT ID</div>
-                <div className="credentials-cell">CREDENTIALS</div>
-                <div className="status-cell">STATUS</div>
-                <div className="views-cell">VIEWS</div>
-                <div className="price-cell">PRICE</div>
-                <div className="last-updated-cell">LAST UPDATED</div>
-                <div className="actions-cell"></div>
+                <div className="pt-cell--title">TITLE</div>
+                <div className="pt-cell--account-id">ACCOUNT ID</div>
+                <div className="pt-cell--credentials">CREDENTIALS</div>
+                <div className="pt-cell--status">STATUS</div>
+                <div className="pt-cell--views">VIEWS</div>
+                <div className="pt-cell--price">PRICE</div>
+                <div className="pt-cell--last-updated">LAST UPDATED</div>
+                <div className="pt-cell--actions"></div>
             </div>
 
-            <div className="table-body-seller">
+            <div className="pt-table__body">
                 {accounts.length > 0 ? (
                     accounts.map((account) => <AccountItem key={account._id} account={account} />)
                 ) : (
-                    <div className="no-accounts">No accounts found</div>
+                    <div className="pt-table__empty">No accounts found</div>
                 )}
 
             </div>

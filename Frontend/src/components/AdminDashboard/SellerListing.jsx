@@ -38,13 +38,13 @@ export function SellerListings() {
       try {
         setLoading(true)
         const currentPage = getPageFromUrl();
-        
+
         // Make API request with proper error handling
         try {
           const response = await gameAccountApi.getSellerAccounts(id, currentPage, 12);
-          
+
           console.log('API Response:', response.data)
-          
+
           if (response.data.status === 'success') {
             const accountsData = response.data.data.gameAccounts.map(account => ({
               id: account._id,
@@ -55,7 +55,7 @@ export function SellerListings() {
               views: 0,
               createdDate: account.createdAt,
             }))
-            
+
             setListings(accountsData)
             setPagination({
               currentPage: response.data.currentPage || 1,
@@ -73,26 +73,26 @@ export function SellerListings() {
         setLoading(false)
       }
     }
-    
+
     fetchSellerAccounts()
   }, [id, location.search])
 
   const handleStatusUpdate = async (accountId, gameType, status) => {
     try {
       setUpdating(true)
-      
+
       const response = await gameAccountApi.updateStatus(accountId, status);
-      
+
       if (response.data.status === 'success') {
         // Update listings state with the new status
-        setListings(prevListings => 
-          prevListings.map(listing => 
-            listing.id === accountId 
+        setListings(prevListings =>
+          prevListings.map(listing =>
+            listing.id === accountId
               ? { ...listing, status }
               : listing
           )
         )
-        
+
         // Close dropdown
         setActiveDropdownId(null)
       }
@@ -109,18 +109,18 @@ export function SellerListings() {
     if (!window.confirm(`Are you sure you want to delete this listing? This action cannot be undone.`)) {
       return;
     }
-    
+
     try {
       setDeleting(true)
-      
+
       const response = await gameAccountApi[gameType.toLowerCase()].deleteAccount(accountId, gameType.toLowerCase());
-      
+
       if (response.data.status === 'success') {
         // Remove the deleted listing from state
-        setListings(prevListings => 
+        setListings(prevListings =>
           prevListings.filter(listing => listing.id !== accountId)
         )
-        
+
         // Close dropdown
         setActiveDropdownId(null)
       }
@@ -156,15 +156,15 @@ export function SellerListings() {
     event.stopPropagation()
     const button = event.currentTarget
     const rect = button.getBoundingClientRect()
-    
+
     // Calculate position relative to viewport
     const left = rect.left - 120 // Position dropdown to the left of the button
-    
+
     setDropdownPosition({
       top: rect.bottom + window.scrollY,
       left: Math.max(10, left) // Ensure dropdown doesn't go off-screen to the left
     })
-    
+
     setActiveDropdownId(activeDropdownId === listingId ? null : listingId)
   }
 
@@ -185,8 +185,8 @@ export function SellerListings() {
     <div className="listings-container">
       <div className="listings-header">
         <h1 className="listings-title">Listings for Seller: {id}</h1>
-        <Link 
-          to={`/admindashboard/sellers/${id}`} 
+        <Link
+          to={`/admindashboard/sellers/${id}`}
           className="back-button"
         >
           Back to Seller
@@ -240,15 +240,14 @@ export function SellerListings() {
                     </td>
                     <td className="table-cell">{listing.game}</td>
                     <td className="table-cell">
-                      <span className={`status-badge ${
-                        listing.status === "active"
+                      <span className={`status-badge ${listing.status === "active"
                           ? "badge-listed"
                           : listing.status === "draft"
                             ? "badge-draft"
                             : listing.status === "sold"
                               ? "badge-sold"
                               : "badge-other"
-                      }`}>
+                        }`}>
                         {listing.status.charAt(0).toUpperCase() + listing.status.slice(1)}
                       </span>
                     </td>
@@ -258,7 +257,7 @@ export function SellerListings() {
                       <button className="action-icon-button">
                         <Edit className="action-icon" size={18} />
                       </button>
-                      <button 
+                      <button
                         className="action-icon-button"
                         onClick={(e) => handleDropdownClick(listing.id, e)}
                       >
@@ -270,10 +269,10 @@ export function SellerListings() {
               </tbody>
             </table>
           </div>
-          
+
           {pagination.totalPages > 1 && (
             <div className="pagination-container">
-              <button 
+              <button
                 className="pagination-button"
                 onClick={() => handlePageChange(pagination.currentPage - 1)}
                 disabled={pagination.currentPage === 1}
@@ -283,7 +282,7 @@ export function SellerListings() {
               <span className="pagination-info">
                 Page {pagination.currentPage} of {pagination.totalPages}
               </span>
-              <button 
+              <button
                 className="pagination-button"
                 onClick={() => handlePageChange(pagination.currentPage + 1)}
                 disabled={pagination.currentPage === pagination.totalPages}
@@ -307,7 +306,7 @@ export function SellerListings() {
         >
           <div className="dropdown-menu">
             <button className="dropdown-item">View Listing</button>
-            <button 
+            <button
               className="dropdown-item"
               onClick={() => {
                 const listing = listings.find(item => item.id === activeDropdownId);
@@ -319,7 +318,7 @@ export function SellerListings() {
             >
               {updating ? "Updating..." : "Set to Draft"}
             </button>
-            <button 
+            <button
               className="dropdown-item delete-item"
               onClick={() => {
                 const listing = listings.find(item => item.id === activeDropdownId);

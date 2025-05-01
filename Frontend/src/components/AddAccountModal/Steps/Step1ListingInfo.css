@@ -58,7 +58,7 @@
 }
 
 .file-upload:hover {
-    border-color: #7c3aed;
+    border-color: #8957e5;
     background-color: #2a2438;
 }
 
@@ -127,4 +127,15 @@
 .step-content {
     scrollbar-width: thin;
     scrollbar-color: #3a3448 #2a2438;
+}
+
+/* Remove increment/decrement buttons from number inputs */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
 }

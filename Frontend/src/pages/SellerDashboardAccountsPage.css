@@ -68,3 +68,13 @@
 .accounts-container> :not(:last-child) {
     margin-bottom: 16px;
 }
+
+/* Specific pagination styling for SellerDashboardAccountsPage */
+.seller-dashboard-accounts-page .pagination-page.active {
+    background-color: #8957e5;
+    border-color: #8957e5;
+}
+
+.seller-dashboard-accounts-page .pagination-page:hover {
+    background-color: #8957e575;
+}

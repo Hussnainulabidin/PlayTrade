@@ -84,7 +84,7 @@
 
 .step.active:not(:last-child)::after,
 .step.completed:not(:last-child)::after {
-    background-color: #1f6feb;
+    background-color: #8957e5;
 }
 
 .step-number {
@@ -103,12 +103,12 @@
 }
 
 .step.active .step-number {
-    background-color: #1f6feb;
+    background-color: #8957e5;
     color: #fff;
 }
 
 .step.completed .step-number {
-    background-color: #1f6feb;
+    background-color: #8957e5;
     color: #fff;
 }
 
@@ -122,7 +122,7 @@
 }
 
 .step.completed .step-label {
-    color: #1f6feb;
+    color: #8957e5;
 }
 
 .modal-content {
@@ -130,6 +130,36 @@
     overflow-y: auto;
     flex: 1;
     min-height: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #3a3448 #2a2438;
+}
+
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #2a2438;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #3a3448;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #4a4458;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
 }
 
 .modal-footer {
@@ -186,8 +216,8 @@
 .form-select:focus,
 .form-textarea:focus {
     outline: none;
-    border-color: #1f6feb;
-    box-shadow: 0 0 0 2px rgba(31, 111, 235, 0.2);
+    border-color: #8957e5;
+    box-shadow: 0 0 0 2px rgba(137, 87, 229, 0.2);
 }
 
 .form-input.error {
@@ -228,8 +258,8 @@
 }
 
 .delivery-option.active {
-    border-color: #1f6feb;
-    background-color: rgba(31, 111, 235, 0.1);
+    border-color: #8957e5;
+    background-color: rgba(137, 87, 229, 0.1);
 }
 
 .delivery-option-header {
@@ -250,7 +280,7 @@
 }
 
 .delivery-option.active .delivery-option-icon {
-    background-color: #1f6feb;
+    background-color: #8957e5;
 }
 
 .delivery-option-title {
@@ -295,7 +325,7 @@
 }
 
 input:checked+.toggle-slider {
-    background-color: #1f6feb;
+    background-color: #8957e5;
 }
 
 input:checked+.toggle-slider:before {
@@ -313,8 +343,8 @@ input:checked+.toggle-slider:before {
 }
 
 .file-upload:hover {
-    border-color: #1f6feb;
-    background-color: rgba(31, 111, 235, 0.05);
+    border-color: #8957e5;
+    background-color: rgba(137, 87, 229, 0.05);
 }
 
 .file-upload-icon {
@@ -358,16 +388,16 @@ input:checked+.toggle-slider:before {
 }
 
 .btn-primary {
-    background-color: #1f6feb;
+    background-color: #8957e5;
     color: #fff;
 }
 
 .btn-primary:hover {
-    background-color: #388bfd;
+    background-color: #9e77e5;
 }
 
 .btn-primary:disabled {
-    background-color: #1f6feb;
+    background-color: #8957e5;
     opacity: 0.5;
     cursor: not-allowed;
 }
