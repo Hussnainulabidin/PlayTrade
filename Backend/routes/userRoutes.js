@@ -1,6 +1,7 @@
 const express = require("express");
 const userController = require("./../controllers/userController");
 const authController = require("./../controllers/authController");
+const upload = require("./../configuration/multer");
 
 
 
@@ -20,7 +21,7 @@ router.use(authController.protect);
 
 router.post('/update-password', authController.updatePassword);
 router.post('/toggle-2fa', authController.toggleTwoFactorAuth);
-router.post('/profile-picture', userController.uploadProfilePicture);
+router.post('/profile-picture', upload.single('profilePicture'), userController.uploadProfilePicture);
 router.post('/logout-all', authController.logoutAllSessions);
 router.post('/update-notification-prefs', userController.updateNotificationPreferences);
 
