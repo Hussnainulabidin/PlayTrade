@@ -76,6 +76,22 @@ const SettingPage = () => {
     }
   };
 
+  // Helper function to optimize Cloudinary URL if needed
+  const optimizeImageUrl = (url) => {
+    if (!url) return null;
+    // If it's already a data URL or a local image, return as is
+    if (url.startsWith('data:') || url.startsWith('/')) return url;
+
+    // If it's a Cloudinary URL, optimize it
+    if (url.includes('cloudinary.com')) {
+      const timestamp = new Date().getTime();
+      const separator = url.includes('?') ? '&' : '?';
+      return `${url}${separator}t=${timestamp}&q=auto&f=auto`;
+    }
+
+    return url;
+  };
+
   const handleProfilePictureUpload = async () => {
     if (!previewUrl) return;
 
@@ -101,7 +117,11 @@ const SettingPage = () => {
       if (response.data.success) {
         updateUser({ ...user, profilePicture: response.data.profilePicture });
         setSuccess('Profile picture updated successfully');
-        setTimeout(() => setSuccess(null), 3000);
+        setTimeout(() => {
+          setSuccess(null);
+          // Refresh the page to show the updated profile picture
+          window.location.reload();
+        }, 2000);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update profile picture');
@@ -297,7 +317,11 @@ const SettingPage = () => {
                 <div
                   className="profile-picture"
                   onClick={handleProfilePictureClick}
-                  style={{ backgroundImage: previewUrl ? `url(${previewUrl})` : 'none' }}
+                  style={{
+                    backgroundImage: previewUrl ? `url(${optimizeImageUrl(previewUrl)})` : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
                 >
                   {!previewUrl && <span>Upload</span>}
                 </div>

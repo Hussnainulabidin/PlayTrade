@@ -1,6 +1,6 @@
 const User = require('../models/user');
-const valorant = require ("../models/valorant")
-const orders = require ("../models/order")
+const valorant = require("../models/valorant")
+const orders = require("../models/order")
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const walletActions = require('../models/wallet');
@@ -11,10 +11,12 @@ const brawlstars = require("./../models/brawlstars");
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const cloudinary = require('../configuration/cloudinary');
+const upload = require('../configuration/multer');
 
 // Configure multer for file storage
 const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
+  destination: function (req, file, cb) {
     const uploadDir = 'public/img/users';
     // Create directory if it doesn't exist
     if (!fs.existsSync(uploadDir)) {
@@ -22,7 +24,7 @@ const storage = multer.diskStorage({
     }
     cb(null, uploadDir);
   },
-  filename: function(req, file, cb) {
+  filename: function (req, file, cb) {
     const ext = path.extname(file.originalname);
     cb(null, `user-${req.user.id}-${Date.now()}${ext}`);
   }
@@ -37,7 +39,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({
+const uploadMulter = multer({
   storage: storage,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB limit
@@ -45,38 +47,52 @@ const upload = multer({
   fileFilter: fileFilter
 });
 
-// Middleware for handling single file upload
+// Middleware for handling profile picture upload with Cloudinary
 exports.uploadProfilePicture = catchAsync(async (req, res, next) => {
-  // Use the upload middleware
-  upload.single('profilePicture')(req, res, async (err) => {
-    if (err) {
-      return next(new AppError(err.message, 400));
-    }
-    
-    if (!req.file) {
-      return next(new AppError('Please upload a file', 400));
-    }
-    
-    // Update user profile picture in database
+  if (!req.file) {
+    return next(new AppError('Please upload a file', 400));
+  }
+
+  try {
+    // Upload file to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'user_profile_pictures',
+      transformation: [
+        { width: 400, height: 400, crop: 'fill' }
+      ]
+    });
+
+    // Update user profile picture URL in database
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { profilePicture: `/img/users/${req.file.filename}` },
+      { profilePicture: result.secure_url },
       { new: true, runValidators: false }
     );
-    
+
     if (!user) {
       return next(new AppError('User not found', 404));
     }
-    
+
+    // Delete temporary file from server
+    if (req.file.path && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+
     res.status(200).json({
       status: 'success',
       success: true,
-      profilePicture: `/img/users/${req.file.filename}`
+      profilePicture: result.secure_url
     });
-  });
+  } catch (error) {
+    // Delete temporary file if upload failed
+    if (req.file.path && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    return next(new AppError(`Error uploading image: ${error.message}`, 500));
+  }
 });
 
-exports.getAllUsers = catchAsync( async (req, res , next) => {
+exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find();
   res.status(200).json({
     status: "success",
@@ -87,7 +103,7 @@ exports.getAllUsers = catchAsync( async (req, res , next) => {
   });
 });
 
-exports.getAllSellers = catchAsync(async (req , res , next) => {
+exports.getAllSellers = catchAsync(async (req, res, next) => {
   const sellers = await User.find({ role: "seller" }).select("username email wallet status _id joinDate");
 
   const sellerData = await Promise.all(
@@ -128,7 +144,7 @@ exports.getAllSellers = catchAsync(async (req , res , next) => {
 
 exports.getSeller = catchAsync(async (req, res, next) => {
   console.log("here in get seller")
-  const sellerId  = req.params.id;
+  const sellerId = req.params.id;
 
   console.log(req.params.id)
 
@@ -143,25 +159,25 @@ exports.getSeller = catchAsync(async (req, res, next) => {
 
   // Get total listings count for each game type (excluding sold accounts)
   const [valorantCount, clashOfClansCount, leagueOfLegendsCount, fortniteCount, brawlStarsCount] = await Promise.all([
-    valorant.countDocuments({ 
+    valorant.countDocuments({
       sellerID: sellerId,
-      status: { $ne: "sold" } 
+      status: { $ne: "sold" }
     }),
-    clashofclans.countDocuments({ 
+    clashofclans.countDocuments({
       sellerID: sellerId,
-      status: { $ne: "sold" } 
+      status: { $ne: "sold" }
     }),
-    leagueoflegends.countDocuments({ 
+    leagueoflegends.countDocuments({
       sellerID: sellerId,
-      status: { $ne: "sold" } 
+      status: { $ne: "sold" }
     }),
-    fortnite.countDocuments({ 
+    fortnite.countDocuments({
       sellerID: sellerId,
-      status: { $ne: "sold" } 
+      status: { $ne: "sold" }
     }),
-    brawlstars.countDocuments({ 
+    brawlstars.countDocuments({
       sellerID: sellerId,
-      status: { $ne: "sold" } 
+      status: { $ne: "sold" }
     })
   ]);
 
@@ -212,11 +228,11 @@ exports.getSeller = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.myData = catchAsync(async (req , res , next ) =>{
+exports.myData = catchAsync(async (req, res, next) => {
   console.log(req.user)
   res.status(200).json({
     status: "success",
-    data : req.user
+    data: req.user
   });
 })
 
@@ -267,7 +283,7 @@ exports.updateNotificationPreferences = catchAsync(async (req, res, next) => {
   // Get only the valid notification preference fields
   const validPreferences = {};
   const allowedPreferences = ['newOrder', 'newMessage', 'orderDisputed', 'paymentUpdated', 'withdrawUpdates'];
-  
+
   allowedPreferences.forEach(pref => {
     if (typeof preferences[pref] === 'boolean') {
       validPreferences[`notificationPreferences.${pref}`] = preferences[pref];
