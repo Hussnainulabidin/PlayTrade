@@ -166,7 +166,7 @@ exports.addMessage = catchAsync(async (req, res, next) => {
   
   const newMessage = {
     sender: userId,
-    content,
+    content: content.content,
     timestamp: Date.now(),
     read: false
   };
