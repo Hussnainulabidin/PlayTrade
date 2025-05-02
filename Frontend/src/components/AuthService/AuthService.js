@@ -1,3 +1,4 @@
+import { userApi } from "../../api";
 import axios from "axios";
 
 const API_URL = "http://localhost:3003";
@@ -16,10 +17,7 @@ const initAuthHeader = (token) => {
 
 const login = async (email, password) => {
   try {
-    const response = await axios.post(`${API_URL}/users/login`, {
-      email,
-      password,
-    });
+    const response = await userApi.login({ email, password });
 
     // Check if 2FA is required
     if (response.data.requiresTwoFactor) {
@@ -55,7 +53,7 @@ const login = async (email, password) => {
 
 const verifyTwoFactorCode = async (userId, verificationCode) => {
   try {
-    const response = await axios.post(`${API_URL}/users/verify-2fa`, {
+    const response = await userApi.toggle2FA({
       userId,
       verificationCode
     });
@@ -85,7 +83,7 @@ const verifyTwoFactorCode = async (userId, verificationCode) => {
 
 const register = async (userData) => {
   try {
-    const response = await axios.post(`${API_URL}/users/signup`, userData);
+    const response = await userApi.signup(userData);
 
     if (response.data.token) {
       const user = { ...response.data.data.user };
@@ -112,11 +110,10 @@ const register = async (userData) => {
 const getCurrentUser = async (token) => {
   try {
     if (!token) return null;
-    const response = await axios.get(`${API_URL}/users/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    
+    // Set the token for this specific request
+    setAuthHeader(token);
+    const response = await userApi.getMe();
 
     const userData = { ...response.data.data };
     // Remove sensitive data
@@ -132,10 +129,16 @@ const getCurrentUser = async (token) => {
 };
 
 const logout = () => {
-  setAuthHeader(null);
-  // Only remove essential auth data
-  localStorage.removeItem("userId");
-  localStorage.removeItem("token");
+  try {
+    userApi.logout();
+  } catch (error) {
+    console.error("Error during logout:", error);
+  } finally {
+    setAuthHeader(null);
+    // Only remove essential auth data
+    localStorage.removeItem("userId");
+    localStorage.removeItem("token");
+  }
 };
 
 const isAuthenticated = (token) => {

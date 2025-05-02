@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Base API configuration
 const API = axios.create({
-  baseURL: 'http://localhost:3003',
+  baseURL: import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3003',
   headers: {
     'Content-Type': 'application/json'
   }
