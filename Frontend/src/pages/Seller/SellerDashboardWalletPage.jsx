@@ -1,7 +1,7 @@
 "use client";
 import { SellerWallet } from "../../components/SellerDashboard/SellerWallets/SellerWallets";
 import { useEffect, useState } from "react";
-import userApi from "../../api/userApi";
+import { userApi } from "../../api";
 import "../pages.css";
 
 function SellerWalletPage() {

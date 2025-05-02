@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useUser } from '../../components/userContext/UserContext';
-import axios from 'axios';
+import { userApi } from '../../api';
 import './SellerSettingPage.css';
 
 const SettingPage = () => {
@@ -107,12 +107,7 @@ const SettingPage = () => {
         formData.append('profilePicture', file);
       }
 
-      const response = await axios.post('http://localhost:3003/users/profile-picture', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await userApi.updateProfilePicture(formData);
 
       if (response.data.success) {
         updateUser({ ...user, profilePicture: response.data.profilePicture });
@@ -142,14 +137,12 @@ const SettingPage = () => {
 
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:3003/users/update-password', {
+      const passwordData = {
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword
-      }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      };
+
+      const response = await userApi.updatePassword(passwordData);
 
       if (response.data.status === "success") {
         setFormData(prev => ({
@@ -173,13 +166,7 @@ const SettingPage = () => {
   const handleTwoFactorToggle = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:3003/users/toggle-2fa', {
-        enabled: !formData.twoFactorEnabled
-      }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await userApi.toggle2FA({ enabled: !formData.twoFactorEnabled });
 
       if (response.data.success) {
         setFormData(prev => ({
@@ -201,11 +188,7 @@ const SettingPage = () => {
   const handleLogoutAllDevices = async () => {
     try {
       setLoggingOut(true);
-      const response = await axios.post('http://localhost:3003/users/logout-all', {}, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await userApi.logoutAll();
 
       if (response.data.success) {
         setSuccess('Logged out from all devices. You will be redirected to login page shortly.');
@@ -233,13 +216,7 @@ const SettingPage = () => {
       };
 
       // API call to update notification preferences
-      const response = await axios.post('http://localhost:3003/users/update-notification-prefs', {
-        preferences: updatedPrefs
-      }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await userApi.updateNotificationPreferences({ preferences: updatedPrefs });
 
       if (response.data.success) {
         // Update local state

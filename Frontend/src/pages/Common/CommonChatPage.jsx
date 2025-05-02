@@ -6,9 +6,9 @@ import {
   MessageSquare
 } from "lucide-react"
 import { Input } from "../../components/AdminDashboard/ui/input"
-import axios from "axios"
 import { useUser } from "../../components/userContext/UserContext"
 import { socketService } from "../../services"
+import { chatApi } from "../../api"
 import "../Admin/AdminChat.css"
 import "./CommonChat.css"
 
@@ -55,18 +55,7 @@ function CommonChatPage({ userType = "client" }) {
     try {
       console.log("Socket not connected, sending via REST API");
 
-      const endpoint = `http://localhost:3003/chats/${activeChat}/messages`;
-      console.log("Sending message to endpoint:", endpoint);
-
-      const response = await axios.post(
-        endpoint,
-        { content: content },
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }
-      );
+      const response = await chatApi.sendMessageREST(activeChat, content);
 
       if (response.data.status === 'success') {
         const newMessage = response.data.data.message;
@@ -103,12 +92,8 @@ function CommonChatPage({ userType = "client" }) {
     const fetchChats = async () => {
       try {
         setLoading(true)
-        // API endpoint for chats
-        const response = await axios.get(`http://localhost:3003/chats/my-chats`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
+        // Use chatApi instead of direct axios call
+        const response = await chatApi.getMyChats();
 
         console.log("Chats data:", response.data.data.chats);
 
@@ -126,11 +111,7 @@ function CommonChatPage({ userType = "client" }) {
           // Fetch basic info for these chats
           for (const chat of chatsToUpdate) {
             try {
-              const chatDetailsResponse = await axios.get(`http://localhost:3003/chats/${chat._id}`, {
-                headers: {
-                  'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-              });
+              const chatDetailsResponse = await chatApi.getChatById(chat._id);
 
               if (chatDetailsResponse.data.status === 'success' && chatDetailsResponse.data.data.chat) {
                 // Find and update this chat in our array
@@ -253,6 +234,43 @@ function CommonChatPage({ userType = "client" }) {
     };
   }, [activeChat]);
 
+  // Get the active chat details
+  useEffect(() => {
+    if (!activeChat) return;
+
+    const fetchChatDetails = async () => {
+      try {
+        setChatLoading(true);
+        // Use chatApi instead of direct axios call
+        const response = await chatApi.getChatById(activeChat);
+
+        if (response.data.status === 'success' && response.data.data.chat) {
+          // Update the chat in the chats list with the full message details
+          setChats(prevChats =>
+            prevChats.map(chat =>
+              chat._id === activeChat ? response.data.data.chat : chat
+            )
+          );
+
+          // Set messages for the active chat from the response
+          const chatMessages = response.data.data.chat.messages || [];
+          const formattedMessages = chatMessages.map(msg => ({
+            ...msg,
+            sender: typeof msg.sender === 'object' ? msg.sender : { _id: msg.sender }
+          }));
+          setMessages(formattedMessages);
+        }
+      } catch (err) {
+        console.error("Error fetching chat details:", err);
+        setError("Failed to load chat details. Please try again.");
+      } finally {
+        setChatLoading(false);
+      }
+    };
+
+    fetchChatDetails();
+  }, [activeChat]);
+
   // Scroll to bottom when messages update
   useEffect(() => {
     scrollToBottom();
@@ -335,46 +353,6 @@ function CommonChatPage({ userType = "client" }) {
 
   // Get the current active chat
   const currentChat = chats.find(chat => chat._id === activeChat)
-
-  // Get the active chat details
-  useEffect(() => {
-    if (!activeChat) return;
-
-    const fetchChatDetails = async () => {
-      try {
-        setChatLoading(true);
-        const response = await axios.get(`http://localhost:3003/chats/${activeChat}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-
-        if (response.data.status === 'success' && response.data.data.chat) {
-          // Update the chat in the chats list with the full message details
-          setChats(prevChats =>
-            prevChats.map(chat =>
-              chat._id === activeChat ? response.data.data.chat : chat
-            )
-          );
-
-          // Set messages for the active chat from the response
-          const chatMessages = response.data.data.chat.messages || [];
-          const formattedMessages = chatMessages.map(msg => ({
-            ...msg,
-            sender: typeof msg.sender === 'object' ? msg.sender : { _id: msg.sender }
-          }));
-          setMessages(formattedMessages);
-        }
-      } catch (err) {
-        console.error("Error fetching chat details:", err);
-        setError("Failed to load chat details. Please try again.");
-      } finally {
-        setChatLoading(false);
-      }
-    };
-
-    fetchChatDetails();
-  }, [activeChat]);
 
   if (loading) {
     return (

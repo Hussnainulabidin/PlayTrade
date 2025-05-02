@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Search, Plus } from "lucide-react"
 import { Input } from "../../components/AdminDashboard/ui/input"
-import axios from "axios"
+import { ticketApi } from "../../api"
 import "../Admin/tickets.css"
 
 function SellerDashboardTicketsPage() {
@@ -18,7 +18,8 @@ function SellerDashboardTicketsPage() {
         const fetchTickets = async () => {
             try {
                 setLoading(true)
-                const response = await axios.get(`http://localhost:3003/tickets/seller/${localStorage.getItem('userId')}?filter=${activeFilter}`)
+                const sellerId = localStorage.getItem('userId')
+                const response = await ticketApi.getSellerTickets(sellerId, activeFilter)
                 setTickets(response.data.data.tickets)
             } catch (err) {
                 console.error("Error fetching tickets:", err)
