@@ -31,6 +31,27 @@ const commonAccountMethods = {
     });
   },
 
+  uploadPictures: (accountId, formData, gameType) => {
+    // Handle undefined or empty gameType
+    if (!gameType) {
+      console.error('Game type is undefined in uploadPictures. Please provide a valid game type.');
+      console.error('Stack trace:', new Error().stack);
+      return Promise.reject(new Error('Invalid game type'));
+    }
+
+    const endpoint = gameType === 'valorant'
+      ? `/valorant/accounts/${accountId}/pictures`
+      : `/${gameType}/accounts/${accountId}/pictures`;
+
+    console.log('Uploading to endpoint:', endpoint);
+
+    return API.put(endpoint, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  },
+
   updateStatus: (accountId, gameType, status) =>
     API.patch(`/gameAccounts/update-status/`, { accountId, gameType, status }),
 
@@ -43,7 +64,7 @@ const gameAccountApi = {
   // Common methods at top level for direct access
   updateStatus: commonAccountMethods.updateStatus,
   getSellerAccounts: commonAccountMethods.getSellerAccounts,
-  deleteAccount: (accountId, gameType) => 
+  deleteAccount: (accountId, gameType) =>
     API.delete(`/gameAccounts/delete-account`, { data: { accountId, gameType } }),
 
   // Valorant accounts
@@ -61,7 +82,13 @@ const gameAccountApi = {
       return API.get(`/valorant/accounts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`);
     },
 
-    createAccount: (accountData) => API.post('/valorant/accounts', accountData),
+    // Endpoint matches router.post("/", ...) in valorantRoutes.js
+    createAccount: (accountData) => API.post('/valorant', accountData),
+
+    uploadPictures: (accountId, formData) => {
+      // Use the common method but explicitly pass 'valorant' as the game type
+      return commonAccountMethods.uploadPictures(accountId, formData, 'valorant');
+    },
 
     ...commonAccountMethods
   },
@@ -77,7 +104,13 @@ const gameAccountApi = {
       return API.get(`/fortnite/accounts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`);
     },
 
-    createAccount: (accountData) => API.post('/fortnite/accounts', accountData),
+    // Endpoint should match router.post("/", ...) in fortniteRoutes.js
+    createAccount: (accountData) => API.post('/fortnite', accountData),
+
+    uploadPictures: (accountId, formData) => {
+      // Use the common method but explicitly pass 'fortnite' as the game type
+      return commonAccountMethods.uploadPictures(accountId, formData, 'fortnite');
+    },
 
     ...commonAccountMethods
   },
@@ -93,7 +126,13 @@ const gameAccountApi = {
       return API.get(`/leagueoflegends/accounts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`);
     },
 
-    createAccount: (accountData) => API.post('/leagueoflegends/accounts', accountData),
+    // Endpoint should match router.post("/", ...) in leagueoflegendsRoutes.js
+    createAccount: (accountData) => API.post('/leagueoflegends', accountData),
+
+    uploadPictures: (accountId, formData) => {
+      // Use the common method but explicitly pass 'leagueoflegends' as the game type
+      return commonAccountMethods.uploadPictures(accountId, formData, 'leagueoflegends');
+    },
 
     ...commonAccountMethods
   },
@@ -109,7 +148,13 @@ const gameAccountApi = {
       return API.get(`/brawlstars/accounts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`);
     },
 
-    createAccount: (accountData) => API.post('/brawlstars/accounts', accountData),
+    // Endpoint should match router.post("/", ...) in brawlstarsRoutes.js
+    createAccount: (accountData) => API.post('/brawlstars', accountData),
+
+    uploadPictures: (accountId, formData) => {
+      // Use the common method but explicitly pass 'brawlstars' as the game type
+      return commonAccountMethods.uploadPictures(accountId, formData, 'brawlstars');
+    },
 
     ...commonAccountMethods
   },
@@ -125,7 +170,13 @@ const gameAccountApi = {
       return API.get(`/clashofclans/accounts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`);
     },
 
-    createAccount: (accountData) => API.post('/clashofclans/accounts', accountData),
+    // Endpoint should match router.post("/", ...) in clashofclansRoutes.js
+    createAccount: (accountData) => API.post('/clashofclans', accountData),
+
+    uploadPictures: (accountId, formData) => {
+      // Use the common method but explicitly pass 'clashofclans' as the game type
+      return commonAccountMethods.uploadPictures(accountId, formData, 'clashofclans');
+    },
 
     ...commonAccountMethods
   },
