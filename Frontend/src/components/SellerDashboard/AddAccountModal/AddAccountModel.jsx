@@ -13,6 +13,12 @@ import Step3Credentials from "./Steps/Step3Credentials"
 import { gameAccountApi } from "../../../api"
 import API from "../../../api"
 
+// Helper function to normalize game type (remove spaces, convert to lowercase)
+const normalizeGameType = (gameType) => {
+    if (!gameType) return '';
+    return gameType.toLowerCase().replace(/\s+/g, '');
+};
+
 const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) => {
     const [currentStep, setCurrentStep] = useState(1)
     const [formData, setFormData] = useState({
@@ -309,13 +315,23 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
             // Add delivery type
             accountData.delivery_type = formData.delivery_type
 
+            // Map game type to API key (in case the display names don't match API keys)
+            const gameTypeMap = {
+                "Valorant": "valorant",
+                "Clash of Clans": "clashofclans",
+                "Brawl Stars": "brawlstars",
+                "Fortnite": "fortnite",
+                "League of Legends": "leagueoflegends"
+            };
+
             if (isEditMode) {
                 let response;
-                const gameType = formData.gameType.toLowerCase();
+                // Use the mapping or normalize as fallback
+                const gameType = gameTypeMap[formData.gameType] || normalizeGameType(formData.gameType);
 
                 if (!gameAccountApi[gameType]) {
-                    console.error(`Invalid game type: ${gameType}`);
-                    setSubmitError(`Invalid game type: ${gameType}. Please select a valid game type.`);
+                    console.error(`Invalid game type: ${formData.gameType} -> ${gameType}`);
+                    setSubmitError(`Invalid game type: ${formData.gameType}. Please select a valid game type.`);
                     setIsSubmitting(false);
                     return;
                 }
@@ -334,12 +350,12 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                     });
 
                     try {
-                        // Make sure gameType is lowercase and valid
-                        const gameType = formData.gameType.toLowerCase();
+                        // Use the mapping or normalize as fallback
+                        const gameType = gameTypeMap[formData.gameType] || normalizeGameType(formData.gameType);
                         console.log('Game type before uploading:', gameType);
 
                         if (!gameAccountApi[gameType]) {
-                            throw new Error(`Invalid game type: ${gameType}`);
+                            throw new Error(`Invalid game type: ${formData.gameType} -> ${gameType}`);
                         }
 
                         // Check if uploadPictures exists on this game type
@@ -418,11 +434,12 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                 // Create new account
                 let response;
                 let accountId;
-                const gameType = formData.gameType.toLowerCase();
+                // Use the mapping or normalize as fallback
+                const gameType = gameTypeMap[formData.gameType] || normalizeGameType(formData.gameType);
 
                 if (!gameAccountApi[gameType]) {
-                    console.error(`Invalid game type: ${gameType}`);
-                    setSubmitError(`Invalid game type: ${gameType}. Please select a valid game type.`);
+                    console.error(`Invalid game type: ${formData.gameType} -> ${gameType}`);
+                    setSubmitError(`Invalid game type: ${formData.gameType}. Please select a valid game type.`);
                     setIsSubmitting(false);
                     return;
                 }
@@ -440,10 +457,10 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                     console.log('Preparing to upload images:', formData.gallery);
                     console.log('Account ID:', accountId);
                     console.log('Game Type (raw):', formData.gameType);
-                    console.log('Game Type (lowercase):', formData.gameType.toLowerCase());
+                    // Use the mapping or normalize as fallback
+                    const gameType = gameTypeMap[formData.gameType] || normalizeGameType(formData.gameType);
+                    console.log('Game Type (mapped):', gameType);
                     console.log('All game types in API:', Object.keys(gameAccountApi));
-
-                    const gameType = formData.gameType.toLowerCase();
                     console.log('Game API object exists?', !!gameAccountApi[gameType]);
 
                     const formDataObj = new FormData();
@@ -453,12 +470,12 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                     });
 
                     try {
-                        // Make sure gameType is lowercase and valid
-                        const gameType = formData.gameType.toLowerCase();
+                        // Use the mapping or normalize as fallback
+                        const gameType = gameTypeMap[formData.gameType] || normalizeGameType(formData.gameType);
                         console.log('Game type before uploading:', gameType);
 
                         if (!gameAccountApi[gameType]) {
-                            throw new Error(`Invalid game type: ${gameType}`);
+                            throw new Error(`Invalid game type: ${formData.gameType} -> ${gameType}`);
                         }
 
                         // Check if uploadPictures exists on this game type

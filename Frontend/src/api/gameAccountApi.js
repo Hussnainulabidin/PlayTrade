@@ -1,18 +1,26 @@
 import API from './index';
 
+// Helper function to normalize game type (remove spaces, convert to lowercase)
+const normalizeGameType = (gameType) => {
+  if (!gameType) return '';
+  return gameType.toLowerCase().replace(/\s+/g, '');
+};
+
 // Common account functions shared across game types
 const commonAccountMethods = {
   updateAccount: (id, accountData, gameType) => {
-    const endpoint = gameType === 'valorant'
+    const normalizedGameType = normalizeGameType(gameType);
+    const endpoint = normalizedGameType === 'valorant'
       ? `/valorant/accounts/${id}`
-      : `/${gameType}/accounts/${id}`;
+      : `/${normalizedGameType}/accounts/${id}`;
     return API.patch(endpoint, accountData);
   },
 
   deleteAccount: (id, gameType) => {
-    const endpoint = gameType === 'valorant'
+    const normalizedGameType = normalizeGameType(gameType);
+    const endpoint = normalizedGameType === 'valorant'
       ? `/valorant/accounts/${id}`
-      : `/${gameType}/accounts/${id}`;
+      : `/${normalizedGameType}/accounts/${id}`;
     return API.delete(endpoint);
   },
 
@@ -20,9 +28,10 @@ const commonAccountMethods = {
     const formData = new FormData();
     formData.append('image', imageFile);
 
-    const endpoint = gameType === 'valorant'
+    const normalizedGameType = normalizeGameType(gameType);
+    const endpoint = normalizedGameType === 'valorant'
       ? `/valorant/accounts/${accountId}/${imageType}-image`
-      : `/${gameType}/accounts/${accountId}/${imageType}-image`;
+      : `/${normalizedGameType}/accounts/${accountId}/${imageType}-image`;
 
     return API.put(endpoint, formData, {
       headers: {
@@ -39,9 +48,10 @@ const commonAccountMethods = {
       return Promise.reject(new Error('Invalid game type'));
     }
 
-    const endpoint = gameType === 'valorant'
+    const normalizedGameType = normalizeGameType(gameType);
+    const endpoint = normalizedGameType === 'valorant'
       ? `/valorant/accounts/${accountId}/pictures`
-      : `/${gameType}/accounts/${accountId}/pictures`;
+      : `/${normalizedGameType}/accounts/${accountId}/pictures`;
 
     console.log('Uploading to endpoint:', endpoint);
 
@@ -52,8 +62,14 @@ const commonAccountMethods = {
     });
   },
 
-  updateStatus: (accountId, gameType, status) =>
-    API.patch(`/gameAccounts/update-status/`, { accountId, gameType, status }),
+  updateStatus: (accountId, gameType, status) => {
+    const normalizedGameType = normalizeGameType(gameType);
+    return API.patch(`/gameAccounts/update-status/`, {
+      accountId,
+      gameType: normalizedGameType,
+      status
+    });
+  },
 
   getSellerAccounts: (sellerId, page = 1, limit = 10) =>
     API.get(`/gameAccounts/seller/${sellerId}?page=${page}&limit=${limit}`),
