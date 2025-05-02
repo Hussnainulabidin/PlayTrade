@@ -8,10 +8,10 @@ const router = express.Router();
 router.use(authController.protect);
 
 // Credit and debit wallet routes
-router.post("/credit/:id",authController.restrictTo("admin" , "seller"), walletController.creditWallet);
-router.post("/debit/:id",authController.restrictTo("admin" , "seller"), walletController.debitWallet);
+router.post("/credit/:id", authController.restrictTo("admin", "seller"), walletController.creditWallet);
+router.post("/debit/:id", authController.restrictTo("admin", "seller"), walletController.debitWallet);
 
 // Get wallet history
-router.get("/history/:id", authController.restrictTo("admin" , "seller"), walletController.getWalletHistory);
+router.get("/history/:id", authController.restrictTo("admin", "seller"), walletController.getWalletHistory);
 
 module.exports = router;

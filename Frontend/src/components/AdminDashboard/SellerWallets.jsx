@@ -11,7 +11,7 @@ import { formatDate } from "../../lib/utils"
 export function SellerWallet({ sellerId }) {
   const params = useParams();
   const id = sellerId || params.id;
-  
+
   const [searchQuery, setSearchQuery] = useState("")
   const [showAddFundsDialog, setShowAddFundsDialog] = useState(false)
   const [showRemoveFundsDialog, setShowRemoveFundsDialog] = useState(false)
@@ -19,7 +19,7 @@ export function SellerWallet({ sellerId }) {
   const [addReason, setAddReason] = useState("")
   const [removeAmount, setRemoveAmount] = useState("")
   const [removeReason, setRemoveReason] = useState("")
-  
+
   // State for API data
   const [walletData, setWalletData] = useState({
     balance: "€0.00",
@@ -33,28 +33,28 @@ export function SellerWallet({ sellerId }) {
     const fetchWalletData = async () => {
       try {
         setLoading(true)
-        
+
         // Get user info for balance
         const userResponse = await userApi.getSellerById(id);
-        
+
         // Get wallet transactions
         const transactionsResponse = await walletApi.getSellerTransactions(id, 1, 50);
-        
+
         if (userResponse.data.status === 'success' && transactionsResponse.data.status === 'success') {
           const userData = userResponse.data.data;
           const transactionsData = transactionsResponse.data.data.transactions;
-          
+
           // Format transactions to match our UI
           const formattedTransactions = transactionsData.map(transaction => ({
             id: transaction._id,
             type: transaction.type === "deposit" ? "Credit" : "Debit",
-            amount: transaction.type === "deposit" 
-              ? `+€${transaction.amount.toFixed(2)}` 
+            amount: transaction.type === "deposit"
+              ? `+€${transaction.amount.toFixed(2)}`
               : `-€${transaction.amount.toFixed(2)}`,
             reason: transaction.message,
             date: transaction.createdAt
           }));
-          
+
           setWalletData({
             balance: `€${userData.walletBalance || userData.wallet || 0}`,
             transactions: formattedTransactions
@@ -63,7 +63,7 @@ export function SellerWallet({ sellerId }) {
       } catch (err) {
         console.error("Error fetching wallet data:", err);
         setError("Failed to fetch wallet data. Using demo data instead.");
-        
+
         // Fallback to demo data if API fails
         setWalletData({
           balance: "€0.00",
@@ -81,24 +81,24 @@ export function SellerWallet({ sellerId }) {
         setLoading(false);
       }
     };
-    
+
     fetchWalletData();
   }, [id]);
 
   const filteredTransactions = walletData.transactions.filter(
     (transaction) =>
-      transaction.id.includes(searchQuery) || 
+      transaction.id.includes(searchQuery) ||
       transaction.reason.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
   const handleAddFunds = async () => {
     try {
-      const response = await walletApi.deposit({
-        userId: id,
-        amount: parseFloat(addAmount),
-        message: addReason || "Funds added by admin"
-      });
-      
+      const response = await walletApi.deposit(
+        parseFloat(addAmount),
+        id,
+        addReason || "Funds added by admin"
+      );
+
       if (response.data.status === 'success') {
         alert(`Added €${addAmount} to wallet successfully`);
         // Reload wallet data
@@ -108,7 +108,7 @@ export function SellerWallet({ sellerId }) {
       console.error("Error adding funds:", err);
       alert(`Failed to add funds: ${err.response?.data?.message || err.message}`);
     }
-    
+
     setAddAmount("");
     setAddReason("");
     setShowAddFundsDialog(false);
@@ -116,12 +116,12 @@ export function SellerWallet({ sellerId }) {
 
   const handleRemoveFunds = async () => {
     try {
-      const response = await walletApi.withdraw({
-        userId: id,
-        amount: parseFloat(removeAmount),
-        message: removeReason || "Funds removed by admin"
-      });
-      
+      const response = await walletApi.withdraw(
+        parseFloat(removeAmount),
+        id,
+        removeReason || "Funds removed by admin"
+      );
+
       if (response.data.status === 'success') {
         alert(`Removed €${removeAmount} from wallet successfully`);
         // Reload wallet data
@@ -131,7 +131,7 @@ export function SellerWallet({ sellerId }) {
       console.error("Error removing funds:", err);
       alert(`Failed to remove funds: ${err.response?.data?.message || err.message}`);
     }
-    
+
     setRemoveAmount("");
     setRemoveReason("");
     setShowRemoveFundsDialog(false);

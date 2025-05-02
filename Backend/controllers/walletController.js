@@ -18,8 +18,8 @@ exports.creditWallet = catchAsync(async (req, res, next) => {
 
     // 1. Update user's wallet balance
     const user = await User.findByIdAndUpdate(
-        id, 
-        { $inc: { wallet: amount } }, 
+        id,
+        { $inc: { wallet: amount } },
         { new: true }
     );
 
@@ -56,26 +56,21 @@ exports.debitWallet = catchAsync(async (req, res, next) => {
         return next(new AppError("Please provide a valid amount greater than 0", 400));
     }
 
-    // Check authorization
-    if (req.user.role !== "admin" && req.user._id.toString() !== id) {
-        return next(new AppError("You are not authorized to debit this wallet", 403));
-    }
-
     // 1. Check if user has sufficient balance
     const user = await User.findById(id);
-    
+
     if (!user) {
         return next(new AppError("User not found", 404));
     }
-    
+
     if (user.wallet < amount) {
         return next(new AppError("Insufficient wallet balance", 400));
     }
 
     // 2. Update user's wallet balance
     const updatedUser = await User.findByIdAndUpdate(
-        id, 
-        { $inc: { wallet: -amount } }, 
+        id,
+        { $inc: { wallet: -amount } },
         { new: true }
     );
 
@@ -103,31 +98,31 @@ exports.debitWallet = catchAsync(async (req, res, next) => {
 exports.getWalletHistory = catchAsync(async (req, res, next) => {
     const { id } = req.params;
     const { limit = 10, page = 1 } = req.query;
-    
+
     // Check authorization
     if (req.user.role !== "admin" && req.user._id.toString() !== id) {
         return next(new AppError("You are not authorized to view this wallet history", 403));
     }
-    
+
     // Validate user exists
     const user = await User.findById(id);
     if (!user) {
         return next(new AppError("User not found", 404));
     }
-    
+
     // Calculate pagination
     const skip = (page - 1) * limit;
-    
+
     // Get wallet transactions
     const transactions = await walletActions
         .find({ user: id })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(parseInt(limit));
-    
+
     // Get total count for pagination
     const totalTransactions = await walletActions.countDocuments({ user: id });
-    
+
     res.status(200).json({
         status: "success",
         results: transactions.length,

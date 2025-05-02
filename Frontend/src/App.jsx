@@ -40,6 +40,7 @@ import SellerDashboardCreateTicketPage from "./pages/Seller/SellerDashboardCreat
 import SellerDashboardChatPage from "./pages/Seller/SellerDashboardChatPage"
 import SellerTicketDetailPage from "./pages/Seller/SellerTicketDetail"
 import SellerSettingPage from "./pages/Seller/SellerSettingPage"
+import SellerSideWalletPage from "./pages/Seller/SellerDashboardWalletPage"
 
 // Client Pages
 import ClientOrdersPage from "./pages/Client/ClientOrdersPage"
@@ -194,6 +195,13 @@ const App = () => {
             element={
               <SellerDashboardLayout>
                 <SellerSettingPage />
+              </SellerDashboardLayout>
+            }
+          />
+          <Route path="/seller-dashboard/wallet"
+            element={
+              <SellerDashboardLayout>
+                <SellerSideWalletPage />
               </SellerDashboardLayout>
             }
           />

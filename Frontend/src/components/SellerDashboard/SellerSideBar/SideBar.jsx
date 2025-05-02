@@ -55,6 +55,10 @@ const Sidebar = () => {
                     <Ticket size={18} />
                     <span>Tickets</span>
                 </Link>
+                <Link to="/seller-dashboard/wallet" className={`pt-sidebar__nav-item ${isActive("/wallet") ? "pt-sidebar__nav-item--active" : ""}`}>
+                    <Wallet size={18} />
+                    <span>Wallet</span>
+                </Link>
                 <Link
                     to="/seller-dashboard/settings"
                     className={`pt-sidebar__nav-item ${isActive("/settings") ? "pt-sidebar__nav-item--active" : ""}`}>

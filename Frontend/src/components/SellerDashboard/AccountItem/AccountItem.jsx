@@ -19,6 +19,13 @@ const AccountItem = ({ account }) => {
         return `${account.login}:${account.password}`
     }
 
+    const truncateTitle = (title) => {
+        if (title && title.length > 45) {
+            return `${title.substring(0, 45)}...`;
+        }
+        return title;
+    }
+
     const handleDropdownClick = (e) => {
         e.stopPropagation()
         setIsDropdownOpen(!isDropdownOpen)
@@ -83,8 +90,7 @@ const AccountItem = ({ account }) => {
                     <div className="pt-game-info">
                         <GameIcon game={account.gameType} />
                         <div className="pt-title__content">
-                            <div className="pt-account-title">{account.title}</div>
-                            <div className="pt-game-name">{account.gameType}</div>
+                            <div className="pt-account-title">{truncateTitle(account.title)}</div>
                         </div>
                     </div>
                 </div>
