@@ -85,6 +85,56 @@ const sendEmail = async(options) => {
             </body>
             </html>`;
         }
+        // Check if it's a signup verification email
+        else if (options.subject && options.subject.includes('Email Verification Code')) {
+            // Signup verification email template
+            const verificationCode = options.message.replace('Welcome to PlayTrade! Your verification code is: ', '');
+            
+            htmlContent = `<!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <title>Verify Your PlayTrade Account</title>
+                <style>
+                    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+                    .container { width: 100%; max-width: 600px; margin: 20px auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); text-align: center; }
+                    .logo { margin: 15px auto; width: 100px; height: auto; }
+                    h1 { color: #333; font-size: 24px; margin-bottom: 10px; }
+                    h2 { color: #7c3aed; font-size: 22px; margin: 20px 0; }
+                    p { font-size: 16px; color: #555; line-height: 1.6; }
+                    .verification-code { display: inline-block; padding: 15px 30px; margin: 20px 0; font-size: 32px; font-weight: bold; color: #7c3aed; background: #f5f3ff; border-radius: 8px; letter-spacing: 5px; }
+                    .benefits { background-color: #f7f7f7; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: left; }
+                    .benefits h3 { color: #333; font-size: 18px; margin-bottom: 10px; }
+                    .benefits ul { color: #555; padding-left: 20px; }
+                    .benefits li { margin-bottom: 8px; }
+                    .info { font-size: 14px; color: #777; margin-top: 10px; }
+                    .footer { margin-top: 20px; font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>Welcome to PlayTrade!</h1>
+                    <p>Thank you for creating an account with us. To activate your account, please verify your email address using the code below:</p>
+                    <div class="verification-code">${verificationCode}</div>
+                    <p class="info">This code will expire in 5 minutes for security reasons.</p>
+                    
+                    <div class="benefits">
+                        <h3>Your PlayTrade account lets you:</h3>
+                        <ul>
+                            <li>Buy game accounts securely with full buyer protection</li>
+                            <li>Sell your own game accounts</li>
+                            <li>Chat directly with buyers and sellers</li>
+                            <li>Access exclusive deals and promotions</li>
+                        </ul>
+                    </div>
+                    
+                    <p class="info">If you didn't create an account with us, please ignore this email.</p>
+                    <p class="footer">© ${new Date().getFullYear()} PlayTrade. All rights reserved.<br>This is an automated email, please do not reply.</p>
+                </div>
+            </body>
+            </html>`;
+        }
         // Check if it's a 2FA verification email
         else if (options.subject && options.subject.includes('Authentication Code')) {
             // 2FA verification email template

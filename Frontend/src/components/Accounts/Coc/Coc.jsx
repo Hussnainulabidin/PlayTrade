@@ -9,6 +9,7 @@ import { SignupModal } from "../../SignupModal/SignupModal"
 import { useUser } from "../../userContext/UserContext"
 import { UserMenu } from "../../UserMenu/UserMenu"
 import '../AccountCarousel.css' // Import shared CSS for animations
+import { orderApi } from "../../../api" // Import orderApi for seller stats
 
 export default function Coc() {
   const navigate = useNavigate()
@@ -26,6 +27,8 @@ export default function Coc() {
 
   // Add pagination states
   const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalAccounts, setTotalAccounts] = useState(0)
   const itemsPerPage = 12 // 3 rows × 4 columns
 
   // Add filter states
@@ -97,54 +100,66 @@ export default function Coc() {
           queryParams.append('price', selectedPrice)
         }
 
-        const response = await axios.get(`http://localhost:3003/clashofclans/accounts${queryParams.toString() ? `?${queryParams.toString()}` : ''}`)
+        // Add pagination parameters
+        queryParams.append('page', currentPage)
+        queryParams.append('limit', itemsPerPage)
+
+        const response = await axios.get(`http://localhost:3003/clashofclans/accounts?${queryParams.toString()}`)
         console.log('API Response:', response.data)
-        if (response.data?.data?.accounts) {
-          // Shuffle the accounts array
-          const shuffledAccounts = [...response.data.data.accounts].sort(() => Math.random() - 0.5)
-          setAccounts(shuffledAccounts)
+        
+        if (response.data?.data) {
+          setAccounts(response.data.data.accounts || [])
+          
+          // Set pagination data
+          setTotalAccounts(response.data.data.totalAccounts || 0)
+          setTotalPages(response.data.data.totalPages || Math.ceil((response.data.data.totalAccounts || 0) / itemsPerPage))
 
           // Initialize image indexes for each account
           const imageIndexes = {}
-          shuffledAccounts.forEach(account => {
+          response.data.data.accounts.forEach(account => {
             imageIndexes[account._id] = 0
           })
           setCurrentImageIndexes(imageIndexes)
 
-          // Fetch seller data for each account
-          const sellerPromises = shuffledAccounts.map(account =>
-            axios.get(`http://localhost:3003/users/${account.sellerID}`)
-              .then(res => ({
-                sellerId: account.sellerID,
-                sellerData: res.data.data.user
-              }))
-              .catch(err => ({
-                sellerId: account.sellerID,
-                sellerData: null
-              }))
-          )
-
-          const sellerResults = await Promise.all(sellerPromises)
+          // Use seller data and stats directly from the API response
           const sellerMap = {}
-          sellerResults.forEach(result => {
-            sellerMap[result.sellerId] = result.sellerData
-          })
-          setSellers(sellerMap)
+          
+          response.data.data.accounts.forEach(account => {
+            if (account.sellerID) {
+              // Extract the seller ID
+              const sellerId = account.sellerID._id;
+              
+              // If we haven't added this seller yet, add it to our map
+              if (!sellerMap[sellerId]) {
+                sellerMap[sellerId] = {
+                  ...account.sellerID,
+                  // Get the rating from the sellerStats object in the API response
+                  rating: response.data.data.sellerStats?.[sellerId]?.rating || 100
+                };
+              }
+            }
+          });
+          
+          setSellers(sellerMap);
         } else {
           setAccounts([])
+          setTotalPages(1)
+          setTotalAccounts(0)
         }
         setError(null)
       } catch (err) {
         setError(err.message || "Failed to fetch accounts")
         console.error("Error fetching accounts:", err)
         setAccounts([])
+        setTotalPages(1)
+        setTotalAccounts(0)
       } finally {
         setLoading(false)
       }
     }
 
     fetchAccounts()
-  }, [debouncedSearchQuery, selectedServer, selectedPrice])
+  }, [debouncedSearchQuery, selectedServer, selectedPrice, currentPage])
 
   // Add image slideshow interval
   useEffect(() => {
@@ -190,15 +205,11 @@ export default function Coc() {
   }
 
   // Add pagination functions
-  const totalPages = Math.ceil(accounts.length / itemsPerPage)
-  const currentItems = accounts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  )
-
   const handlePageChange = (page) => {
-    setCurrentPage(page)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
 
   // Add reset filters function
@@ -238,7 +249,7 @@ export default function Coc() {
 
     return (
       <button
-        className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md flex items-center"
+        className="bg-[#7c3aed] hover:bg-[#6d28d9] px-4 py-2 rounded-md flex items-center"
         onClick={() => setIsLoginModalOpen(true)}
       >
         Login
@@ -254,9 +265,9 @@ export default function Coc() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-white">
+    <div className="min-h-screen bg-[#12111f] text-white">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-[#0d1117]">
+      <header className="border-b border-[#2d2b3a] bg-[#1a172b]">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -265,7 +276,7 @@ export default function Coc() {
                 onClick={() => navigate('/')}
               >
                 <div className="w-8 h-8 rounded flex items-center justify-center">
-                  <Crown className="pt-crown-icon w-5 h-5" />
+                  <Crown className="text-[#7c3aed] w-5 h-5" />
                 </div>
                 <span className="pt-logo-text">
                   <span className="pt-blue">PLAY</span>TRADE
@@ -308,7 +319,7 @@ export default function Coc() {
       />
 
       {/* Game Navigation */}
-      <div className="bg-[#0d1117] border-b border-gray-800">
+      <div className="bg-[#1a172b] border-b border-[#2d2b3a]">
         <div className="container mx-auto px-4 py-3 flex items-center">
           <div className="flex items-center gap-3 mr-8">
             <div className="bg-red-500 w-10 h-10 rounded flex items-center justify-center">
@@ -400,7 +411,7 @@ export default function Coc() {
                 placeholder="Search by title or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#161b22] border border-gray-700 rounded-md py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full bg-[#211f2d] border border-[#2d2b3a] rounded-md py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-[#7c3aed]"
               />
             </div>
 
@@ -429,7 +440,7 @@ export default function Coc() {
                   <ChevronDown className="ml-2 w-4 h-4" />
                 </button>
                 {isServerDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#161b22] border border-gray-700 rounded-md shadow-lg z-50">
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#211f2d] border border-[#2d2b3a] rounded-md shadow-lg z-50">
                     {townHallOptions.map((option) => (
                       <button
                         key={option.value}
@@ -471,7 +482,7 @@ export default function Coc() {
                   <ChevronDown className="ml-2 w-4 h-4" />
                 </button>
                 {isPriceDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#161b22] border border-gray-700 rounded-md shadow-lg z-50">
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#211f2d] border border-[#2d2b3a] rounded-md shadow-lg z-50">
                     {priceOptions.map((option) => (
                       <button
                         key={option.value}
@@ -514,28 +525,28 @@ export default function Coc() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {loading ? (
             <div className="col-span-full flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#7c3aed]"></div>
             </div>
           ) : error ? (
             <div className="col-span-full text-center py-12">
               <div className="text-red-500 mb-2">Error loading accounts</div>
               <div className="text-gray-400">{error}</div>
             </div>
-          ) : currentItems.length === 0 ? (
+          ) : accounts.length === 0 ? (
             <div className="col-span-full text-center py-12">
               <div className="text-gray-400">No accounts found</div>
             </div>
           ) : (
-            currentItems.map((account) => (
+            accounts.map((account) => (
               <div
                 key={account._id}
-                className="bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden cursor-pointer hover:border-blue-500 transition-colors"
+                className="bg-[#1a172b] border border-[#2d2b3a] rounded-lg overflow-hidden cursor-pointer hover:border-[#7c3aed] transition-colors"
                 onClick={() => handleAccountClick(account._id)}
               >
                 <div className="p-4 border-b border-gray-800">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-blue-400 bg-[#1f2228] px-3 py-1 rounded-full border border-blue-500">
+                      <span className="font-bold text-[#7c3aed] bg-[#211f2d] px-3 py-1 rounded-full border border-[#7c3aed]">
                         TownHall {account.account_data.TownHallLevel || "0"}
                       </span>
                     </div>
@@ -545,7 +556,7 @@ export default function Coc() {
                       <span>
                         {account.title || `[${account.account_data.mainPlatform || "N/A"}] ${account.description?.substring(0, 30) || "Fortnite Account"}`}
                       </span>
-                      {account.verified && <span className="bg-green-600 text-xs px-1 rounded">✓</span>}
+                      {account.verified && <span className="bg-[#7c3aed] text-white text-xs px-2 py-1 rounded-full ml-2">✓</span>}
                     </div>
                     <div className="text-sm font-medium text-blue-400">
                       IGN: {account.ign || "N/A"}
@@ -606,7 +617,7 @@ export default function Coc() {
                         <div
                           key={index}
                           className={`w-1.5 h-1.5 rounded-full ${index === (currentImageIndexes[account._id] || 0)
-                              ? "bg-blue-500"
+                              ? "bg-[#7c3aed]"
                               : "bg-gray-500"
                             }`}
                         />
@@ -676,9 +687,11 @@ export default function Coc() {
                 </div>
                 <div className="p-3 border-t border-gray-800 flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 bg-gray-700 rounded-full"></div>
-                    <span>{sellers[account.sellerID]?.username || "Seller"}</span>
-                    {sellers[account.sellerID]?.verified && (
+                    <div className="w-5 h-5 bg-[#211f2d] rounded-full flex items-center justify-center">
+                      {account.sellerID?.username ? account.sellerID.username.charAt(0).toUpperCase() : "S"}
+                    </div>
+                    <span>{account.sellerID?.username || "Seller"}</span>
+                    {account.sellerID?.verified && (
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -694,7 +707,7 @@ export default function Coc() {
                     )}
                   </div>
                   <div className="flex items-center gap-1 text-green-500">
-                    <span>{sellers[account.sellerID]?.rating || "0"}%</span>
+                    <span>{sellers[account.sellerID?._id]?.rating || 100}%</span>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                       <path
                         fillRule="evenodd"
@@ -719,18 +732,53 @@ export default function Coc() {
             >
               Previous
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`px-4 py-2 rounded-md border ${currentPage === page
-                    ? "bg-blue-600 border-blue-500 text-white"
-                    : "border-gray-700 text-gray-300 hover:bg-gray-700"
+            
+            {/* Display pagination numbers with ellipsis for large page counts */}
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+              // Logic to handle showing relevant page numbers
+              let pageNum;
+              if (totalPages <= 5) {
+                // Show all pages if 5 or fewer
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                // Near the start
+                pageNum = i + 1;
+                if (i === 4) pageNum = totalPages;
+              } else if (currentPage >= totalPages - 2) {
+                // Near the end
+                pageNum = totalPages - 4 + i;
+                if (i === 0) pageNum = 1;
+              } else {
+                // Middle area
+                pageNum = currentPage - 2 + i;
+                if (i === 0) pageNum = 1;
+                if (i === 4) pageNum = totalPages;
+              }
+              
+              // Add ellipsis
+              if ((i === 1 && pageNum !== 2) || (i === 3 && pageNum !== totalPages - 1)) {
+                return (
+                  <span key={`ellipsis-${i}`} className="px-4 py-2">
+                    ...
+                  </span>
+                );
+              }
+              
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  className={`px-4 py-2 rounded-md border ${
+                    currentPage === pageNum
+                      ? "bg-[#7c3aed] border-[#6d28d9] text-white"
+                      : "border-gray-700 text-gray-300 hover:bg-gray-700"
                   }`}
-              >
-                {page}
-              </button>
-            ))}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+            
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
@@ -738,6 +786,11 @@ export default function Coc() {
             >
               Next
             </button>
+            
+            {/* Display count information */}
+            <div className="ml-4 text-gray-400 text-sm">
+              Showing {accounts.length} of {totalAccounts} accounts
+            </div>
           </div>
         )}
       </main>

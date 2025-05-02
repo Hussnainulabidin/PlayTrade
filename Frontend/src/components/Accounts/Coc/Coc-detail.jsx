@@ -3,15 +3,16 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import axios from "axios"
-import { ChevronLeft, Heart, ShoppingCart, Shield, Clock, User, Star, Check, AlertTriangle } from "lucide-react"
+import { ChevronLeft, Heart, ShoppingCart, Shield, Clock, User, Star, Check, AlertTriangle, Award, Package } from "lucide-react"
 import { useUser } from "../../userContext/UserContext"
 import { LoginModal } from "../../LoginModal/LoginModal"
 import { SignupModal } from "../../SignupModal/SignupModal"
 import { UserMenu } from "../../UserMenu/UserMenu"
 import { ChevronDown, Moon, Zap, Crown, ArrowLeft } from "lucide-react"
 import '../AccountCarousel.css' // Import shared CSS for animations
+import { orderApi } from "../../../api" // Import orderApi for seller stats
 
-export default function FortniteDetail() {
+export default function CocDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user, isAuthenticated, login, logout } = useUser()
@@ -20,6 +21,7 @@ export default function FortniteDetail() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [account, setAccount] = useState(null)
   const [seller, setSeller] = useState(null)
+  const [sellerStats, setSellerStats] = useState({ totalSales: 0, rating: 98 })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState("details")
@@ -37,14 +39,18 @@ export default function FortniteDetail() {
 
         if (accountData) {
           setAccount(accountData)
-
-          // Fetch seller details if we have a seller ID
+          // Use seller data directly from the populated sellerID field
           if (accountData.sellerID) {
+            setSeller(accountData.sellerID)
+            
+            // Fetch seller stats
             try {
-              const sellerResponse = await axios.get(`http://localhost:3003/users/${accountData.sellerID}`)
-              setSeller(sellerResponse.data.data?.user)
-            } catch (error) {
-              console.error("Error fetching seller:", error)
+              const statsResponse = await orderApi.getSellerStats(accountData.sellerID._id)
+              if (statsResponse.data && statsResponse.data.status === "success") {
+                setSellerStats(statsResponse.data.data)
+              }
+            } catch (statsError) {
+              console.error("Error fetching seller stats:", statsError)
             }
           }
         } else {
@@ -168,7 +174,7 @@ export default function FortniteDetail() {
 
     return (
       <button
-        className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md flex items-center"
+        className="bg-[#7c3aed] hover:bg-[#6d28d9] px-4 py-2 rounded-md flex items-center"
         onClick={() => setIsLoginModalOpen(true)}
       >
         Login
@@ -184,9 +190,9 @@ export default function FortniteDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-white">
+    <div className="min-h-screen bg-[#12111f] text-white">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-[#0d1117]">
+      <header className="border-b border-[#2d2b3a] bg-[#1a172b]">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -195,10 +201,10 @@ export default function FortniteDetail() {
                 onClick={() => navigate('/')}
               >
                 <div className="w-8 h-8 rounded flex items-center justify-center">
-                  <Crown className="pt-crown-icon w-5 h-5" />
+                  <Crown className="text-[#7c3aed] w-5 h-5" />
                 </div>
                 <span className="pt-logo-text">
-                  <span className="pt-blue">PLAY</span>TRADE
+                  <span className="text-[#7c3aed]">PLAY</span>TRADE
                 </span>
               </div>
             </div>
@@ -238,7 +244,7 @@ export default function FortniteDetail() {
 
         {loading ? (
           <div className="flex justify-center items-center py-16">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#7c3aed]"></div>
           </div>
         ) : error ? (
           <div className="text-center py-16">
@@ -249,8 +255,8 @@ export default function FortniteDetail() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left column - Account images */}
             <div className="lg:col-span-2">
-              <div className="bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden">
-                <div className="p-4 border-b border-gray-800">
+              <div className="bg-[#1a172b] border border-[#2d2b3a] rounded-lg overflow-hidden">
+                <div className="p-4 border-b border-[#2d2b3a]">
                   <h1 className="text-2xl font-bold">
                     {account.title || `[${account.server || "N/A"}] ${account.description?.substring(0, 30) || "Fortnite Account"}`}
                   </h1>
@@ -312,42 +318,42 @@ export default function FortniteDetail() {
               </div>
 
               {/* Account details */}
-              <div className="bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden mt-6 p-5">
+              <div className="bg-[#1a172b] border border-[#2d2b3a] rounded-lg overflow-hidden mt-6 p-5">
                 <h2 className="text-xl font-semibold mb-4">Account Details</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-[#1f2228] p-3 rounded-lg">
+                  <div className="bg-[#211f2d] p-3 rounded-lg">
                     <div className="text-gray-400 text-sm mb-1">Town Hall Level</div>
                     <div className="text-lg font-semibold">{account.account_data?.TownHallLevel || 0}</div>
                   </div>
-                  <div className="bg-[#1f2228] p-3 rounded-lg">
+                  <div className="bg-[#211f2d] p-3 rounded-lg">
                     <div className="text-gray-400 text-sm mb-1">Gems</div>
                     <div className="text-lg font-semibold">{account.account_data?.Gems || 0}</div>
                   </div>
-                  <div className="bg-[#1f2228] p-3 rounded-lg">
+                  <div className="bg-[#211f2d] p-3 rounded-lg">
                     <div className="text-gray-400 text-sm mb-1">Trophies</div>
                     <div className="text-lg font-semibold">{account.account_data?.TrophyCount || 0}</div>
                   </div>
-                  <div className="bg-[#1f2228] p-3 rounded-lg">
+                  <div className="bg-[#211f2d] p-3 rounded-lg">
                     <div className="text-gray-400 text-sm mb-1">Clan Level</div>
                     <div className="text-lg font-semibold">{account.account_data?.ClanLevel || 0}</div>
                   </div>
-                  <div className="bg-[#1f2228] p-3 rounded-lg">
+                  <div className="bg-[#211f2d] p-3 rounded-lg">
                     <div className="text-gray-400 text-sm mb-1">Minion Prince</div>
                     <div className="text-lg font-semibold">{account.account_data?.MinionPrinceLevel || 0}</div>
                   </div>
-                  <div className="bg-[#1f2228] p-3 rounded-lg">
+                  <div className="bg-[#211f2d] p-3 rounded-lg">
                     <div className="text-gray-400 text-sm mb-1">Barbarian King</div>
                     <div className="text-lg font-semibold">{account.account_data?.BarbarianKingLevel || 0}</div>
                   </div>
-                  <div className="bg-[#1f2228] p-3 rounded-lg">
+                  <div className="bg-[#211f2d] p-3 rounded-lg">
                     <div className="text-gray-400 text-sm mb-1">Archer Queen</div>
                     <div className="text-lg font-semibold">{account.account_data?.ArcherQueenLevel || 0}</div>
                   </div>
-                  <div className="bg-[#1f2228] p-3 rounded-lg">
+                  <div className="bg-[#211f2d] p-3 rounded-lg">
                     <div className="text-gray-400 text-sm mb-1">Grand Warden</div>
                     <div className="text-lg font-semibold">{account.account_data?.GrandWardenLevel || 0}</div>
                   </div>
-                  <div className="bg-[#1f2228] p-3 rounded-lg">
+                  <div className="bg-[#211f2d] p-3 rounded-lg">
                     <div className="text-gray-400 text-sm mb-1">Royal Champion</div>
                     <div className="text-lg font-semibold">{account.account_data?.RoyalChampionLevel || 0}</div>
                   </div>
@@ -357,14 +363,14 @@ export default function FortniteDetail() {
 
             {/* Right column - Price and seller info */}
             <div>
-              <div className="bg-[#161b22] border border-gray-800 rounded-lg overflow-hidden sticky top-4">
-                <div className="p-5 border-b border-gray-800">
+              <div className="bg-[#1a172b] border border-[#2d2b3a] rounded-lg overflow-hidden sticky top-4">
+                <div className="p-5 border-b border-[#2d2b3a]">
                   <div className="text-3xl font-bold mb-1">
                     ${account.price?.toFixed(2) || "0.00"}
                     <span className="text-sm text-gray-400 ml-1">USD</span>
                   </div>
                   <button
-                    className={`w-full ${isProcessingOrder ? 'bg-blue-800 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} py-3 rounded-md font-semibold flex items-center justify-center`}
+                    className={`w-full ${isProcessingOrder ? 'bg-[#4c1d95] cursor-not-allowed' : 'bg-[#7c3aed] hover:bg-[#6d28d9]'} py-3 rounded-md font-semibold flex items-center justify-center`}
                     onClick={handleBuyNow}
                     disabled={isProcessingOrder}
                   >
@@ -374,16 +380,42 @@ export default function FortniteDetail() {
                         Processing...
                       </>
                     ) : (
-                      'Buy Now'
+                      <>
+                        <ShoppingCart className="w-5 h-5 mr-2" />
+                        Buy Now
+                      </>
                     )}
                   </button>
+                  
+                  {/* Purchase information */}
+                  <div className="mt-4 bg-[#211f2d] rounded-md p-3">
+                    <h4 className="text-sm font-medium mb-2">Purchase Information</h4>
+                    <ul className="text-xs text-gray-300 space-y-2">
+                      <li className="flex items-start">
+                        <Check className="w-4 h-4 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        Secure payment via our platform
+                      </li>
+                      <li className="flex items-start">
+                        <Check className="w-4 h-4 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        Account details provided instantly after purchase
+                      </li>
+                      <li className="flex items-start">
+                        <Check className="w-4 h-4 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        Full access warranty for {account?.warranty || 30} days
+                      </li>
+                      <li className="flex items-start">
+                        <Check className="w-4 h-4 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        24/7 customer support
+                      </li>
+                    </ul>
+                  </div>
                 </div>
 
                 {/* Seller info */}
                 <div className="p-5">
                   <h3 className="text-lg font-semibold mb-3">Seller Information</h3>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center text-lg font-semibold">
+                    <div className="w-10 h-10 bg-[#211f2d] rounded-full flex items-center justify-center text-lg font-semibold">
                       {seller?.username ? seller.username.charAt(0).toUpperCase() : "S"}
                     </div>
                     <div>
@@ -394,7 +426,7 @@ export default function FortniteDetail() {
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
                             fill="currentColor"
-                            className="w-4 h-4 text-blue-500 ml-1"
+                            className="w-4 h-4 text-[#7c3aed] ml-1"
                           >
                             <path
                               fillRule="evenodd"
@@ -404,13 +436,45 @@ export default function FortniteDetail() {
                           </svg>
                         )}
                       </div>
-                      <div className="text-green-500 text-sm flex items-center">
-                        <span>{seller?.rating || "98"}% Positive</span>
-                      </div>
                     </div>
                   </div>
                   <div className="text-sm text-gray-400">
                     Member since {seller?.joinDate ? new Date(seller.joinDate).toLocaleDateString() : "N/A"}
+                  </div>
+                  
+                  {/* Seller stats */}
+                  <div className="mt-4 grid grid-cols-1 gap-3">
+                    <div className="bg-[#211f2d] p-3 rounded-md">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm text-gray-400 flex items-center">
+                          <Star className="w-4 h-4 text-[#7c3aed] mr-2" />
+                          Seller Rating
+                        </span>
+                        <div className="flex items-center">
+                          <span className="text-sm font-semibold">{sellerStats.rating}%</span>
+                          <span className="text-xs text-gray-400 ml-1">Positive</span>
+                        </div>
+                      </div>
+                      <div className="w-full bg-[#1a172b] rounded-full h-2">
+                        <div 
+                          className="bg-[#7c3aed] h-2 rounded-full" 
+                          style={{ width: `${sellerStats.rating}%` }}
+                        ></div>
+                      </div>
+                      <div className="mt-1 text-xs text-gray-400 text-right">
+                        {sellerStats.totalReviews || 0} reviews
+                      </div>
+                    </div>
+                    <div className="bg-[#211f2d] p-3 rounded-md flex justify-between items-center">
+                      <span className="text-sm text-gray-400 flex items-center">
+                        <Package className="w-4 h-4 text-[#7c3aed] mr-2" />
+                        Total Sales
+                      </span>
+                      <div className="flex items-center">
+                        <span className="text-sm font-semibold">{sellerStats.totalSales || 0}</span>
+                        <span className="text-xs text-gray-400 ml-1">completed</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

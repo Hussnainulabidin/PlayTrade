@@ -7,45 +7,165 @@ const user = require('../models/user');
 const sendEmail = require('../utils/email');
 const crypto = require("crypto");
 
+// Create a temporary user schema or use a separate collection for unverified users
+// We'll use the Redis-like approach with TTL for simplicity in this implementation
+const tempUserStore = new Map();
+
 const signToken = id => {
     return jwt.sign({id} , process.env.JWT_SECRET , {
         expiresIn : process.env.JWT_EXPIRES_IN
     });
 }
 
-const createSendToken = (user ,  statusCode , res ) => {
+const createSendToken = (user, statusCode, res) => {
     const token = signToken(user._id);
 
+    // Set cookie options for better security
     const cookieOptions = {
-        expires : new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
-        secure: true,
-        httpOnly:true
-    }
+        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production'
+    };
 
-    if(process.env.NODE_ENV === 'production ')
-        res.cookie('jwt' , token, cookieOptions)
+    // Set the JWT as an HTTP-only cookie
+    res.cookie('jwt', token, cookieOptions);
     
+    // Remove password from output
+    user.password = undefined;
+    
+    // Return comprehensive response with user data
     res.status(statusCode).json({
         status: "success",
         token,
         data: {
-            user: user
+            user: {
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                verified: user.verified,
+                joinDate: user.joinDate,
+                twoFactorEnabled: user.twoFactorEnabled,
+                profilePicture: user.profilePicture
+            }
         }
     });
-}
+};
 
 exports.signup = catchAsync(async (req, res, next) => {
-    //1. Create a new user
-    const newUser = await User.create({
-        username : req.body.username,
-        email : req.body.email,
-        password : req.body.password,
-        passwordConfirm : req.body.passwordConfirm
-    })
+    // Validate the user data without saving to database
+    const newUser = new User({
+        username: req.body.username,
+        email: req.body.email,
+        password: req.body.password,
+        passwordConfirm: req.body.passwordConfirm
+    });
 
-    //2. Create a token
-    createSendToken(newUser , 201 , res);
-})
+    // Check if user with this email already exists
+    const existingUser = await User.findOne({ email: req.body.email });
+    if (existingUser) {
+        return next(new AppError('Email already in use. Please use a different email address.', 400));
+    }
+
+    // Validate the user data
+    try {
+        await newUser.validate();
+    } catch (err) {
+        return next(new AppError(`Validation failed: ${err.message}`, 400));
+    }
+
+    // Generate a 2FA code for email verification
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+    const codeExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+    
+    // Store user data temporarily with the verification code
+    const tempUserId = crypto.randomBytes(16).toString('hex');
+    
+    // Store the temporary user data with an expiration time (5 minutes)
+    tempUserStore.set(tempUserId, {
+        userData: {
+            username: req.body.username,
+            email: req.body.email,
+            password: req.body.password,
+            passwordConfirm: req.body.passwordConfirm
+        },
+        verificationCode: verificationCode,
+        expires: codeExpires
+    });
+    
+    // Set a timeout to automatically delete the temporary data after 5 minutes
+    setTimeout(() => {
+        tempUserStore.delete(tempUserId);
+        console.log(`Temporary user data for ${tempUserId} expired and removed`);
+    }, 5 * 60 * 1000); // 5 minutes
+    
+    // Send verification code to user's email
+    try {
+        const emailSubject = 'Email Verification Code for Your PlayTrade Account';
+        console.log('Sending verification email with subject:', emailSubject);
+        
+        await sendEmail({
+            email: req.body.email,
+            subject: emailSubject,
+            message: `Welcome to PlayTrade! Your verification code is: ${verificationCode}`
+        });
+
+        // Return response indicating that verification is required
+        res.status(200).json({
+            status: 'success',
+            message: 'Verification code sent to email',
+            requiresTwoFactor: true,
+            userId: tempUserId // Send the temporary ID, not the actual MongoDB _id
+        });
+    } catch (err) {
+        // If email sending fails, delete the temp user and return error
+        tempUserStore.delete(tempUserId);
+        
+        console.error('Verification email sending failed:', err);
+        return next(new AppError('There was an error sending the verification code. Please try again.', 500));
+    }
+});
+
+exports.verifySignupCode = catchAsync(async (req, res, next) => {
+    const { userId, verificationCode } = req.body;
+    
+    if (!userId || !verificationCode) {
+        return next(new AppError('Please provide both user ID and verification code', 400));
+    }
+    
+    // Retrieve the temporary user data
+    const tempUserData = tempUserStore.get(userId);
+    
+    // Check if temporary user data exists and the code is valid
+    if (!tempUserData || tempUserData.verificationCode !== verificationCode) {
+        return next(new AppError('Invalid verification code', 401));
+    }
+    
+    // Check if the code has expired
+    if (Date.now() > tempUserData.expires) {
+        tempUserStore.delete(userId);
+        return next(new AppError('Verification code has expired. Please sign up again.', 401));
+    }
+    
+    try {
+        // Create the actual user in the database
+        const newUser = await User.create({
+            username: tempUserData.userData.username,
+            email: tempUserData.userData.email,
+            password: tempUserData.userData.password,
+            passwordConfirm: tempUserData.userData.passwordConfirm,
+            verified: true
+        });
+        
+        // Remove the temporary user data
+        tempUserStore.delete(userId);
+        
+        // Issue token and log the user in
+        createSendToken(newUser, 201, res);
+    } catch (err) {
+        return next(new AppError(`Error creating user: ${err.message}`, 500));
+    }
+});
 
 exports.login = catchAsync(async (req, res, next) => {
     //1. Check if email and password exist
@@ -297,4 +417,70 @@ exports.verifyTwoFactorCode = catchAsync(async (req, res, next) => {
     
     // Issue token and log the user in
     createSendToken(user, 200, res);
+});
+
+exports.resendVerificationCode = catchAsync(async (req, res, next) => {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+        return next(new AppError('Please provide email and password', 400));
+    }
+    
+    // Check if user with this email already exists in the database
+    const existingUser = await User.findOne({ email }).select('+password');
+    if (existingUser && existingUser.verified) {
+        // If user exists and is verified, they should just log in
+        return next(new AppError('This email is already registered and verified. Please log in.', 400));
+    }
+    
+    // Generate a new verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+    const codeExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+    
+    // Store temporary user data
+    const tempUserId = crypto.randomBytes(16).toString('hex');
+    
+    // Store the user data temporarily with the verification code
+    tempUserStore.set(tempUserId, {
+        userData: {
+            username: req.body.username,
+            email: req.body.email,
+            password: req.body.password,
+            passwordConfirm: req.body.password // Use the same password for confirmation
+        },
+        verificationCode: verificationCode,
+        expires: codeExpires
+    });
+    
+    // Set a timeout to automatically delete the temporary data after 5 minutes
+    setTimeout(() => {
+        tempUserStore.delete(tempUserId);
+        console.log(`Temporary user data for ${tempUserId} expired and removed`);
+    }, 5 * 60 * 1000); // 5 minutes
+    
+    // Send the new verification code
+    try {
+        const emailSubject = 'Email Verification Code for Your PlayTrade Account';
+        console.log('Resending verification email with subject:', emailSubject);
+        
+        await sendEmail({
+            email: req.body.email,
+            subject: emailSubject,
+            message: `Welcome to PlayTrade! Your verification code is: ${verificationCode}`
+        });
+        
+        // Return success response with the new temporary user ID
+        res.status(200).json({
+            status: 'success',
+            message: 'Verification code sent to email',
+            requiresTwoFactor: true,
+            userId: tempUserId
+        });
+    } catch (err) {
+        // If email sending fails, clean up and return error
+        tempUserStore.delete(tempUserId);
+        
+        console.error('Verification email sending failed:', err);
+        return next(new AppError('There was an error sending the verification code. Please try again.', 500));
+    }
 });

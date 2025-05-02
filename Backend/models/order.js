@@ -85,7 +85,7 @@ orderSchema.pre('save', async function(next) {
 orderSchema.post('save', async function(doc) {
   try {
     // Check if a chat already exists for this order (the createOrderChat function will handle this check)
-    const initialMessage = `(system)Order has been created. Order status: ${doc.status}`;
+    const initialMessage = `(System)Order has been created. Order status: ${doc.status}`;
     await createOrderChat(
       doc._id,
       doc.clientID, // Buyer

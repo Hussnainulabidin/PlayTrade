@@ -1373,3 +1373,44 @@ exports.resolveDispute = catchAsync(async (req, res, next) => {
   }
 });
 
+exports.getSellerStats = catchAsync(async (req, res, next) => {
+  const sellerId = req.params.id;
+
+  // Find orders for this seller that are completed
+  const orders = await Orders.find({ 
+    sellerID: sellerId,
+    status: "completed"
+  });
+
+  // Count total completed sales
+  const totalSales = orders.length;
+
+  // Calculate rating
+  let positiveReviews = 0;
+  let totalReviews = 0;
+
+  orders.forEach(order => {
+    if (order.review) {
+      totalReviews++;
+      if (order.review === 'positive') {
+        positiveReviews++;
+      }
+    }
+  });
+
+  // Calculate the rating percentage
+  const rating = totalReviews > 0 
+    ? Math.round((positiveReviews / totalReviews) * 100) 
+    : 100; // Default to 100% if no reviews
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      totalSales,
+      rating,
+      totalReviews,
+      positiveReviews
+    }
+  });
+});
+

@@ -20,7 +20,14 @@ exports.getTopAccounts = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllAccounts = catchAsync(async (req, res, next) => {
-  const { search, server, rank, level, price } = req.query;
+  const { search, server, rank, level, price, page = 1, limit = 12 } = req.query;
+  
+  // Convert page and limit to numbers
+  const pageNum = parseInt(page, 10);
+  const limitNum = parseInt(limit, 10);
+  
+  // Calculate skip value for pagination
+  const skip = (pageNum - 1) * limitNum;
   
   let searchQuery = {};
 
@@ -63,11 +70,84 @@ exports.getAllAccounts = catchAsync(async (req, res, next) => {
 
   console.log('Search Query:', searchQuery);
 
-  const accounts = await leagueoflegends.find(searchQuery);
+  // Count total documents matching the query
+  const totalAccounts = await leagueoflegends.countDocuments(searchQuery);
+  
+  // Calculate total pages
+  const totalPages = Math.ceil(totalAccounts / limitNum);
+
+  // Fetch accounts with populated seller data
+  const accounts = await leagueoflegends
+    .find(searchQuery)
+    .populate({
+      path: 'sellerID',
+      select: 'username joinDate photo profilePicture verified'
+    })
+    .skip(skip)
+    .limit(limitNum);
+
+  // Get seller IDs from accounts
+  const sellerIds = accounts.map(account => account.sellerID._id);
+
+  
+  // Fetch seller feedback stats
+  const sellerStats = {};
+  
+  // Only fetch stats if we have accounts
+  if (sellerIds.length > 0) {
+    // Use MongoDB aggregation to get stats for all sellers at once
+    const Order = require('../models/order');
+    
+    // Create a mapping of seller stats for each seller ID
+    for (const sellerId of sellerIds) {
+      // Find orders for this seller that are completed
+      const orders = await Order.find({ 
+        sellerID: sellerId,
+        status: "completed"
+      });
+    
+      // Count total completed sales
+      const totalSales = orders.length;
+    
+      // Calculate rating
+      let positiveReviews = 0;
+      let totalReviews = 0;
+    
+      orders.forEach(order => {
+        if (order.review) {
+          totalReviews++;
+          if (order.review === 'positive') {
+            positiveReviews++;
+          }
+        }
+      });
+    
+      // Calculate the rating percentage
+      const rating = totalReviews > 0 
+        ? Math.round((positiveReviews / totalReviews) * 100) 
+        : 100; // Default to 100% if no reviews
+      
+    
+      // Store the stats for this seller
+      sellerStats[sellerId] = {
+        totalSales,
+        rating,
+        totalReviews,
+        positiveReviews
+      };
+    }
+  }
 
   res.status(200).json({
     status: "success",
-    data: { accounts },
+    data: { 
+      accounts,
+      sellerStats,
+      page: pageNum,
+      limit: limitNum,
+      totalAccounts,
+      totalPages
+    },
   });
 });
 
@@ -89,7 +169,11 @@ exports.createAccount = catchAsync(async (req, res, next) => {
 });
 
 exports.getAccount = catchAsync(async (req, res, next) => {
-  const account = await leagueoflegends.findById(req.params.id);
+  const account = await leagueoflegends.findById(req.params.id)
+    .populate({
+      path: 'sellerID',
+      select: 'username email joinDate photo profilePicture verified rating'
+    });
 
   if (!account) {
     return next(new AppError('No account found with that ID', 404));

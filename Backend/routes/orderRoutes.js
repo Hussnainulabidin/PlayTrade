@@ -13,6 +13,9 @@ router.route("/my-orders").get(orderController.getMyOrders);
 // Get orders by seller ID - restricted to admin and the seller themselves
 router.route("/seller/:id").get(authController.restrictTo("admin" , "seller"),orderController.getOrdersBySellerId);
 
+// Get seller statistics - no restrictions as this is public data
+router.route("/seller/:id/stats").get(orderController.getSellerStats);
+
 // Create a new order - any authenticated user can create an order
 router.route("/").post(orderController.createOrder);
 router.route("/").get(authController.restrictTo("admin"),orderController.getAllOrders);

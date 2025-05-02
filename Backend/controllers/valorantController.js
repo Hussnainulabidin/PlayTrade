@@ -21,7 +21,14 @@ exports.getTopAccounts = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllAccounts = catchAsync(async (req, res, next) => {
-  const { search, server, rank, price } = req.query;
+  const { search, server, rank, price, page = 1, limit = 12 } = req.query;
+  
+  // Convert page and limit to numbers
+  const pageNum = parseInt(page, 10);
+  const limitNum = parseInt(limit, 10);
+  
+  // Calculate skip value for pagination
+  const skip = (pageNum - 1) * limitNum;
 
   let searchQuery = {};
 
@@ -55,13 +62,31 @@ exports.getAllAccounts = catchAsync(async (req, res, next) => {
     }
   }
 
-  console.log('Search Query:', searchQuery);
+  // Count total documents matching the query
+  const totalAccounts = await valorant.countDocuments(searchQuery);
+  
+  // Calculate total pages
+  const totalPages = Math.ceil(totalAccounts / limitNum);
 
-  const accounts = await valorant.find(searchQuery);
+  // Get paginated accounts
+  const accounts = await valorant
+    .find(searchQuery)
+    .populate({
+      path: 'sellerID',
+      select: 'username joinDate photo profilePicture'
+    })
+    .skip(skip)
+    .limit(limitNum);
 
   res.status(200).json({
     status: "success",
-    data: { accounts },
+    data: { 
+      accounts,
+      page: pageNum,
+      limit: limitNum,
+      totalAccounts,
+      totalPages
+    },
   });
 });
 
@@ -87,7 +112,10 @@ exports.createAccount = catchAsync(async (req, res, next) => {
 });
 
 exports.getAccount = catchAsync(async (req, res, next) => {
-  const account = await valorant.findById(req.params.id);
+  const account = await valorant.findById(req.params.id).populate({
+    path: 'sellerID',
+    select: 'username joinDate photo profilePicture'
+  });
 
   if (!account) {
     return next(new AppError('No account found with that ID', 404));

@@ -53,6 +53,7 @@ export function LoginModal({
       }
       
       if (response) {
+        // The login method in the context will handle storing the token
         await login(response);
         onLoginSuccess(response);
         onClose();
@@ -146,7 +147,7 @@ export function LoginModal({
                   disabled={loading}
                 />
                 <Button
-                  className="w-full bg-[#3B6EF2] hover:bg-[#2C5AD9] h-11"
+                  className="w-full bg-[#7c3aed] hover:bg-[#6d28d9] h-11"
                   onClick={handleLogin}
                   disabled={loading}
                 >

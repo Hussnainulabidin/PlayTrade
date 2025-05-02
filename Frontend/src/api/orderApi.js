@@ -10,8 +10,11 @@ const orderApi = {
   
   // Order actions
   createOrder: (orderData) => API.post('/orders', orderData),
-  markOrderAsReceived: (id) => API.post(`/orders/${id}/received`),
+  markOrderAsReceived: (id) => API.post(`/orders/${id}/mark-received`),
   submitFeedback: (id, feedbackData) => API.post(`/orders/${id}/feedback`, feedbackData),
+  
+  // Seller statistics
+  getSellerStats: (sellerId) => API.get(`/orders/seller/${sellerId}/stats`),
   
   // Disputes
   disputeOrder: (id, disputeReason) => API.post(`/orders/${id}/dispute`, { disputeReason }),

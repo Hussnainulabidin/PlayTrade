@@ -74,7 +74,7 @@ const ClientSidebar = () => {
                 </h1>
                 <p className="text-xs text-gray-400">Client Panel</p>
               </div>
-            </Link>
+        </Link>
           </div>
         )}
 
@@ -82,7 +82,7 @@ const ClientSidebar = () => {
           <ul className="space-y-1 px-2">
             {menuItems.map((item, index) => (
               <li key={index}>
-                <Link
+        <Link
                   to={item.link}
                   className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
                     location.pathname.startsWith(item.link)
@@ -90,14 +90,14 @@ const ClientSidebar = () => {
                       : "text-gray-400 hover:bg-[#1f1b31] hover:text-white"
                   }`}
                   onClick={() => isMobile && setIsOpen(false)}
-                >
+        >
                   <item.icon className="w-4 h-4" />
                   {item.label}
-                </Link>
+        </Link>
               </li>
             ))}
           </ul>
-        </nav>
+      </nav>
 
         <div className="p-4 border-t border-[#1f1b31]">
           <div className="flex items-center gap-3 px-2">
@@ -117,9 +117,9 @@ const ClientSidebar = () => {
               onClick={logout}
             >
               <LogOut className="w-4 h-4 text-gray-400" />
-            </button>
-          </div>
-        </div>
+        </button>
+      </div>
+    </div>
       </aside>
       
       {isMobile && isOpen && (

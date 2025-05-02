@@ -32,14 +32,19 @@ const login = async (email, password) => {
 
     if (response.data.token) {
       const userData = { ...response.data.data.user };
+      // Remove sensitive data
       delete userData.passwordResetToken;
       delete userData.passwordResetExpires;
       delete userData.password;
       
+      // Set auth header for subsequent API calls
       setAuthHeader(response.data.token);
-      userData.token = response.data.token
+      userData.token = response.data.token;
+      
+      // Only store the essential auth data
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userId", userData._id);
+      
       return userData;
     }
     return null;
@@ -57,14 +62,19 @@ const verifyTwoFactorCode = async (userId, verificationCode) => {
 
     if (response.data.token) {
       const userData = { ...response.data.data.user };
+      // Remove sensitive data
       delete userData.passwordResetToken;
       delete userData.passwordResetExpires;
       delete userData.password;
       
+      // Set auth header for subsequent API calls
       setAuthHeader(response.data.token);
-      userData.token = response.data.token
+      userData.token = response.data.token;
+      
+      // Only store the essential auth data
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userId", userData._id);
+      
       return userData;
     }
     return null;
@@ -79,13 +89,18 @@ const register = async (userData) => {
 
     if (response.data.token) {
       const user = { ...response.data.data.user };
+      // Remove sensitive data
       delete user.passwordResetToken;
       delete user.passwordResetExpires;
       delete user.password;
       
+      // Set auth header for subsequent API calls
       setAuthHeader(response.data.token);
+      
+      // Only store the essential auth data
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userId", user._id);
+      
       return user;
     }
     return null;
@@ -104,7 +119,7 @@ const getCurrentUser = async (token) => {
     });
 
     const userData = { ...response.data.data };
-
+    // Remove sensitive data
     delete userData.passwordResetToken;
     delete userData.passwordResetExpires;
     delete userData.password;
@@ -118,6 +133,7 @@ const getCurrentUser = async (token) => {
 
 const logout = () => {
   setAuthHeader(null);
+  // Only remove essential auth data
   localStorage.removeItem("userId");
   localStorage.removeItem("token");
 };

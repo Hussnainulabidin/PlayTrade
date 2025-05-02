@@ -52,14 +52,26 @@ export function UserProvider({ children }) {
   };
 
   const login = async (userData) => {
-    console.log(userData);
+    if (!userData) {
+      console.error('Login failed: No user data provided');
+      return;
+    }
+    
+    console.log('Logging in user:', userData);
+    
+    // Store user data in state
     setUser(userData);
     setToken(userData.token);
     setIsAuthenticated(true);
+    
+    // Initialize auth headers for API calls
     AuthService.initAuthHeader(userData.token);
-    // Store token and userId in localStorage
+    
+    // Store only essential authentication data
     localStorage.setItem("token", userData.token);
     localStorage.setItem("userId", userData._id);
+    
+    return userData;
   };
 
   const logout = () => {
@@ -89,7 +101,8 @@ export function UserProvider({ children }) {
     isLoading,
     login,
     logout,
-    updateUser
+    updateUser,
+    initializeAuth
   };
 
   return (

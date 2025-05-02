@@ -9,6 +9,8 @@ const router = express.Router();
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
 router.post('/verify-2fa', authController.verifyTwoFactorCode);
+router.post('/verify-signup', authController.verifySignupCode);
+router.post('/resend-verification', authController.resendVerificationCode);
 
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);

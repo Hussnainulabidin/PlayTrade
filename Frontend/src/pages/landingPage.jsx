@@ -274,7 +274,7 @@ function PlayTradeLanding() {
           <div className="pt-logo">
             <Crown className="pt-crown-icon" />
             <span className="pt-logo-text">
-              <span className="pt-blue">PLAY</span>TRADE
+              <span className="pt-purple">PLAY</span>TRADE
             </span>
           </div>
           {renderUserMenu()}
@@ -295,12 +295,11 @@ function PlayTradeLanding() {
         onLoginSuccess={handleLoginSuccess}
       />
 
-      {/* Rest of the component remains the same */}
       {/* Hero Section */}
       <section className="pt-hero">
         <div className="pt-container pt-text-center">
           <h1 className="pt-hero-title">
-            The <span className="pt-blue">All-In-One</span> Platform for Gamers
+            The <span className="pt-purple">All-In-One</span> Platform for Gamers
           </h1>
           <p className="pt-hero-subtitle">
             High-Quality Accounts · Premium Gaming Services · In-Game Currencies
@@ -761,7 +760,7 @@ function PlayTradeLanding() {
               <div className="pt-footer-logo">
                 <Crown className="pt-crown-icon" />
                 <span className="pt-logo-text">
-                  <span className="pt-blue">PLAY</span>TRADE
+                  <span className="pt-purple">PLAY</span>TRADE
                 </span>
               </div>
               <p className="pt-footer-tagline">
