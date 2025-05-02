@@ -6,8 +6,8 @@ import { ArrowLeft, Send, Paperclip, Smile } from "lucide-react"
 import { Button } from "../../components/AdminDashboard/ui/button"
 import { Badge } from "../../components/AdminDashboard/ui/badge"
 import { Textarea } from "../../components/AdminDashboard/ui/textarea"
-import axios from "axios"
 import io from "socket.io-client"
+import { ticketApi, chatApi } from "../../api"
 import "../Admin/TicketDetails.css"
 
 function TicketDetailPage() {
@@ -29,11 +29,7 @@ function TicketDetailPage() {
     const fetchTicketDetails = async () => {
       try {
         setLoading(true)
-        const response = await axios.get(`http://localhost:3003/tickets/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        })
+        const response = await ticketApi.getTicketById(id)
 
         if (response.data.status === 'success') {
           setTicket(response.data.data.ticket)
@@ -43,11 +39,7 @@ function TicketDetailPage() {
             try {
               const chatId = response.data.data.ticket.chatId._id || response.data.data.ticket.chatId;
 
-              const chatResponse = await axios.get(`http://localhost:3003/chats/${chatId}`, {
-                headers: {
-                  'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-              })
+              const chatResponse = await chatApi.getChatById(chatId)
 
               if (chatResponse.data.status === 'success') {
                 setMessages(chatResponse.data.data.chat.messages || [])

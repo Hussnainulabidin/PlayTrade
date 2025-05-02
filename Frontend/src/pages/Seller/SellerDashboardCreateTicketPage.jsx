@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft } from "lucide-react"
-import axios from "axios"
+import { ticketApi } from "../../api"
 import "../Admin/CreateTicket.css"
 
 function SellerDashboardCreateTicketPage() {
@@ -30,13 +30,7 @@ function SellerDashboardCreateTicketPage() {
             setLoading(true)
             setError(null)
 
-            const response = await axios.post("http://localhost:3003/tickets", {
-                ticketType
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            })
+            const response = await ticketApi.createTicket({ ticketType })
 
             if (response.data.status === 'success') {
                 // Navigate to the ticket detail page

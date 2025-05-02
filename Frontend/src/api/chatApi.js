@@ -4,20 +4,25 @@ const chatApi = {
   // Chat management
   getMyChats: () => API.get('/chats/my-chats'),
   getChatById: (chatId) => API.get(`/chats/${chatId}`),
-  
+
   // Order chat methods
   getChatByOrderId: (orderId) => API.get(`/chats/order/${orderId}`),
   sendMessageToOrderChat: (orderId, messageData) => API.post(`/chats/order/${orderId}/messages`, messageData),
-  
+
   // Messages
-  sendMessage: (chatId, messageData) => API.post(`/chats/${chatId}/messages`, messageData),
+  sendMessage: (chatId, content) => API.post(`/chats/${chatId}/messages`, { content }),
   markAsRead: (chatId) => API.patch(`/chats/${chatId}/read`),
-  
-  // For future socket integration
-  subscribeToChat: (chatId, callback) => {
-    // This would be replaced with actual socket.io implementation
-    console.log(`Subscribed to chat ${chatId}`);
-    return () => console.log(`Unsubscribed from chat ${chatId}`);
+
+  // For socket integration
+  sendTypingStatus: (chatId, isTyping) => {
+    // This would be handled by the socket service, but included here for completeness
+    console.log(`User is ${isTyping ? 'typing' : 'not typing'} in chat ${chatId}`);
+    return true;
+  },
+
+  // Fallback methods for when socket is not available
+  sendMessageREST: (chatId, content) => {
+    return API.post(`/chats/${chatId}/messages`, { content });
   }
 };
 

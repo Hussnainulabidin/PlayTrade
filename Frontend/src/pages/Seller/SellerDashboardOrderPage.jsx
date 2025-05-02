@@ -1,9 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import API from "../../api"
-import userApi from "../../api/userApi"
-import orderApi from "../../api/orderApi"
+import { userApi, orderApi } from "../../api"
 import Header from "../../components/SellerDashboard/SellerHeader/Header"
 import OrdersTable from "../../components/SellerDashboard/OrdersTable/OrdersTable"
 import OrderFilterBar from "../../components/SellerDashboard/OrderFilterBar/OrderFilterBar"

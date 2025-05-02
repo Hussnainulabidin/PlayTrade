@@ -7,7 +7,6 @@ import { Button } from "../../components/AdminDashboard/ui/button"
 import { Badge } from "../../components/AdminDashboard/ui/badge"
 import { Textarea } from "../../components/AdminDashboard/ui/textarea"
 import { ticketApi, chatApi } from "../../api"
-import axios from "axios"
 import { socketService } from "../../services"
 import { useUser } from "../../components/userContext/UserContext"
 import "./TicketDetails.css"
@@ -26,7 +25,7 @@ function TicketDetailPage() {
   const [messages, setMessages] = useState([])
   const [isConnected, setIsConnected] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
-  
+
   // Determine if this is a client or admin view based on the URL path
   const isClientView = location.pathname.includes('/client/tickets/')
 
@@ -43,19 +42,19 @@ function TicketDetailPage() {
       console.error("Cannot fetch chat messages: chatId is missing");
       return;
     }
-    
+
     try {
       console.log("Fetching chat messages for chatId:", chatId);
-      
+
       // Use the chat API to get chat by ID
       const response = await chatApi.getChatById(chatId);
-      
+
       if (response.data.status === 'success') {
         // Handle different response formats
         const chat = response.data.data.chat;
-        
+
         console.log("Received chat data:", chat);
-        
+
         if (chat && chat.messages && Array.isArray(chat.messages)) {
           setMessages(chat.messages);
           scrollToBottom();
@@ -78,30 +77,30 @@ function TicketDetailPage() {
       console.log("Message empty or chatData not available");
       return false;
     }
-    
+
     const chatId = typeof ticket.chatId === 'object' ? ticket.chatId._id : ticket.chatId;
-    
+
     // Check if this is a system message (admin only)
     const isSystemMessage = !isClientView && user?.role === 'admin' && content.startsWith("(System)");
-    
+
     // Try to send via socket first
     if (socketService.isConnected()) {
       const success = socketService.sendMessage(chatId, content, isSystemMessage);
       if (success) {
         return true;
       }
-    } 
-    
+    }
+
     // Fall back to REST API if socket is not connected
     try {
       console.log("Socket not connected, sending via REST API");
-      
+
       // Use the chat API to send a message
-      const response = await chatApi.sendMessage(chatId, { 
+      const response = await chatApi.sendMessage(chatId, {
         content,
-        isSystemMessage 
+        isSystemMessage
       });
-      
+
       if (response.data.status === 'success') {
         const newMessage = response.data.data.message;
         const formattedMessage = {
@@ -109,9 +108,9 @@ function TicketDetailPage() {
           sender: newMessage.sender,
           isSystemMessage
         };
-        
+
         console.log("Message sent successfully via API:", formattedMessage);
-        
+
         setMessages(prev => [...prev, formattedMessage]);
         scrollToBottom();
         return true;
@@ -138,10 +137,10 @@ function TicketDetailPage() {
     const fetchTicketDetails = async () => {
       try {
         setLoading(true)
-        
+
         // Use different API endpoints based on user role
         let response
-        
+
         if (isClientView && user?._id) {
           // For client view
           response = await ticketApi.getClientTicketById(user._id, id)
@@ -171,19 +170,19 @@ function TicketDetailPage() {
   // Socket connection and chat setup
   useEffect(() => {
     if (!ticket?.chatId) return;
-    
+
     const chatId = typeof ticket.chatId === 'object' ? ticket.chatId._id : ticket.chatId;
     console.log("Initializing socket for chatId:", chatId);
-    
+
     // Initialize socket if not already connected
     socketService.initializeSocket();
 
     // Set initial connection status
     setIsConnected(socketService.isConnected());
-    
+
     // Join the chat
     socketService.joinChat(chatId);
-    
+
     // Fetch existing messages
     fetchChatMessages(chatId);
 
@@ -196,11 +195,11 @@ function TicketDetailPage() {
     const handleDisconnect = () => {
       setIsConnected(false);
     };
-    
+
     const handleNewMessage = (data) => {
       if (data.chatId === chatId) {
         setMessages(prev => {
-        const newMsg = {
+          const newMsg = {
             ...data.message,
             sender: data.message.sender || {
               _id: data.message.sender._id,
@@ -218,13 +217,13 @@ function TicketDetailPage() {
         });
       }
     };
-    
+
     const handleUserTyping = (data) => {
       if (data.chatId === chatId) {
-      setIsTyping(data.isTyping);
+        setIsTyping(data.isTyping);
       }
     };
-    
+
     // Register event listeners
     socketService.on('connect', handleConnect);
     socketService.on('disconnect', handleDisconnect);
@@ -234,7 +233,7 @@ function TicketDetailPage() {
     // Clean up on unmount
     return () => {
       socketService.leaveChat(chatId);
-      
+
       // Remove event listeners
       socketService.off('connect', handleConnect);
       socketService.off('disconnect', handleDisconnect);
@@ -261,7 +260,7 @@ function TicketDetailPage() {
         typingTimeoutRef.current = null;
       }
       handleTyping(false);
-  }
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -273,15 +272,15 @@ function TicketDetailPage() {
 
   const handleMessageChange = (e) => {
     setMessage(e.target.value);
-    
+
     // Debounce typing status
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-    
+
     // Send typing indicator if there's content
     handleTyping(e.target.value.length > 0);
-    
+
     // Clear typing indicator after 3 seconds of no typing
     typingTimeoutRef.current = setTimeout(() => {
       handleTyping(false);
@@ -332,20 +331,20 @@ function TicketDetailPage() {
 
   const getMessageType = (message) => {
     const currentUserId = user?._id;
-    
+
     // Handle different sender formats that might come from the API or socket
     if (!message.sender) {
       return 'incoming';
     }
-    
+
     if (typeof message.sender === 'string') {
       return message.sender === currentUserId ? 'outgoing' : 'incoming';
     }
-    
+
     if (typeof message.sender === 'object') {
       return message.sender._id === currentUserId ? 'outgoing' : 'incoming';
     }
-    
+
     return 'incoming';
   };
 
@@ -362,14 +361,14 @@ function TicketDetailPage() {
         role: 'Support Agent'
       };
     }
-    
+
     // For admin view
     const currentUserId = user?._id
     const isAdmin = ticket.assignedAdmin?._id === currentUserId
-    
+
     // Determine the other participant (seller or client)
     let name, isOnline, avatar, role
-    
+
     if (ticket.ticketType === 'Client Ticket') {
       // For client tickets, show client info
       name = ticket.clientId?.username || 'Client'
@@ -381,9 +380,9 @@ function TicketDetailPage() {
       avatar = name.charAt(0).toUpperCase() || 'S'
       role = 'Seller'
     }
-    
+
     isOnline = isConnected // This can be improved to check actual user status
-    
+
     return { name, isOnline, avatar, role }
   };
 
@@ -564,17 +563,17 @@ function TicketDetailPage() {
             ) : (
               messages.map((msg, index) => {
                 // Check if message starts with "(System)" to display as system message
-                const isSystemStyleMessage = msg.isSystemMessage || 
+                const isSystemStyleMessage = msg.isSystemMessage ||
                   (msg.content && typeof msg.content === 'string' && msg.content.startsWith("(System)"));
-                
+
                 return (
                   <div
                     key={index}
                     className={`message ${isSystemStyleMessage
-                        ? 'system-message'
-                        : getMessageType(msg) === 'outgoing'
-                          ? 'current-user-message'
-                          : 'other-user-message'
+                      ? 'system-message'
+                      : getMessageType(msg) === 'outgoing'
+                        ? 'current-user-message'
+                        : 'other-user-message'
                       }`}
                   >
                     {!isSystemStyleMessage ? (
@@ -608,7 +607,7 @@ function TicketDetailPage() {
                           </svg>
                         </div>
                         <p className="system-message-text">
-                          {isSystemStyleMessage && msg.content.startsWith("(System)") 
+                          {isSystemStyleMessage && msg.content.startsWith("(System)")
                             ? msg.content.substring(8).trim() // Remove the "(System)" prefix
                             : msg.content}
                         </p>

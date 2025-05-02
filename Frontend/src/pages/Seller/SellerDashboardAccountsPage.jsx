@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import API from "../../api"
-import userApi from "../../api/userApi"
+import { gameAccountApi, userApi } from "../../api"
 import Header from "../../components/SellerDashboard/SellerHeader/Header"
 import AccountsTable from "../../components/SellerDashboard/AccountsTable/AccountsTable"
 import FilterBar from "../../components/SellerDashboard/SellerFilterBar/FilterBar"
@@ -38,7 +37,7 @@ const SellerDashboardAccountsPage = () => {
                 const sellerId = userResponse.data.data._id
 
                 // Then fetch accounts using the seller ID
-                const response = await API.get(`/gameAccounts/seller/${sellerId}?page=1&limit=100`);
+                const response = await gameAccountApi.getSellerAccounts(sellerId, 1, 100);
                 setAccounts(response.data.data.gameAccounts)
                 setTotalRows(response.data.totalAccounts)
                 setTotalPages(Math.ceil(response.data.totalAccounts / rowsPerPage))
