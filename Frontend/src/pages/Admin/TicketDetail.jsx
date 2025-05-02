@@ -394,8 +394,8 @@ function TicketDetailPage() {
     }
 
     try {
-      // Use the ticketApi to close the ticket
-      const response = await ticketApi.closeTicket(id);
+      // Use the ticketApi to close the ticket with updateTicketStatus
+      const response = await ticketApi.updateTicketStatus(id, 'Closed');
 
       if (response.data.status === 'success') {
         // Update the local state
@@ -404,16 +404,8 @@ function TicketDetailPage() {
           status: 'Closed'
         }));
 
-        // Send system message to chat
-        if (ticket.chatId) {
-          const chatId = ticket.chatId._id || ticket.chatId;
-
-          // Use the chatApi to send a system message
-          await chatApi.sendMessage(chatId, {
-            content: 'Ticket has been closed by support agent.',
-            isSystemMessage: true
-          });
-        }
+        // Send system message via handleSendMessage
+        handleSendMessage("(System)Ticket has been closed by support agent.");
 
         // Show success message
         alert('Ticket has been closed successfully');
@@ -431,8 +423,8 @@ function TicketDetailPage() {
     }
 
     try {
-      // Use the ticketApi to update the ticket status to 'open'
-      const response = await ticketApi.updateTicketStatus(id, 'open');
+      // Use the ticketApi to update the ticket status to 'Open'
+      const response = await ticketApi.updateTicketStatus(id, 'Open');
 
       if (response.data.status === 'success') {
         // Update the local state
@@ -441,16 +433,8 @@ function TicketDetailPage() {
           status: 'Open'
         }));
 
-        // Send system message to chat
-        if (ticket.chatId) {
-          const chatId = ticket.chatId._id || ticket.chatId;
-
-          // Use the chatApi to send a system message
-          await chatApi.sendMessage(chatId, {
-            content: 'Ticket has been reopened by support agent.',
-            isSystemMessage: true
-          });
-        }
+        // Send system message via handleSendMessage
+        handleSendMessage("(System)Ticket has been reopened by support agent.");
 
         // Show success message
         alert('Ticket has been reopened successfully');

@@ -217,3 +217,46 @@ exports.deleteAccount = catchAsync(async (req, res, next) => {
         message: 'Account successfully deleted'
     });
 });
+
+exports.deleteAccountPost = catchAsync(async (req, res, next) => {
+    const { accountId, gameType } = req.body;
+
+    if (!accountId || !gameType) {
+        return next(new AppError('Account ID and game type are required', 400));
+    }
+
+    let model;
+
+    // Select the appropriate model based on game type
+    switch (gameType.toLowerCase()) {
+        case 'valorant':
+            model = valorant;
+            break;
+        case 'clash of clans':
+            model = clashofclans;
+            break;
+        case 'league of legends':
+            model = leagueoflegends;
+            break;
+        case 'fortnite':
+            model = fortnite;
+            break;
+        case 'brawl stars':
+            model = brawlstars;
+            break;
+        default:
+            return next(new AppError('Invalid game type', 400));
+    }
+
+    // Delete the account
+    const deletedAccount = await model.findByIdAndDelete(accountId);
+
+    if (!deletedAccount) {
+        return next(new AppError('No account found with that ID', 404));
+    }
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Account successfully deleted'
+    });
+});

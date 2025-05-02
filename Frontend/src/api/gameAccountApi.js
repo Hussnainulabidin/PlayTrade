@@ -31,8 +31,8 @@ const commonAccountMethods = {
     });
   },
 
-  updateStatus: (accountId, status) =>
-    API.patch(`/gameAccounts/update-status/`, { accountId, status }),
+  updateStatus: (accountId, gameType, status) =>
+    API.patch(`/gameAccounts/update-status/`, { accountId, gameType, status }),
 
   getSellerAccounts: (sellerId, page = 1, limit = 10) =>
     API.get(`/gameAccounts/seller/${sellerId}?page=${page}&limit=${limit}`),
@@ -43,6 +43,8 @@ const gameAccountApi = {
   // Common methods at top level for direct access
   updateStatus: commonAccountMethods.updateStatus,
   getSellerAccounts: commonAccountMethods.getSellerAccounts,
+  deleteAccount: (accountId, gameType) => 
+    API.delete(`/gameAccounts/delete-account`, { data: { accountId, gameType } }),
 
   // Valorant accounts
   valorant: {

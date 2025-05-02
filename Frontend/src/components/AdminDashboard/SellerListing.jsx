@@ -92,7 +92,7 @@ export function SellerListings() {
     try {
       setUpdating(true)
 
-      const response = await gameAccountApi.updateStatus(accountId, status);
+      const response = await gameAccountApi.updateStatus(accountId, gameType, status);
 
       if (response.data.status === 'success') {
         // Update listings state with the new status
@@ -124,7 +124,7 @@ export function SellerListings() {
     try {
       setDeleting(true)
 
-      const response = await gameAccountApi[gameType.toLowerCase()].deleteAccount(accountId, gameType.toLowerCase());
+      const response = await gameAccountApi.deleteAccount(accountId, gameType);
 
       if (response.data.status === 'success') {
         // Remove the deleted listing from state
