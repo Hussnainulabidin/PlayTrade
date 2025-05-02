@@ -3,7 +3,7 @@
 import { Search, ChevronDown, Moon, Filter, Grid, List, Zap, Crown, User } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
-import axios from "axios"
+import gameAccountApi from "../../../api/gameAccountApi"
 import { LoginModal } from "../../LoginModal/LoginModal"
 import { SignupModal } from "../../SignupModal/SignupModal"
 import { useUser } from "../../userContext/UserContext"
@@ -83,23 +83,23 @@ export default function Fortnite() {
     const fetchAccounts = async () => {
       try {
         setLoading(true)
-        let queryParams = new URLSearchParams()
+        let filters = {}
 
         if (debouncedSearchQuery) {
-          queryParams.append('search', debouncedSearchQuery)
+          filters.search = debouncedSearchQuery
         }
-        if (selectedServer) {
-          queryParams.append('platform', selectedServer)
+        if (selectedServer && selectedServer !== "All Platforms") {
+          filters.platform = selectedServer
         }
         if (selectedPrice) {
-          queryParams.append('price', selectedPrice)
+          filters.price = selectedPrice
         }
 
         // Add pagination parameters
-        queryParams.append('page', currentPage)
-        queryParams.append('limit', itemsPerPage)
+        filters.page = currentPage
+        filters.limit = itemsPerPage
 
-        const response = await axios.get(`http://localhost:3003/fortnite/accounts?${queryParams.toString()}`)
+        const response = await gameAccountApi.fortnite.getAccounts(filters)
 
         if (response.data?.data) {
           const accountsData = response.data.data.accounts || []
@@ -699,7 +699,6 @@ export default function Fortnite() {
                     )}
                   </div>
                   <div className="flex items-center gap-1 text-green-500">
-                    <span>{sellers[account.sellerID?._id]?.rating || 100}%</span>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                       <path
                         fillRule="evenodd"

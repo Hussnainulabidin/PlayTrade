@@ -3,7 +3,7 @@
 import { Search, ChevronDown, Moon, Filter, Grid, List, Zap, Crown, User } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
-import axios from "axios"
+import gameAccountApi from "../../../api/gameAccountApi"
 import { LoginModal } from "../../LoginModal/LoginModal"
 import { SignupModal } from "../../SignupModal/SignupModal"
 import { useUser } from "../../userContext/UserContext"
@@ -91,26 +91,26 @@ export default function Valorant() {
     const fetchAccounts = async () => {
       try {
         setLoading(true)
-        let queryParams = new URLSearchParams()
+        let filters = {}
 
         if (debouncedSearchQuery) {
-          queryParams.append('search', debouncedSearchQuery)
+          filters.search = debouncedSearchQuery
         }
-        if (selectedServer) {
-          queryParams.append('server', selectedServer)
+        if (selectedServer && selectedServer !== "All Servers") {
+          filters.server = selectedServer
         }
-        if (selectedRank) {
-          queryParams.append('rank', selectedRank)
+        if (selectedRank && selectedRank !== "All Ranks") {
+          filters.rank = selectedRank
         }
         if (selectedPrice) {
-          queryParams.append('price', selectedPrice)
+          filters.price = selectedPrice
         }
 
         // Add pagination parameters
-        queryParams.append('page', currentPage)
-        queryParams.append('limit', itemsPerPage)
+        filters.page = currentPage
+        filters.limit = itemsPerPage
 
-        const response = await axios.get(`http://localhost:3003/valorant/accounts?${queryParams.toString()}`)
+        const response = await gameAccountApi.valorant.getAccounts(filters)
 
         if (response.data?.data) {
           setAccounts(response.data.data.accounts || [])
@@ -143,7 +143,7 @@ export default function Valorant() {
     }
 
     fetchAccounts()
-  }, [debouncedSearchQuery, selectedServer, selectedRank, selectedPrice, currentPage]) // Added currentPage dependency
+  }, [debouncedSearchQuery, selectedServer, selectedRank, selectedPrice, currentPage])
 
   // Add image slideshow interval
   useEffect(() => {
@@ -761,7 +761,6 @@ export default function Valorant() {
                     )}
                   </div>
                   <div className="flex items-center gap-1 text-green-500">
-                    <span>{account.sellerID?.rating || "98"}%</span>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                       <path
                         fillRule="evenodd"

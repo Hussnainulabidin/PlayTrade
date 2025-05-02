@@ -76,9 +76,11 @@ chatSchema.pre('save', function (next) {
 
 // Validate that either orderId or ticketId is present, but not both
 chatSchema.pre('save', function (next) {
+  console.log("4");
   if ((!this.orderId && !this.ticketId) || (this.orderId && this.ticketId)) {
     next(new Error('Chat must have either an orderId or a ticketId, but not both'));
   }
+  console.log("5");
   next();
 });
 

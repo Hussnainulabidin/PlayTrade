@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const SOCKET_SERVER_URL = 'http://localhost:3003';
+const SOCKET_SERVER_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3003';
 
 let socket = null;
 let activeChats = new Set();

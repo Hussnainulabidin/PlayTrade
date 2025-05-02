@@ -240,7 +240,7 @@ export function SellerListings() {
                 {filteredListings.map((listing) => (
                   <tr key={listing.id} className="table-row">
                     <td className="table-cell listing-id">
-                      <Link to={`/admindashboard/sellers/${id}/listings/${listing.id}`} className="order-link">
+                      <Link to={`/accounts/valorant/${id}/listings/${listing.id}`} className="order-link">
                         #{listing.id}
                       </Link>
                     </td>

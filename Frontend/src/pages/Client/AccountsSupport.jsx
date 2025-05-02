@@ -195,7 +195,7 @@ export default function AccountsSupport() {
                 <Mail size={18} className="support-contact-icon" />
                 <div className="support-contact-details">
                   <span className="support-contact-label">Email</span>
-                  <span className="support-contact-value">support@playtrade.com</span>
+                  <span className="support-contact-value">playtradegameservice@gmail.com</span>
                 </div>
               </div>
               <div className="support-contact-method">

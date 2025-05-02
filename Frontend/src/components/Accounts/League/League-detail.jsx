@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import axios from "axios"
 import { ChevronLeft, Heart, ShoppingCart, Shield, Clock, User, Star, Check, AlertTriangle, Award, Package } from "lucide-react"
 import { useUser } from "../../userContext/UserContext"
 import { LoginModal } from "../../LoginModal/LoginModal"
@@ -10,10 +9,11 @@ import { SignupModal } from "../../SignupModal/SignupModal"
 import { UserMenu } from "../../UserMenu/UserMenu"
 import { ChevronDown, Moon, Zap, Crown, ArrowLeft } from "lucide-react"
 import '../AccountCarousel.css' // Import shared CSS for animations
-import { orderApi } from "../../../api" // Import orderApi for seller stats
+import { orderApi, gameAccountApi } from "../../../api" // Import API modules
+import API from "../../../api" // Import base API
 import { handleImageError, optimizeCloudinaryUrl } from "../../../utils/imageUtils"
 
-export default function ValorantDetail() {
+export default function LeagueOfLegendsDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { user, isAuthenticated, login, logout } = useUser()
@@ -36,7 +36,7 @@ export default function ValorantDetail() {
       try {
         setLoading(true)
         // Fetch account details
-        const accountResponse = await axios.get(`http://localhost:3003/leagueoflegends/accounts/${id}`)
+        const accountResponse = await API.get(`/leagueoflegends/accounts/${id}`)
         const accountData = accountResponse.data.data?.account
 
         if (accountData) {
@@ -111,27 +111,11 @@ export default function ValorantDetail() {
     try {
       setIsProcessingOrder(true)
 
-      // Get the auth token
-      let token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt') || localStorage.getItem('token')
-
-      // Remove quotes if they exist
-      if (token && token.startsWith('"') && token.endsWith('"')) {
-        token = token.slice(1, -1)
-      }
-
-      // Create the order
-      const response = await axios.post(
-        "http://localhost:3003/orders",
-        {
-          accountID: id,
-          gameType: "League of Legends"
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
+      // Create the order using orderApi
+      const response = await orderApi.createOrder({
+        accountID: id,
+        gameType: "League of Legends"
+      })
 
       if (response.data.status === 'success') {
         // Navigate to the order details page

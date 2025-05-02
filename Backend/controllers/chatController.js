@@ -156,26 +156,27 @@ exports.addMessage = catchAsync(async (req, res, next) => {
   
   console.log("Comparing IDs:", senderId, receiverId, userIdStr);
   
-  // Check if the user is an admin or a participant in this chat
-  if (req.user.role !== 'admin' && senderId !== userIdStr && (receiverId === null || receiverId !== userIdStr)) {
+  // Check if the user is an admin, the sender, or if the sender matches the current user
+  if (req.user.role !== 'admin' && senderId !== userIdStr) {
     console.log("Authorization check failed for chat");
     return next(new AppError('You are not authorized to add messages to this chat', 403));
   }
+  console.log("Authorization check passed for chat");
 
-  
   
   const newMessage = {
     sender: userId,
-    content,
+    content: content.content,
     timestamp: Date.now(),
     read: false
   };
-  
+
   chat.messages.push(newMessage);
   chat.lastActivity = Date.now();
-  
+
   await chat.save();
-  
+
+
   // Return only the new message
   const addedMessage = chat.messages[chat.messages.length - 1];
   
