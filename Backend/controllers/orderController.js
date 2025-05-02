@@ -722,22 +722,25 @@ exports.refundOrder = catchAsync(async (req, res, next) => {
         createdAt: Date.now()
       }], { session });
       
-      // Update seller's wallet - deduct the amount they received
-      const sellerWalletAmount = Math.max(0, (seller.wallet || 0) - sellerReceives);
-      await User.findByIdAndUpdate(
-        seller._id,
-        { wallet: sellerWalletAmount },
-        { session, new: true, runValidators: false }
-      );
-      
-      // Create a wallet action record for the seller
-      await walletActions.create([{
-        user: seller._id,
-        amount: sellerReceives,
-        type: "withdrawal",
-        message: `Deduction for refunded order #${order._id} - ${gameType} account`,
-        createdAt: Date.now()
-      }], { session });
+      // Only deduct from seller's wallet if order was previously completed
+      if (order.status === "completed") {
+        // Update seller's wallet - deduct the amount they received
+        const sellerWalletAmount = Math.max(0, (seller.wallet || 0) - sellerReceives);
+        await User.findByIdAndUpdate(
+          seller._id,
+          { wallet: sellerWalletAmount },
+          { session, new: true, runValidators: false }
+        );
+        
+        // Create a wallet action record for the seller
+        await walletActions.create([{
+          user: seller._id,
+          amount: sellerReceives,
+          type: "withdrawal",
+          message: `Deduction for refunded order #${order._id} - ${gameType} account`,
+          createdAt: Date.now()
+        }], { session });
+      }
       
       // Find the game account based on game type
       let accountModel;

@@ -108,6 +108,7 @@ exports.getTicket = catchAsync(async (req, res, next) => {
 // Update ticket status
 exports.updateTicketStatus = catchAsync(async (req, res, next) => {
   const { status } = req.body;
+  console.log(status);
   const ticketId = req.params.id;
   const userId = req.user._id;
   
@@ -115,6 +116,7 @@ exports.updateTicketStatus = catchAsync(async (req, res, next) => {
   if (!['Open', 'In Progress', 'Closed'].includes(status)) {
     return next(new AppError('Invalid status. Must be one of: Open, In Progress, Closed', 400));
   }
+  console.log("test1");
   
   // Get the ticket with its current status
   const ticket = await Ticket.findById(ticketId);
@@ -122,7 +124,7 @@ exports.updateTicketStatus = catchAsync(async (req, res, next) => {
   if (!ticket) {
     return next(new AppError('No ticket found with that ID', 404));
   }
-  
+  console.log("test2");
   const previousStatus = ticket.status;
   
   // Update the ticket status
@@ -133,34 +135,7 @@ exports.updateTicketStatus = catchAsync(async (req, res, next) => {
   // Get user info for notification
   const user = await User.findById(userId).select('username role');
   
-  // If the ticket has a chat and status changed to Closed or from Closed to Open, add a system message
-  if (ticket.chatId && (status === 'Closed' || (previousStatus === 'Closed' && status === 'Open'))) {
-    try {
-      const chat = await Chat.findById(ticket.chatId);
-      
-      if (chat) {
-        // Add system message about status change
-        const actionText = status === 'Closed' ? 'closed' : 'reopened';
-        const systemMessage = {
-          sender: userId, // The user who changed the status
-          content: `Ticket has been ${actionText} by ${user ? user.username : 'a support agent'}.`,
-          timestamp: Date.now(),
-          isSystemMessage: true,
-          read: true
-        };
-        
-        chat.messages.push(systemMessage);
-        chat.lastActivity = Date.now();
-        await chat.save();
-        
-        console.log(`System message added to chat ${chat._id} for ticket ${ticketId}: Status changed to ${status}`);
-      }
-    } catch (chatError) {
-      console.error('Error adding system message to chat:', chatError);
-      // We don't fail the main operation if adding a chat message fails
-    }
-  }
-  
+
   console.log(`Ticket ${ticketId} status updated from ${previousStatus} to ${status} by user ${userId}`);
   
   res.status(200).json({
