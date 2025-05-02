@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom"
-import { 
-  Users, 
+import {
+  Users,
   ShoppingCart,
   Wallet,
   LogOut,
@@ -50,7 +50,7 @@ export function Sidebar() {
               <span className="text-blue-500">PLAY</span>TRADE
             </h1>
           </Link>
-          <button 
+          <button
             onClick={() => setIsOpen(!isOpen)}
             className="p-1.5 text-gray-400 hover:bg-[#1f1b31] rounded-lg"
           >
@@ -58,11 +58,10 @@ export function Sidebar() {
           </button>
         </div>
       )}
-      
-      <aside 
-        className={`fixed top-0 left-0 h-screen bg-[#0f0d1d] border-r border-[#1f1b31] flex flex-col z-40 transition-all duration-300 ${
-          isOpen ? 'w-64' : 'w-0 overflow-hidden'
-        } ${isMobile ? 'mt-12' : ''}`}
+
+      <aside
+        className={`fixed top-0 left-0 h-screen bg-[#0f0d1d] border-r border-[#1f1b31] flex flex-col z-40 transition-all duration-300 ${isOpen ? 'w-64' : 'w-0 overflow-hidden'
+          } ${isMobile ? 'mt-12' : ''}`}
       >
         {!isMobile && (
           <div className="flex items-center gap-2 p-4 border-b border-[#1f1b31]">
@@ -86,11 +85,10 @@ export function Sidebar() {
               <li key={index}>
                 <Link
                   to={item.link}
-                  className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
-                    location.pathname === item.link
+                  className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${location.pathname === item.link
                       ? "bg-[#7C3AED] text-white"
                       : "text-gray-400 hover:bg-[#1f1b31] hover:text-white"
-                  }`}
+                    }`}
                   onClick={() => isMobile && setIsOpen(false)}
                 >
                   <item.icon className="w-4 h-4" />
@@ -116,9 +114,9 @@ export function Sidebar() {
           </div>
         </div>
       </aside>
-      
+
       {isMobile && isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-30"
           onClick={() => setIsOpen(false)}
         />

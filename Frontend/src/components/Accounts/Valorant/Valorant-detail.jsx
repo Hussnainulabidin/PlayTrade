@@ -11,6 +11,7 @@ import { UserMenu } from "../../UserMenu/UserMenu"
 import { ChevronDown, Moon, Zap, Crown, ArrowLeft } from "lucide-react"
 import '../AccountCarousel.css' // Import shared CSS for animations
 import { orderApi } from "../../../api" // Import orderApi for seller stats
+import { handleImageError, optimizeCloudinaryUrl } from "../../../utils/imageUtils"
 
 export default function ValorantDetail() {
   const { id } = useParams()
@@ -42,7 +43,7 @@ export default function ValorantDetail() {
           // Use seller data directly from the populated sellerID field
           if (accountData.sellerID) {
             setSeller(accountData.sellerID)
-            
+
             // Fetch seller stats
             try {
               const statsResponse = await orderApi.getSellerStats(accountData.sellerID._id)
@@ -289,13 +290,10 @@ export default function ValorantDetail() {
                         account.gallery.map((image, index) => (
                           <img
                             key={index}
-                            src={image}
+                            src={optimizeCloudinaryUrl(image)}
                             alt={`Account screenshot ${index + 1}`}
                             className="w-full h-[400px] object-cover flex-shrink-0"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = "/images/placeholder.png";
-                            }}
+                            onError={(e) => handleImageError(e, image)}
                           />
                         ))
                       ) : (
@@ -385,7 +383,7 @@ export default function ValorantDetail() {
                       </>
                     )}
                   </button>
-                  
+
                   {/* Purchase information */}
                   <div className="mt-4 bg-[#211f2d] rounded-md p-3">
                     <h4 className="text-sm font-medium mb-2">Purchase Information</h4>
@@ -440,7 +438,7 @@ export default function ValorantDetail() {
                   <div className="text-sm text-gray-400">
                     Member since {seller?.joinDate ? new Date(seller.joinDate).toLocaleDateString() : "N/A"}
                   </div>
-                  
+
                   {/* Add more seller details */}
                   <div className="mt-4 grid grid-cols-1 gap-3">
                     <div className="bg-[#211f2d] p-3 rounded-md">
@@ -455,8 +453,8 @@ export default function ValorantDetail() {
                         </div>
                       </div>
                       <div className="w-full bg-[#1a172b] rounded-full h-2">
-                        <div 
-                          className="bg-[#7c3aed] h-2 rounded-full" 
+                        <div
+                          className="bg-[#7c3aed] h-2 rounded-full"
                           style={{ width: `${sellerStats.rating}%` }}
                         ></div>
                       </div>

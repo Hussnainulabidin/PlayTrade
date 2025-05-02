@@ -8,6 +8,7 @@ import { LoginModal } from "../../LoginModal/LoginModal"
 import { SignupModal } from "../../SignupModal/SignupModal"
 import { useUser } from "../../userContext/UserContext"
 import { UserMenu } from "../../UserMenu/UserMenu"
+import { handleImageError, optimizeCloudinaryUrl } from "../../../utils/imageUtils"
 import './Valorant.css'
 
 export default function Valorant() {
@@ -110,10 +111,10 @@ export default function Valorant() {
         queryParams.append('limit', itemsPerPage)
 
         const response = await axios.get(`http://localhost:3003/valorant/accounts?${queryParams.toString()}`)
-        
+
         if (response.data?.data) {
           setAccounts(response.data.data.accounts || [])
-          
+
           // Set pagination data
           setTotalAccounts(response.data.data.totalAccounts || 0)
           setTotalPages(response.data.data.totalPages || Math.ceil((response.data.data.totalAccounts || 0) / itemsPerPage))
@@ -627,13 +628,10 @@ export default function Valorant() {
                       account.gallery.map((image, index) => (
                         <img
                           key={index}
-                          src={image}
+                          src={optimizeCloudinaryUrl(image)}
                           alt={`Account screenshot ${index + 1}`}
                           className="w-full h-[180px] object-cover flex-shrink-0"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "/images/placeholder.png";
-                          }}
+                          onError={(e) => handleImageError(e, image)}
                         />
                       ))
                     ) : (
@@ -719,7 +717,7 @@ export default function Valorant() {
                     ${account.price?.toFixed(2) || "0.00"}
                     <span className="text-xs text-gray-400 ml-1">USD</span>
                   </div>
-                  <button 
+                  <button
                     className="bg-[#7c3aed] hover:bg-[#6d28d9] px-4 py-2 rounded-md flex items-center"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -788,7 +786,7 @@ export default function Valorant() {
             >
               Previous
             </button>
-            
+
             {/* Display pagination numbers with ellipsis for large page counts */}
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
               // Logic to handle showing relevant page numbers
@@ -810,7 +808,7 @@ export default function Valorant() {
                 if (i === 0) pageNum = 1;
                 if (i === 4) pageNum = totalPages;
               }
-              
+
               // Add ellipsis
               if ((i === 1 && pageNum !== 2) || (i === 3 && pageNum !== totalPages - 1)) {
                 return (
@@ -819,22 +817,21 @@ export default function Valorant() {
                   </span>
                 );
               }
-              
+
               return (
                 <button
                   key={pageNum}
                   onClick={() => handlePageChange(pageNum)}
-                  className={`px-4 py-2 rounded-md border ${
-                    currentPage === pageNum
-                      ? "bg-[#7c3aed] border-[#6d28d9] text-white"
-                      : "border-gray-700 text-gray-300 hover:bg-gray-700"
-                  }`}
+                  className={`px-4 py-2 rounded-md border ${currentPage === pageNum
+                    ? "bg-[#7c3aed] border-[#6d28d9] text-white"
+                    : "border-gray-700 text-gray-300 hover:bg-gray-700"
+                    }`}
                 >
                   {pageNum}
                 </button>
               );
             })}
-            
+
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
@@ -842,7 +839,7 @@ export default function Valorant() {
             >
               Next
             </button>
-            
+
             {/* Display count information */}
             <div className="ml-4 text-gray-400 text-sm">
               Showing {accounts.length} of {totalAccounts} accounts

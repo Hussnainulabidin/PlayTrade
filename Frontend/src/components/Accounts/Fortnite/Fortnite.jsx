@@ -10,6 +10,7 @@ import { useUser } from "../../userContext/UserContext"
 import { UserMenu } from "../../UserMenu/UserMenu"
 import '../AccountCarousel.css' // Import shared CSS for animations
 import { orderApi } from "../../../api" // Import orderApi for seller stats
+import { handleImageError, optimizeCloudinaryUrl } from "../../../utils/imageUtils"
 
 export default function Fortnite() {
   const navigate = useNavigate()
@@ -99,11 +100,11 @@ export default function Fortnite() {
         queryParams.append('limit', itemsPerPage)
 
         const response = await axios.get(`http://localhost:3003/fortnite/accounts?${queryParams.toString()}`)
-        
+
         if (response.data?.data) {
           const accountsData = response.data.data.accounts || []
           setAccounts(accountsData)
-          
+
           // Set pagination data
           setTotalAccounts(response.data.data.totalAccounts || 0)
           setTotalPages(response.data.data.totalPages || Math.ceil((response.data.data.totalAccounts || 0) / itemsPerPage))
@@ -117,12 +118,12 @@ export default function Fortnite() {
 
           // Use seller data and stats directly from the API response
           const sellerMap = {}
-          
+
           accountsData.forEach(account => {
             if (account.sellerID) {
               // Extract the seller ID
               const sellerId = account.sellerID._id;
-              
+
               // If we haven't added this seller yet, add it to our map
               if (!sellerMap[sellerId]) {
                 sellerMap[sellerId] = {
@@ -133,7 +134,7 @@ export default function Fortnite() {
               }
             }
           });
-          
+
           setSellers(sellerMap);
         } else {
           setAccounts([])
@@ -572,13 +573,10 @@ export default function Fortnite() {
                       account.gallery.map((image, index) => (
                         <img
                           key={index}
-                          src={image}
+                          src={optimizeCloudinaryUrl(image)}
                           alt={`Account screenshot ${index + 1}`}
                           className="w-full h-[180px] object-cover flex-shrink-0"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "/images/placeholder.png";
-                          }}
+                          onError={(e) => handleImageError(e, image)}
                         />
                       ))
                     ) : (
@@ -726,7 +724,7 @@ export default function Fortnite() {
             >
               Previous
             </button>
-            
+
             {/* Display pagination numbers with ellipsis for large page counts */}
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
               // Logic to handle showing relevant page numbers
@@ -748,7 +746,7 @@ export default function Fortnite() {
                 if (i === 0) pageNum = 1;
                 if (i === 4) pageNum = totalPages;
               }
-              
+
               // Add ellipsis
               if ((i === 1 && pageNum !== 2) || (i === 3 && pageNum !== totalPages - 1)) {
                 return (
@@ -757,22 +755,21 @@ export default function Fortnite() {
                   </span>
                 );
               }
-              
+
               return (
                 <button
                   key={pageNum}
                   onClick={() => handlePageChange(pageNum)}
-                  className={`px-4 py-2 rounded-md border ${
-                    currentPage === pageNum
-                      ? "bg-[#7c3aed] border-[#6d28d9] text-white"
-                      : "border-gray-700 text-gray-300 hover:bg-gray-700"
-                  }`}
+                  className={`px-4 py-2 rounded-md border ${currentPage === pageNum
+                    ? "bg-[#7c3aed] border-[#6d28d9] text-white"
+                    : "border-gray-700 text-gray-300 hover:bg-gray-700"
+                    }`}
                 >
                   {pageNum}
                 </button>
               );
             })}
-            
+
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
@@ -780,7 +777,7 @@ export default function Fortnite() {
             >
               Next
             </button>
-            
+
             {/* Display count information */}
             <div className="ml-4 text-gray-400 text-sm">
               Showing {accounts.length} of {totalAccounts} accounts

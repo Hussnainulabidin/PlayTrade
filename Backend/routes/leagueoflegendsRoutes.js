@@ -1,6 +1,7 @@
 const express = require("express");
 const leagueoflegendsController = require("./../controllers/leagueoflegendsController");
 const authController = require("./../controllers/authController");
+const upload = require("./../configuration/multer");
 
 const router = express.Router();
 
@@ -21,5 +22,15 @@ router
   .get(leagueoflegendsController.getAccount)
   .patch(authController.protect, authController.restrictTo("seller", "admin"), leagueoflegendsController.updateAccount)
   .delete(authController.protect, authController.restrictTo("seller", "admin"), leagueoflegendsController.deleteAccount);
+
+// Separate route for adding pictures with multer middleware
+router
+  .route("/accounts/:id/pictures")
+  .put(
+    authController.protect,
+    authController.restrictTo("seller", "admin"),
+    upload.array('images', 5), // Allow up to 5 images with field name 'images'
+    leagueoflegendsController.addPictures
+  );
 
 module.exports = router; 

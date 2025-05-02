@@ -264,40 +264,40 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                     break
                 case "Clash of Clans":
                     accountData.account_data = {
-                        town_hall_level: parseInt(formData.town_hall_level),
-                        builder_hall_level: parseInt(formData.builder_hall_level),
-                        gems: parseInt(formData.gems),
-                        trophies: parseInt(formData.trophies),
-                        clan: formData.clan
+                        TownHallLevel: parseInt(formData.town_hall_level),
+                        BuilderHallLevel: parseInt(formData.builder_hall_level),
+                        Gems: parseInt(formData.gems),
+                        Trophies: parseInt(formData.trophies),
+                        Clan: formData.clan
                     }
                     break
                 case "Brawl Stars":
                     accountData.account_data = {
-                        trophy_range: formData.trophy_range,
-                        brawlers_unlocked: parseInt(formData.brawlers_unlocked),
-                        gems: parseInt(formData.gems),
-                        club: formData.club
+                        TrophyRange: formData.trophy_range,
+                        BrawlersUnlocked: parseInt(formData.brawlers_unlocked),
+                        Gems: parseInt(formData.gems),
+                        Club: formData.club
                     }
                     break
                 case "Fortnite":
                     accountData.account_data = {
-                        platform: formData.platform,
-                        region: formData.region,
-                        account_level: parseInt(formData.account_level),
-                        vbucks: parseInt(formData.vbucks),
-                        skins: parseInt(formData.skins),
-                        battle_pass: formData.battle_pass
+                        Platform: formData.platform,
+                        Region: formData.region,
+                        AccountLevel: parseInt(formData.account_level),
+                        Vbucks: parseInt(formData.vbucks),
+                        Skins: parseInt(formData.skins),
+                        BattlePass: formData.battle_pass
                     }
                     break
                 case "League of Legends":
                     accountData.server = formData.server
                     accountData.account_data = {
-                        rank: formData.rank,
-                        division: formData.division,
-                        level: parseInt(formData.level),
-                        blue_essence: parseInt(formData.blue_essence),
-                        rp: parseInt(formData.rp),
-                        champions: parseInt(formData.champions)
+                        Rank: formData.rank,
+                        Division: formData.division,
+                        Level: parseInt(formData.level),
+                        BlueEssence: parseInt(formData.blue_essence),
+                        RP: parseInt(formData.rp),
+                        Champions: parseInt(formData.champions)
                     }
                     break
             }
@@ -564,9 +564,8 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                         console.log('Account created successfully:', response.data)
 
                         // Get account ID from response
-                        accountId = response.data.data.account._id;
-                        console.log(accountId);
-                        console.log(formData.gallery.length);
+                        accountId = response.data.data?.account?._id || response.data._id;
+                        console.log('Account ID:', accountId);
                         // Update with gallery in a separate request if there are images
                         if (accountId && formData.gallery && formData.gallery.length > 0) {
                             console.log('Preparing to upload images:', formData.gallery);
@@ -605,7 +604,8 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                         console.log('Account created successfully:', response.data)
 
                         // Get account ID from response
-                        accountId = response.data._id || response.data.account?._id;
+                        accountId = response.data.data?.account?._id || response.data._id || response.data.account?._id;
+                        console.log('Clash of Clans Account ID:', accountId);
 
                         // Update with gallery in a separate request if there are images
                         if (accountId && formData.gallery && formData.gallery.length > 0) {
@@ -617,7 +617,7 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             });
                             try {
                                 const uploadResponse = await axios.put(
-                                    `http://localhost:3003/clashofclans/${accountId}/pictures`,
+                                    `http://localhost:3003/clashofclans/accounts/${accountId}/pictures`,
                                     formDataObj,
                                     {
                                         headers: {
@@ -645,7 +645,8 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                         console.log('Account created successfully:', response.data)
 
                         // Get account ID from response
-                        accountId = response.data._id || response.data.account?._id;
+                        accountId = response.data.data?.account?._id || response.data._id || response.data.account?._id;
+                        console.log('Brawl Stars Account ID:', accountId);
 
                         // Update with gallery in a separate request if there are images
                         if (accountId && formData.gallery && formData.gallery.length > 0) {
@@ -657,7 +658,7 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             });
                             try {
                                 const uploadResponse = await axios.put(
-                                    `http://localhost:3003/brawlstars/${accountId}/pictures`,
+                                    `http://localhost:3003/brawlstars/accounts/${accountId}/pictures`,
                                     formDataObj,
                                     {
                                         headers: {
@@ -685,7 +686,8 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                         console.log('Account created successfully:', response.data)
 
                         // Get account ID from response
-                        accountId = response.data._id || response.data.account?._id;
+                        accountId = response.data.data?.account?._id || response.data._id || response.data.account?._id;
+                        console.log('Fortnite Account ID:', accountId);
 
                         // Update with gallery in a separate request if there are images
                         if (accountId && formData.gallery && formData.gallery.length > 0) {
@@ -697,7 +699,7 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             });
                             try {
                                 const uploadResponse = await axios.put(
-                                    `http://localhost:3003/fortnite/${accountId}/pictures`,
+                                    `http://localhost:3003/fortnite/accounts/${accountId}/pictures`,
                                     formDataObj,
                                     {
                                         headers: {
@@ -725,7 +727,8 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                         console.log('Account created successfully:', response.data)
 
                         // Get account ID from response
-                        accountId = response.data._id || response.data.account?._id;
+                        accountId = response.data.data?.account?._id || response.data._id || response.data.account?._id;
+                        console.log('League of Legends Account ID:', accountId);
 
                         // Update with gallery in a separate request if there are images
                         if (accountId && formData.gallery && formData.gallery.length > 0) {
@@ -737,7 +740,7 @@ const AddAccountModal = ({ isOpen, onClose, initialData, isEditMode = false }) =
                             });
                             try {
                                 const uploadResponse = await axios.put(
-                                    `http://localhost:3003/leagueoflegends/${accountId}/pictures`,
+                                    `http://localhost:3003/leagueoflegends/accounts/${accountId}/pictures`,
                                     formDataObj,
                                     {
                                         headers: {

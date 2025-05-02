@@ -22,11 +22,11 @@ exports.getTopAccounts = catchAsync(async (req, res, next) => {
 
 exports.getAllAccounts = catchAsync(async (req, res, next) => {
   const { search, server, rank, price, page = 1, limit = 12 } = req.query;
-  
+
   // Convert page and limit to numbers
   const pageNum = parseInt(page, 10);
   const limitNum = parseInt(limit, 10);
-  
+
   // Calculate skip value for pagination
   const skip = (pageNum - 1) * limitNum;
 
@@ -64,7 +64,7 @@ exports.getAllAccounts = catchAsync(async (req, res, next) => {
 
   // Count total documents matching the query
   const totalAccounts = await valorant.countDocuments(searchQuery);
-  
+
   // Calculate total pages
   const totalPages = Math.ceil(totalAccounts / limitNum);
 
@@ -80,7 +80,7 @@ exports.getAllAccounts = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    data: { 
+    data: {
       accounts,
       page: pageNum,
       limit: limitNum,

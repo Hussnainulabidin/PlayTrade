@@ -9,6 +9,7 @@ import { SignupModal } from "../../SignupModal/SignupModal"
 import { useUser } from "../../userContext/UserContext"
 import { UserMenu } from "../../UserMenu/UserMenu"
 import '../AccountCarousel.css' // Import shared CSS for animations
+import { handleImageError, optimizeCloudinaryUrl } from "../../../utils/imageUtils"
 
 export default function League() {
   const navigate = useNavigate()
@@ -112,10 +113,10 @@ export default function League() {
         queryParams.append('limit', itemsPerPage)
 
         const response = await axios.get(`http://localhost:3003/leagueoflegends/accounts?${queryParams.toString()}`)
-        
+
         if (response.data?.data) {
           setAccounts(response.data.data.accounts || [])
-          
+
           // Set pagination data
           setTotalAccounts(response.data.data.totalAccounts || 0)
           setTotalPages(response.data.data.totalPages || Math.ceil((response.data.data.totalAccounts || 0) / itemsPerPage))
@@ -131,7 +132,7 @@ export default function League() {
           if (response.data.data.sellerStats) {
             setSellerStats(response.data.data.sellerStats)
           }
-          
+
           // Create a dictionary of sellers from populated accounts
           const sellerMap = {}
           response.data.data.accounts.forEach(account => {
@@ -621,13 +622,10 @@ export default function League() {
                       account.gallery.map((image, index) => (
                         <img
                           key={index}
-                          src={image}
+                          src={optimizeCloudinaryUrl(image)}
                           alt={`Account screenshot ${index + 1}`}
                           className="w-full h-[180px] object-cover flex-shrink-0"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "/images/placeholder.png";
-                          }}
+                          onError={(e) => handleImageError(e, image)}
                         />
                       ))
                     ) : (
@@ -660,8 +658,8 @@ export default function League() {
                         <div
                           key={index}
                           className={`w-1.5 h-1.5 rounded-full ${index === (currentImageIndexes[account._id] || 0)
-                              ? "bg-blue-500"
-                              : "bg-gray-500"
+                            ? "bg-blue-500"
+                            : "bg-gray-500"
                             }`}
                         />
                       ))}
@@ -774,7 +772,7 @@ export default function League() {
             >
               Previous
             </button>
-            
+
             {/* Display pagination numbers with ellipsis for large page counts */}
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
               // Logic to handle showing relevant page numbers
@@ -796,7 +794,7 @@ export default function League() {
                 if (i === 0) pageNum = 1;
                 if (i === 4) pageNum = totalPages;
               }
-              
+
               // Add ellipsis
               if ((i === 1 && pageNum !== 2) || (i === 3 && pageNum !== totalPages - 1)) {
                 return (
@@ -805,22 +803,21 @@ export default function League() {
                   </span>
                 );
               }
-              
+
               return (
                 <button
                   key={pageNum}
                   onClick={() => handlePageChange(pageNum)}
-                  className={`px-4 py-2 rounded-md border ${
-                    currentPage === pageNum
-                      ? "bg-[#7c3aed] border-[#6d28d9] text-white"
-                      : "border-gray-700 text-gray-300 hover:bg-gray-700"
-                  }`}
+                  className={`px-4 py-2 rounded-md border ${currentPage === pageNum
+                    ? "bg-[#7c3aed] border-[#6d28d9] text-white"
+                    : "border-gray-700 text-gray-300 hover:bg-gray-700"
+                    }`}
                 >
                   {pageNum}
                 </button>
               );
             })}
-            
+
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
@@ -828,7 +825,7 @@ export default function League() {
             >
               Next
             </button>
-            
+
             {/* Display count information */}
             <div className="ml-4 text-gray-400 text-sm">
               Showing {accounts.length} of {totalAccounts} accounts

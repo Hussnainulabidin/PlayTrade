@@ -12,15 +12,30 @@ import {
     Settings,
     Ticket,
     LogOut,
+    User,
+    Crown
 } from "lucide-react"
 import "./SellerSideBar.css"
 import AuthService from "../../AuthService/AuthService"
-
+import { useState, useEffect } from "react"
 import { FiMessageSquare } from 'react-icons/fi';
 
 const Sidebar = () => {
     const location = useLocation()
     const navigate = useNavigate()
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [isOpen, setIsOpen] = useState(!isMobile);
+
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth < 768;
+            setIsMobile(mobile);
+            if (!mobile) setIsOpen(true);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const isActive = (path) => {
         return location.pathname.includes(path)
@@ -35,12 +50,14 @@ const Sidebar = () => {
 
     return (
         <div className="pt-sidebar">
-            <div className="pt-sidebar__logo-container">
+            <Link to="/" className="pt-sidebar__logo-container">
                 <div className="pt-sidebar__logo">
-                    <Package size={24} color="#fff" />
+                    <Crown size={24} color="#fff" />
                 </div>
-                <div className="pt-sidebar__logo-text">Offers</div>
-            </div>
+                <div className="pt-sidebar__logo-text">
+                    <span className="text-blue-500">PLAY</span>TRADE
+                </div>
+            </Link>
 
             <nav className="pt-sidebar__nav">
                 <Link to="/seller/dashboard/accounts" className={`pt-sidebar__nav-item ${isActive("/accounts") ? "pt-sidebar__nav-item--active" : ""}`}>
@@ -51,7 +68,7 @@ const Sidebar = () => {
                     <FiMessageSquare size={18} />
                     <span>Chats</span>
                 </Link>
-                <Link to="/seller-dashboard/tickets" className={`pt-sidebar__nav-item ${isActive("/item-orders") ? "pt-sidebar__nav-item--active" : ""}`}>
+                <Link to="/seller-dashboard/tickets" className={`pt-sidebar__nav-item ${isActive("/tickets") ? "pt-sidebar__nav-item--active" : ""}`}>
                     <Ticket size={18} />
                     <span>Tickets</span>
                 </Link>
