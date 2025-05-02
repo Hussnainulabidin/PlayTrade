@@ -6,10 +6,10 @@ const fortniteSchema = new mongoose.Schema({
     type: String,
     required: [true, "A fortnite account must have a title"],
   },
-  slug : String,
+  slug: String,
   description: {
-    type : String,
-    maxlength : [2048 , "Description length can not exceed the limit 2048"]
+    type: String,
+    maxlength: [2048, "Description length can not exceed the limit 2048"]
   },
   price: {
     type: Number,
@@ -33,15 +33,15 @@ const fortniteSchema = new mongoose.Schema({
     mainPlatform: {
       type: String,
       required: [true, "A fortnite account must have a main platform"],
-      enum:  {
-        values : ["PC", "Xbox", "Playstation" , "Android", "IOS"],
-        message : "Invalid platform"
+      enum: {
+        values: ["PC", "Xbox", "Playstation", "Android", "IOS"],
+        message: "Invalid platform"
       },
       default: "PC",
     },
     level: {
-      type : Number,
-      default : 1
+      type: Number,
+      default: 1
     },
     VBucksCount: Number,
     SkinsCount: Number,
@@ -53,7 +53,7 @@ const fortniteSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["draft" ,"active", "sold"],
+    enum: ["draft", "active", "sold", "processing"],
     default: "draft",
   },
   lastUpdated: {
@@ -68,7 +68,7 @@ const fortniteSchema = new mongoose.Schema({
     ref: "user", // References the User model
     required: [true, "A valorant account must belong to a user"],
   },
-} , {
+}, {
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
 });
@@ -89,7 +89,7 @@ fortniteSchema.virtual('timeSinceLastUpdated').get(function () {
   const diffMs = now - this.lastUpdated;
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMinutes / 60);
-  
+
   if (diffHours >= 24) {
     const diffDays = Math.floor(diffHours / 24);
     return `${diffDays} day(s)`;
@@ -100,6 +100,6 @@ fortniteSchema.virtual('timeSinceLastUpdated').get(function () {
   }
 });
 
-const fortnite = mongoose.model("fortnite", fortniteSchema , "fortnite");
+const fortnite = mongoose.model("fortnite", fortniteSchema, "fortnite");
 
 module.exports = fortnite;

@@ -42,32 +42,32 @@ function CommonChatPage({ userType = "client" }) {
       console.log("Message empty or chatData not available");
       return false;
     }
-    
+
     // Try to send via socket first
     if (socketService.isConnected()) {
       const success = socketService.sendMessage(activeChat, content);
       if (success) {
         return true;
       }
-    } 
-    
+    }
+
     // Fall back to REST API if socket is not connected
     try {
       console.log("Socket not connected, sending via REST API");
-      
+
       const endpoint = `http://localhost:3003/chats/${activeChat}/messages`;
       console.log("Sending message to endpoint:", endpoint);
-          
+
       const response = await axios.post(
-        endpoint, 
+        endpoint,
         { content: content },
-        { 
+        {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         }
       );
-      
+
       if (response.data.status === 'success') {
         const newMessage = response.data.data.message;
         const formattedMessage = {
@@ -75,9 +75,9 @@ function CommonChatPage({ userType = "client" }) {
           // Ensure sender is properly formatted for consistent comparison
           sender: typeof newMessage.sender === 'object' ? newMessage.sender : { _id: newMessage.sender }
         };
-        
+
         console.log("Message sent successfully via API:", formattedMessage);
-        
+
         setMessages(prev => [...prev, formattedMessage]);
         scrollToBottom();
         return true;
@@ -109,20 +109,20 @@ function CommonChatPage({ userType = "client" }) {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         });
-        
+
         console.log("Chats data:", response.data.data.chats);
-        
+
         // Get basic chat data
         let updatedChats = response.data.data.chats;
-        
+
         // If any chat doesn't have a last message, fetch basic details
-        const chatsToUpdate = updatedChats.filter(chat => 
+        const chatsToUpdate = updatedChats.filter(chat =>
           !chat.messages || chat.messages.length === 0
         );
-        
+
         if (chatsToUpdate.length > 0) {
           console.log("Fetching basic message info for chats without messages", chatsToUpdate.map(c => c._id));
-          
+
           // Fetch basic info for these chats
           for (const chat of chatsToUpdate) {
             try {
@@ -131,10 +131,10 @@ function CommonChatPage({ userType = "client" }) {
                   'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
               });
-              
+
               if (chatDetailsResponse.data.status === 'success' && chatDetailsResponse.data.data.chat) {
                 // Find and update this chat in our array
-                updatedChats = updatedChats.map(c => 
+                updatedChats = updatedChats.map(c =>
                   c._id === chat._id ? chatDetailsResponse.data.data.chat : c
                 );
               }
@@ -143,7 +143,7 @@ function CommonChatPage({ userType = "client" }) {
             }
           }
         }
-        
+
         setChats(updatedChats);
       } catch (err) {
         console.error("Error fetching chats:", err);
@@ -152,55 +152,55 @@ function CommonChatPage({ userType = "client" }) {
         setLoading(false);
       }
     };
-    
+
     fetchChats();
   }, [activeFilter]);
 
   // Socket connection and chat setup
   useEffect(() => {
     if (!activeChat) return;
-    
+
     console.log("Initializing socket for chatId:", activeChat);
-    
+
     // Initialize socket if not already connected
     socketService.initializeSocket();
-    
+
     // Set initial connection status
     setIsConnected(socketService.isConnected());
-    
+
     // Join the chat
     socketService.joinChat(activeChat);
-    
+
     // No need to fetch messages here - already done in the fetchChatDetails useEffect
-    
+
     // Set up event listeners
     const handleConnect = () => {
       setIsConnected(true);
       socketService.joinChat(activeChat);
     };
-    
+
     const handleDisconnect = () => {
       setIsConnected(false);
     };
-    
+
     const handleNewMessage = (data) => {
       if (data.chatId === activeChat) {
         setMessages(prev => {
           // Ensure we have the complete message with properly formatted sender info
           const newMsg = {
             ...data.message,
-            sender: typeof data.message.sender === 'object' 
-              ? data.message.sender 
+            sender: typeof data.message.sender === 'object'
+              ? data.message.sender
               : { _id: data.message.sender, username: "Unknown" }
           };
-          
+
           // Check if message is already in the list to prevent duplicates
           const isDuplicate = prev.some(msg => msg._id === newMsg._id);
           if (!isDuplicate) {
             console.log("Adding new message from socket:", newMsg, "Current user:", user?._id);
-            
+
             // Also update the chat in the chat list to show updated preview
-            setChats(prevChats => 
+            setChats(prevChats =>
               prevChats.map(chat => {
                 if (chat._id === activeChat) {
                   // Create a new messages array or append to existing one
@@ -214,7 +214,7 @@ function CommonChatPage({ userType = "client" }) {
                 return chat;
               })
             );
-            
+
             const updatedMessages = [...prev, newMsg];
             setTimeout(() => scrollToBottom(), 100);
             return updatedMessages;
@@ -223,19 +223,19 @@ function CommonChatPage({ userType = "client" }) {
         });
       }
     };
-    
+
     const handleUserTyping = (data) => {
       if (data.chatId === activeChat) {
         setIsTyping(data.isTyping);
       }
     };
-    
+
     // Register event listeners
     socketService.on('connect', handleConnect);
     socketService.on('disconnect', handleDisconnect);
     socketService.on('newMessage', handleNewMessage);
     socketService.on('userTyping', handleUserTyping);
-    
+
     // Clean up on unmount
     return () => {
       // Make sure we leave the chat room when unmounting
@@ -243,7 +243,7 @@ function CommonChatPage({ userType = "client" }) {
         console.log("Leaving chat room:", activeChat);
         socketService.leaveChat(activeChat);
       }
-      
+
       // Remove event listeners
       console.log("Removing socket event listeners");
       socketService.off('connect', handleConnect);
@@ -453,7 +453,7 @@ function CommonChatPage({ userType = "client" }) {
                 const lastMessage = chat.messages?.length > 0
                   ? chat.messages[chat.messages.length - 1]
                   : null;
-                
+
                 // For debugging
                 console.log(`Chat ${chat._id} - Has messages: ${!!chat.messages}, Count: ${chat.messages?.length || 0}, Last message:`, lastMessage);
 
@@ -472,8 +472,8 @@ function CommonChatPage({ userType = "client" }) {
                         <span className="timestamp">{formatDate(chat.lastActivity)}</span>
                       </div>
                       <div className="chat-preview">
-                        {lastMessage ? 
-                          truncateMessage(lastMessage.content, 30) : 
+                        {lastMessage ?
+                          truncateMessage(lastMessage.content, 30) :
                           "No messages yet"}
                       </div>
                     </div>
@@ -520,7 +520,7 @@ function CommonChatPage({ userType = "client" }) {
                     <div className="chat-status">
                       {currentChat.orderId ? (
                         <Link to={`/order/${currentChat.orderId._id}`} className="seller-link">
-                          Order #{currentChat.orderId._id|| "Unknown" } 
+                          Order #{currentChat.orderId._id || "Unknown"}
                         </Link>
                       ) : currentChat.ticketId ? (
                         <Link to={`/tickets/${currentChat.ticketId}`} className="seller-link">
@@ -536,9 +536,9 @@ function CommonChatPage({ userType = "client" }) {
                 {messages && messages.length > 0 ? (
                   messages.map((message, index) => {
                     // Check if this is a system message
-                    const isSystemMessage = message.isSystemMessage || 
+                    const isSystemMessage = message.isSystemMessage ||
                       (message.content && message.content.startsWith("(System)"));
-                    
+
                     // If it's a system message, display it centered
                     if (isSystemMessage) {
                       // Format the message content (remove the "(System)" prefix if present)
@@ -546,7 +546,7 @@ function CommonChatPage({ userType = "client" }) {
                       if (messageContent && messageContent.startsWith("(System)")) {
                         messageContent = messageContent.substring(8).trim(); // Remove "(System)" prefix
                       }
-                      
+
                       return (
                         <div key={index} className="message system-message">
                           <div className="system-message-content">
@@ -558,11 +558,11 @@ function CommonChatPage({ userType = "client" }) {
                         </div>
                       );
                     }
-                    
+
                     // Handle different sender formats (object or string)
                     const senderId = typeof message.sender === 'object' ? message.sender._id : message.sender;
                     const isOutgoing = senderId && user && senderId.toString() === user._id.toString();
-                    
+
                     console.log("Message:", index, "sender:", senderId, "currentUser:", user?._id, "isOutgoing:", isOutgoing);
 
                     return (

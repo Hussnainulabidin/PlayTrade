@@ -1,0 +1,94 @@
+.pt-order-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #2d2a42;
+    transition: background-color 0.2s;
+}
+
+.pt-order-item:hover {
+    background-color: #201b35;
+}
+
+.pt-order-game-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pt-order-title__content {
+    display: flex;
+    flex-direction: column;
+}
+
+.pt-order-title-link {
+    color: #e0d9ff;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.pt-order-title-link:hover {
+    color: #7c3aed;
+    text-decoration: underline;
+}
+
+.pt-order-action-btn {
+    background: none;
+    border: none;
+    color: #8b8a91;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.pt-order-action-btn:hover {
+    background-color: #2d2a42;
+    color: #e0d9ff;
+}
+
+.pt-order-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #201b35;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    width: 170px;
+    z-index: 100;
+    overflow: hidden;
+}
+
+/* Special styling for dropdown that needs to break out of container */
+.pt-order-dropdown--outside {
+    position: fixed;
+    transform: translateY(0);
+    z-index: 1000;
+    /* Very high z-index to ensure it's on top */
+}
+
+.pt-order-dropdown__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    color: #e0d9ff;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.pt-order-dropdown__item:hover {
+    background-color: #2d2a42;
+}
+
+.pt-order-dropdown__icon {
+    color: #8b8a91;
+}
+
+.pt-order-cell--actions {
+    position: relative;
+    z-index: 10;
+}

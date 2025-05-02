@@ -1,0 +1,100 @@
+.seller-dashboard-orders-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #0f0b1a;
+    overflow: hidden;
+    /* Prevent scrolling at this level */
+}
+
+.orders-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 20px;
+    gap: 20px;
+    height: calc(100vh - 64px);
+    /* Subtract header height */
+    overflow-y: auto;
+    /* Enable vertical scrolling for the entire page */
+}
+
+/* Make the table container expand with content instead of scrolling */
+.table-container {
+    flex: 1;
+    border-radius: 8px;
+    background-color: #1a172b;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sticky header */
+.table-container .pt-orders-table__header {
+    position: sticky;
+    top: 0;
+    background-color: #201b35;
+    z-index: 1;
+}
+
+/* Style scrollbar for the entire accounts container */
+.orders-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.orders-container::-webkit-scrollbar-track {
+    background: #2a2438;
+    border-radius: 4px;
+}
+
+.orders-container::-webkit-scrollbar-thumb {
+    background: #7c3aed;
+    border-radius: 4px;
+}
+
+.orders-container::-webkit-scrollbar-thumb:hover {
+    background: #6d28d9;
+}
+
+/* Keep filter bar and pagination outside scroll area */
+.filter-bar {
+    flex-shrink: 0;
+    margin-bottom: 16px;
+}
+
+.pagination-container {
+    flex-shrink: 0;
+    margin-top: 16px;
+}
+
+.orders-container> :not(:last-child) {
+    margin-bottom: 16px;
+}
+
+/* Specific pagination styling for SellerDashboardAccountsPage */
+.seller-dashboard-orders-page .pagination-page.active {
+    background-color: #8957e5;
+    border-color: #8957e5;
+}
+
+.seller-dashboard-orders-page .pagination-page:hover {
+    background-color: #8957e575;
+}
+
+/* Styling for pagination navigation buttons */
+.seller-dashboard-orders-page .pagination-btn {
+    background-color: #2a2438;
+    border-color: #3d3450;
+    color: #e0d9ff;
+}
+
+.seller-dashboard-orders-page .pagination-btn:hover:not(:disabled) {
+    background-color: #8957e575;
+}
+
+.seller-dashboard-orders-page .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

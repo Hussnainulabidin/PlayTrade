@@ -11,14 +11,14 @@ router.use(authController.protect);
 router.route("/my-orders").get(orderController.getMyOrders);
 
 // Get orders by seller ID - restricted to admin and the seller themselves
-router.route("/seller/:id").get(authController.restrictTo("admin" , "seller"),orderController.getOrdersBySellerId);
+router.route("/seller/:id").get(authController.restrictTo("admin", "seller"), orderController.getOrdersBySellerId);
 
 // Get seller statistics - no restrictions as this is public data
 router.route("/seller/:id/stats").get(orderController.getSellerStats);
 
 // Create a new order - any authenticated user can create an order
 router.route("/").post(orderController.createOrder);
-router.route("/").get(authController.restrictTo("admin"),orderController.getAllOrders);
+router.route("/").get(authController.restrictTo("admin"), orderController.getAllOrders);
 
 // Get all disputed orders - admin only
 router.route("/disputed").get(
@@ -50,7 +50,7 @@ router.route("/:id/resolve-dispute").post(
 // Refund an order - restricted to admin only
 router.route("/:id/refund")
   .post(
-    authController.restrictTo("admin" , "seller"),
+    authController.restrictTo("admin", "seller"),
     orderController.refundOrder
   );
 
@@ -66,5 +66,8 @@ router.route("/:id/create-chat").post(
  * @access  Private (authenticated client only)
  */
 router.post('/:id/feedback', orderController.submitFeedback);
+
+// Get order by account ID
+router.route("/account/:accountId").get(orderController.getOrderByAccountId);
 
 module.exports = router;

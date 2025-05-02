@@ -6,10 +6,10 @@ const clashofclansSchema = new mongoose.Schema({
     type: String,
     required: [true, "A Clash of Clans account must have a title"],
   },
-  slug : String,
+  slug: String,
   description: {
-    type : String,
-    maxlength : [2048 , "Description length can not exceed the limit 2048"]
+    type: String,
+    maxlength: [2048, "Description length can not exceed the limit 2048"]
   },
   price: {
     type: Number,
@@ -31,24 +31,24 @@ const clashofclansSchema = new mongoose.Schema({
   gallery: [],
   account_data: {
     TownHallLevel: {
-        type : Number,
-        required : [true , "A clash of clans account must have a TownHallLevel"]
+      type: Number,
+      required: [true, "A clash of clans account must have a TownHallLevel"]
     },
-    Gems : {
-        type : Number,
-        required : [true , "A clash of clans account must have a Gems"]
+    Gems: {
+      type: Number,
+      required: [true, "A clash of clans account must have a Gems"]
     },
-    TrophyCount : Number,
-    ClanLevel : Number,
-    MinionPrinceLevel : Number,
-    BarbarianKingLevel : Number,
-    ArcherQueenLevel : Number,
-    GrandWardenLevel : Number,
-    RoyalChampionLevel : Number,
+    TrophyCount: Number,
+    ClanLevel: Number,
+    MinionPrinceLevel: Number,
+    BarbarianKingLevel: Number,
+    ArcherQueenLevel: Number,
+    GrandWardenLevel: Number,
+    RoyalChampionLevel: Number,
   },
   status: {
     type: String,
-    enum: ["draft" ,"active", "sold"],
+    enum: ["draft", "active", "sold", "processing"],
     default: "draft",
   },
   lastUpdated: {
@@ -63,7 +63,7 @@ const clashofclansSchema = new mongoose.Schema({
     ref: "user", // References the User model
     required: [true, "A Clash of Clans account must belong to a user"],
   },
-} , {
+}, {
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
 });
@@ -84,7 +84,7 @@ clashofclansSchema.virtual('timeSinceLastUpdated').get(function () {
   const diffMs = now - this.lastUpdated;
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMinutes / 60);
-  
+
   if (diffHours >= 24) {
     const diffDays = Math.floor(diffHours / 24);
     return `${diffDays} day(s)`;
@@ -95,6 +95,6 @@ clashofclansSchema.virtual('timeSinceLastUpdated').get(function () {
   }
 });
 
-const clashofclans = mongoose.model("clashofclans", clashofclansSchema , "clashofclans");
+const clashofclans = mongoose.model("clashofclans", clashofclansSchema, "clashofclans");
 
 module.exports = clashofclans;

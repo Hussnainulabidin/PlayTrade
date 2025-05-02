@@ -6,10 +6,10 @@ const brawlstarsSchema = new mongoose.Schema({
     type: String,
     required: [true, "A brawlstars account must have a title"],
   },
-  slug : String,
+  slug: String,
   description: {
-    type : String,
-    maxlength : [2048 , "Description length can not exceed the limit 2048"]
+    type: String,
+    maxlength: [2048, "Description length can not exceed the limit 2048"]
   },
   price: {
     type: Number,
@@ -31,23 +31,23 @@ const brawlstarsSchema = new mongoose.Schema({
   gallery: [],
   account_data: {
     rank: {
-        type: String,
-        required: [true, "A brawlstars account must have a current rank"],
-        enum:  {
-          values : ["Gold" , "Diamond" , "Mythic" , "Legendary" , "Master" , "Pro"],
-          message : "You must provide a correct RANK value"
-        },
-        default: "Gold",
+      type: String,
+      required: [true, "A brawlstars account must have a current rank"],
+      enum: {
+        values: ["Gold", "Diamond", "Mythic", "Legendary", "Master", "Pro"],
+        message: "You must provide a correct RANK value"
       },
-    MaxLevelBrawlers : Number,
-    BrawlersCount : Number,
-    TrophiesCount : Number,
-    XPLevel : Number,
-    Gems : Number,
+      default: "Gold",
+    },
+    MaxLevelBrawlers: Number,
+    BrawlersCount: Number,
+    TrophiesCount: Number,
+    XPLevel: Number,
+    Gems: Number,
   },
   status: {
     type: String,
-    enum: ["draft" ,"active", "sold"],
+    enum: ["draft", "active", "sold", "processing"],
     default: "draft",
   },
   lastUpdated: {
@@ -62,7 +62,7 @@ const brawlstarsSchema = new mongoose.Schema({
     ref: "user", // References the User model
     required: [true, "A valorant account must belong to a user"],
   },
-} , {
+}, {
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
 });
@@ -83,7 +83,7 @@ brawlstarsSchema.virtual('timeSinceLastUpdated').get(function () {
   const diffMs = now - this.lastUpdated;
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMinutes / 60);
-  
+
   if (diffHours >= 24) {
     const diffDays = Math.floor(diffHours / 24);
     return `${diffDays} day(s)`;
@@ -94,6 +94,6 @@ brawlstarsSchema.virtual('timeSinceLastUpdated').get(function () {
   }
 });
 
-const brawlstars = mongoose.model("brawlstars", brawlstarsSchema , "brawlstars");
+const brawlstars = mongoose.model("brawlstars", brawlstarsSchema, "brawlstars");
 
 module.exports = brawlstars;

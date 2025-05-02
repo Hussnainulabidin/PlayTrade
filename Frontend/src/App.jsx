@@ -35,6 +35,7 @@ import SettingPage from "./pages/Admin/SettingPage"
 
 // Seller Pages
 import SellerDashboardAccountsPage from "./pages/Seller/SellerDashboardAccountsPage"
+import SellerDashboardOrderPage from "./pages/Seller/SellerDashboardOrderPage"
 import SellerDashboardTicketsPage from "./pages/Seller/SellerDashboardTicketsPage"
 import SellerDashboardCreateTicketPage from "./pages/Seller/SellerDashboardCreateTicketPage"
 import SellerDashboardChatPage from "./pages/Seller/SellerDashboardChatPage"
@@ -162,6 +163,13 @@ const App = () => {
               </SellerDashboardLayout>
             }
           />
+          <Route path="/seller/dashboard/orders"
+            element={
+              <SellerDashboardLayout>
+                <SellerDashboardOrderPage />
+              </SellerDashboardLayout>
+            }
+          />
           <Route path="/seller-dashboard/account-imports"
             element={
               <SellerDashboardLayout>
@@ -205,6 +213,13 @@ const App = () => {
               </SellerDashboardLayout>
             }
           />
+
+          {/* Order Detail Page */}
+          <Route path="/order/:id" element={
+            <SellerDashboardLayout>
+              <OrderDetailPage />
+            </SellerDashboardLayout>
+          } />
         </Routes >
       </Router >
     </UserProvider >

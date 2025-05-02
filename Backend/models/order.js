@@ -23,11 +23,11 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["processing", "completed", "refunded" , "disputed"],
+      enum: ["processing", "completed", "refunded", "disputed"],
       default: "processing",
     },
-    disputedAT : {
-      type : Date,
+    disputedAT: {
+      type: Date,
       default: Date.now()
     },
     disputeReason: {
@@ -42,23 +42,23 @@ const orderSchema = new mongoose.Schema(
       type: String,
       maxlength: 100,
     },
-    game : String,
-    price : Number
+    game: String,
+    price: Number
   },
   { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 // Add notification to chat when order status changes
-orderSchema.pre('save', async function(next) {
+orderSchema.pre('save', async function (next) {
   // Skip if this is a new document or status hasn't changed
   if (this.isNew || !this.isModified('status')) {
     return next();
   }
-  
+
   try {
     // Find the chat for this order
     const chat = await Chat.findOne({ orderId: this._id });
-    
+
     if (chat) {
       // Add a status update message to the chat as a system message
       const statusMessage = {
@@ -68,12 +68,12 @@ orderSchema.pre('save', async function(next) {
         isSystemMessage: true, // Mark as system message
         read: true // No need for notifications for system messages
       };
-      
+
       chat.messages.push(statusMessage);
       chat.lastActivity = Date.now();
       await chat.save();
     }
-    
+
     next();
   } catch (error) {
     console.error('Error updating chat with status change:', error);
@@ -82,7 +82,7 @@ orderSchema.pre('save', async function(next) {
 });
 
 // Auto-create a chat when a new order is created
-orderSchema.post('save', async function(doc) {
+orderSchema.post('save', async function (doc) {
   try {
     // Check if a chat already exists for this order (the createOrderChat function will handle this check)
     const initialMessage = `(System)Order has been created. Order status: ${doc.status}`;
@@ -97,6 +97,6 @@ orderSchema.post('save', async function(doc) {
   }
 });
 
-const order = mongoose.model("order", orderSchema , "order");
+const order = mongoose.model("order", orderSchema, "order");
 
 module.exports = order;

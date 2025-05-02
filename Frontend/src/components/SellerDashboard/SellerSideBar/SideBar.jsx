@@ -64,6 +64,10 @@ const Sidebar = () => {
                     <LayoutDashboard size={18} />
                     <span>Accounts</span>
                 </Link>
+                <Link to="/seller/dashboard/orders" className={`pt-sidebar__nav-item ${isActive("/orders") ? "pt-sidebar__nav-item--active" : ""}`}>
+                    <ShoppingCart size={18} />
+                    <span>Orders</span>
+                </Link>
                 <Link to="/seller-dashboard/chats" className={`pt-sidebar__nav-item ${isActive("/chats") ? "pt-sidebar__nav-item--active" : ""}`}>
                     <FiMessageSquare size={18} />
                     <span>Chats</span>

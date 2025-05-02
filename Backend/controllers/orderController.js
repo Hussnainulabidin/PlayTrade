@@ -101,7 +101,7 @@ exports.getMyOrders = catchAsync(async (req, res, next) => {
     if (order.accountID) {
       try {
         let gameModel;
-        
+
         // Select the appropriate game model based on game type
         switch (gameType.toLowerCase()) {
           case "valorant":
@@ -123,7 +123,7 @@ exports.getMyOrders = catchAsync(async (req, res, next) => {
         // If we found a valid model, get additional details
         if (gameModel) {
           const gameAccount = await gameModel.findById(order.accountID);
-          
+
           if (gameAccount) {
             gameDetails = {
               title: gameAccount.title || "Unknown Title",
@@ -410,7 +410,7 @@ exports.createOrder = catchAsync(async (req, res, next) => {
           sellerName: seller.username
         }
       });
-      
+
       console.log(`Order notification email sent to seller: ${seller.email}`);
     } catch (error) {
       console.error('Failed to send order email notification:', error);
@@ -534,7 +534,7 @@ exports.getOrderById = catchAsync(async (req, res, next) => {
 
   // Find associated chat
   const chat = await Chat.findOne({ orderId: order._id });
-  
+
   // Calculate commission
   const commissionRate = COMMISSION_RATES[gameType] || COMMISSION_RATES.Default;
   const orderPrice = order.price || 0;
@@ -587,13 +587,13 @@ exports.getOrderById = catchAsync(async (req, res, next) => {
       username: seller.username,
       email: seller.email,
     },
-    
+
     // Chat details
     chat: chat ? {
       id: chat._id,
       lastActivity: chat.lastActivity
     } : null,
-    
+
     // Feedback details
     review: order.review || null,
     reviewMessage: order.reviewMessage || null
@@ -629,7 +629,7 @@ exports.markOrderAsReceived = catchAsync(async (req, res, next) => {
   // Update the order status to received
   order.status = "completed";
   await order.save();
-  
+
   // Add a system message to the chat if requested
   if (sendChatMessage) {
     try {
@@ -642,7 +642,7 @@ exports.markOrderAsReceived = catchAsync(async (req, res, next) => {
           isSystemMessage: true,
           read: true
         };
-        
+
         chat.messages.push(systemMessage);
         chat.lastActivity = Date.now();
         await chat.save();
@@ -661,50 +661,50 @@ exports.markOrderAsReceived = catchAsync(async (req, res, next) => {
 
 exports.refundOrder = catchAsync(async (req, res, next) => {
   const orderId = req.params.id;
-  
+
   // Only admins can refund orders
   if (req.user.role !== "admin" && req.user.role !== "seller") {
     return next(new AppError("Only administrators and sellers can refund orders", 403));
   }
-  
+
   // Find the order
   const order = await Orders.findById(orderId);
   if (!order) {
     return next(new AppError("No order found with that ID", 404));
   }
-  
+
   // Check if order is already refunded
   if (order.status === "refunded") {
     return next(new AppError("This order has already been refunded", 400));
   }
-  
+
   try {
     // Start a transaction for database consistency
     const session = await mongoose.startSession();
     session.startTransaction();
-    
+
     try {
       // Get the order amount and game type
       const orderAmount = order.price || order.amount;
       const gameType = order.game || "Valorant";
-      
+
       // Calculate commission
       const commissionRate = COMMISSION_RATES[gameType] || COMMISSION_RATES.Default;
       const commissionAmount = (orderAmount * commissionRate) / 100;
       const sellerReceives = orderAmount - commissionAmount;
-      
+
       // Find the buyer and seller
       const [buyer, seller] = await Promise.all([
         User.findById(order.clientID),
         User.findById(order.sellerID)
       ]);
-      
+
       if (!buyer || !seller) {
         await session.abortTransaction();
         session.endSession();
         return next(new AppError("Buyer or seller not found", 404));
       }
-      
+
       // Update buyer's wallet - add full amount
       const buyerWalletAmount = (buyer.wallet || 0) + orderAmount;
       await User.findByIdAndUpdate(
@@ -712,7 +712,7 @@ exports.refundOrder = catchAsync(async (req, res, next) => {
         { wallet: buyerWalletAmount },
         { session, new: true, runValidators: false }
       );
-      
+
       // Create a wallet action record for the buyer
       await walletActions.create([{
         user: buyer._id,
@@ -721,7 +721,7 @@ exports.refundOrder = catchAsync(async (req, res, next) => {
         message: `Refund for order #${order._id} - ${gameType} account`,
         createdAt: Date.now()
       }], { session });
-      
+
       // Update seller's wallet - deduct the amount they received
       const sellerWalletAmount = Math.max(0, (seller.wallet || 0) - sellerReceives);
       await User.findByIdAndUpdate(
@@ -729,7 +729,7 @@ exports.refundOrder = catchAsync(async (req, res, next) => {
         { wallet: sellerWalletAmount },
         { session, new: true, runValidators: false }
       );
-      
+
       // Create a wallet action record for the seller
       await walletActions.create([{
         user: seller._id,
@@ -738,7 +738,7 @@ exports.refundOrder = catchAsync(async (req, res, next) => {
         message: `Deduction for refunded order #${order._id} - ${gameType} account`,
         createdAt: Date.now()
       }], { session });
-      
+
       // Find the game account based on game type
       let accountModel;
       switch (gameType.toLowerCase()) {
@@ -761,7 +761,7 @@ exports.refundOrder = catchAsync(async (req, res, next) => {
         default:
           accountModel = Valorant;
       }
-      
+
       // Find the account and update its status
       if (order.accountID) {
         try {
@@ -775,15 +775,15 @@ exports.refundOrder = catchAsync(async (req, res, next) => {
           // Continue with the refund even if account update fails
         }
       }
-      
+
       // Update order status
       order.status = "refunded";
       await order.save({ session });
-      
+
       // Commit the transaction
       await session.commitTransaction();
       session.endSession();
-      
+
       // Add notification to chat if it exists
       try {
         const chat = await Chat.findOne({ orderId: order._id });
@@ -795,7 +795,7 @@ exports.refundOrder = catchAsync(async (req, res, next) => {
             isSystemMessage: true,
             read: true
           };
-          
+
           chat.messages.push(refundMessage);
           chat.lastActivity = Date.now();
           await chat.save();
@@ -804,7 +804,7 @@ exports.refundOrder = catchAsync(async (req, res, next) => {
         console.error("Error adding refund message to chat:", chatError);
         // Don't fail the refund if adding chat message fails
       }
-      
+
       res.status(200).json({
         status: "success",
         message: "Order has been refunded successfully",
@@ -845,14 +845,14 @@ exports.submitFeedback = async (req, res) => {
 
     // Find the order
     const order = await Orders.findById(id);
-    
+
     if (!order) {
       return res.status(404).json({
         status: 'error',
         message: 'Order not found'
       });
     }
-    
+
     // Make sure only the buyer (client) can leave feedback
     if (order.clientID.toString() !== userId.toString()) {
       return res.status(403).json({
@@ -860,7 +860,7 @@ exports.submitFeedback = async (req, res) => {
         message: 'Only the buyer can leave feedback on an order'
       });
     }
-    
+
     // Make sure the order is completed or refunded (can't leave feedback on processing orders)
     if (order.status !== 'completed' && order.status !== 'refunded') {
       return res.status(400).json({
@@ -868,17 +868,17 @@ exports.submitFeedback = async (req, res) => {
         message: 'Feedback can only be left on completed or refunded orders'
       });
     }
-    
+
     // Update the order with the feedback
     order.review = review;
-    
+
     // Only set reviewMessage if it's provided
     if (reviewMessage) {
       order.reviewMessage = reviewMessage;
     }
-    
+
     await order.save();
-    
+
     return res.status(200).json({
       status: 'success',
       data: {
@@ -886,7 +886,7 @@ exports.submitFeedback = async (req, res) => {
       },
       message: 'Feedback submitted successfully'
     });
-    
+
   } catch (error) {
     console.error('Error submitting feedback:', error);
     return res.status(500).json({
@@ -915,29 +915,29 @@ exports.cancelOrder = catchAsync(async (req, res, next) => {
     // Start a transaction for database consistency
     const session = await mongoose.startSession();
     session.startTransaction();
-    
+
     try {
       // Get the order amount
       const orderAmount = order.price || order.amount;
       const gameType = order.game || "Valorant";
-      
+
       // Calculate commission - needed to determine how much to deduct from seller
       const commissionRate = COMMISSION_RATES[gameType] || COMMISSION_RATES.Default;
       const commissionAmount = (orderAmount * commissionRate) / 100;
       const sellerReceives = orderAmount - commissionAmount;
-      
+
       // Find the buyer and seller
       const [buyer, seller] = await Promise.all([
         User.findById(order.clientID),
         User.findById(order.sellerID)
       ]);
-      
+
       if (!buyer || !seller) {
         await session.abortTransaction();
         session.endSession();
         return next(new AppError("Buyer or seller not found", 404));
       }
-      
+
       // Update buyer's wallet - add full amount
       const buyerWalletAmount = (buyer.wallet || 0) + orderAmount;
       await User.findByIdAndUpdate(
@@ -945,7 +945,7 @@ exports.cancelOrder = catchAsync(async (req, res, next) => {
         { wallet: buyerWalletAmount },
         { session, new: true, runValidators: false }
       );
-      
+
       // Create a wallet action record for the buyer
       await walletActions.create([{
         user: buyer._id,
@@ -954,7 +954,7 @@ exports.cancelOrder = catchAsync(async (req, res, next) => {
         message: `Refund for cancelled order #${order._id}`,
         createdAt: Date.now()
       }], { session });
-      
+
       // Update seller's wallet - deduct the amount they would have received
       // Only if the seller has enough balance
       const sellerCurrentWallet = seller.wallet || 0;
@@ -965,7 +965,7 @@ exports.cancelOrder = catchAsync(async (req, res, next) => {
           { wallet: sellerUpdatedWallet },
           { session, new: true, runValidators: false }
         );
-        
+
         // Create a wallet action record for the seller
         await walletActions.create([{
           user: seller._id,
@@ -978,7 +978,7 @@ exports.cancelOrder = catchAsync(async (req, res, next) => {
         console.warn(`Seller ${seller._id} doesn't have enough balance for deduction. No wallet update performed.`);
         // Create a debt record or handle insufficient funds scenario
       }
-      
+
       // Find the game account based on game type
       let accountModel;
       switch (gameType.toLowerCase()) {
@@ -1000,7 +1000,7 @@ exports.cancelOrder = catchAsync(async (req, res, next) => {
         default:
           accountModel = Valorant;
       }
-      
+
       // Find the account and update its status back to active
       if (order.accountID) {
         try {
@@ -1014,15 +1014,15 @@ exports.cancelOrder = catchAsync(async (req, res, next) => {
           // Continue with the cancellation even if account update fails
         }
       }
-      
+
       // Update order status
       order.status = "refunded"; // Using refunded status for cancelled orders
       await order.save({ session });
-      
+
       // Commit the transaction
       await session.commitTransaction();
       session.endSession();
-      
+
       // Add notification to chat if it exists
       try {
         const chat = await Chat.findOne({ orderId: order._id });
@@ -1034,7 +1034,7 @@ exports.cancelOrder = catchAsync(async (req, res, next) => {
             isSystemMessage: true,
             read: true
           };
-          
+
           chat.messages.push(systemMessage);
           chat.lastActivity = Date.now();
           await chat.save();
@@ -1043,7 +1043,7 @@ exports.cancelOrder = catchAsync(async (req, res, next) => {
         console.error("Error adding cancellation message to chat:", chatError);
         // Don't fail the cancellation if adding chat message fails
       }
-      
+
       res.status(200).json({
         status: "success",
         message: "Order has been cancelled successfully",
@@ -1071,7 +1071,7 @@ exports.disputeOrder = catchAsync(async (req, res, next) => {
 
   // Find the order
   const order = await Orders.findById(orderId);
-  
+
   if (!order) {
     return next(new AppError("No order found with that ID", 404));
   }
@@ -1092,12 +1092,12 @@ exports.disputeOrder = catchAsync(async (req, res, next) => {
 
   // Update order status to disputed
   order.status = "disputed";
-  
+
   // Save dispute reason if provided
   if (disputeReason) {
     order.disputeReason = disputeReason;
   }
-  
+
   await order.save();
 
   // Add notification to chat if it exists
@@ -1155,7 +1155,7 @@ exports.closeDispute = catchAsync(async (req, res, next) => {
   // Update the order status to completed
   order.status = "completed";
   await order.save();
-  
+
   // Add a system message to the chat
   try {
     const chat = await Chat.findOne({ orderId: order._id });
@@ -1167,7 +1167,7 @@ exports.closeDispute = catchAsync(async (req, res, next) => {
         isSystemMessage: true,
         read: true
       };
-      
+
       chat.messages.push(systemMessage);
       chat.lastActivity = Date.now();
       await chat.save();
@@ -1213,12 +1213,12 @@ exports.getDisputedOrders = catchAsync(async (req, res, next) => {
   // Get all unique client and seller IDs
   const clientIds = [...new Set(disputedOrders.map(order => order.clientID))];
   const sellerIds = [...new Set(disputedOrders.map(order => order.sellerID))];
-  
+
   // Fetch all users in one query for efficiency
   const users = await User.find({
     _id: { $in: [...clientIds, ...sellerIds] }
   }).select('_id username email');
-  
+
   // Create a map for quick lookups
   const userMap = {};
   users.forEach(user => {
@@ -1247,11 +1247,11 @@ exports.getDisputedOrders = catchAsync(async (req, res, next) => {
 
     // Format amount with currency symbol
     const formattedAmount = `$${parseFloat(orderPrice).toFixed(2)}`;
-    
+
     // Get customer and seller info from user map
     const clientIdStr = order.clientID.toString();
     const sellerIdStr = order.sellerID.toString();
-    
+
     const customerInfo = userMap[clientIdStr] || { username: 'Unknown Customer' };
     const sellerInfo = userMap[sellerIdStr] || { username: 'Unknown Seller' };
 
@@ -1300,7 +1300,7 @@ exports.resolveDispute = catchAsync(async (req, res, next) => {
 
   // Find the order
   const order = await Orders.findById(orderId);
-  
+
   if (!order) {
     return next(new AppError("No order found with that ID", 404));
   }
@@ -1315,7 +1315,7 @@ exports.resolveDispute = catchAsync(async (req, res, next) => {
     // If approving, mark as completed
     order.status = "completed";
     await order.save();
-    
+
     // Add a system message to the chat
     try {
       const chat = await Chat.findOne({ orderId: order._id });
@@ -1327,7 +1327,7 @@ exports.resolveDispute = catchAsync(async (req, res, next) => {
           isSystemMessage: true,
           read: true
         };
-        
+
         chat.messages.push(systemMessage);
         chat.lastActivity = Date.now();
         await chat.save();
@@ -1336,7 +1336,7 @@ exports.resolveDispute = catchAsync(async (req, res, next) => {
       console.error('Error adding system message to chat:', chatError);
       // Don't fail the operation if adding a chat message fails
     }
-    
+
     res.status(200).json({
       status: "success",
       message: "Dispute resolved in favor of seller. Order marked as completed.",
@@ -1346,7 +1346,7 @@ exports.resolveDispute = catchAsync(async (req, res, next) => {
     // We're reusing the existing refundOrder functionality
     // Save the order ID for the refund process
     req.params.id = orderId;
-    
+
     // Add a system message to the chat
     try {
       const chat = await Chat.findOne({ orderId: order._id });
@@ -1358,7 +1358,7 @@ exports.resolveDispute = catchAsync(async (req, res, next) => {
           isSystemMessage: true,
           read: true
         };
-        
+
         chat.messages.push(systemMessage);
         chat.lastActivity = Date.now();
         await chat.save();
@@ -1367,7 +1367,7 @@ exports.resolveDispute = catchAsync(async (req, res, next) => {
       console.error('Error adding system message to chat:', chatError);
       // Don't fail the operation if adding a chat message fails
     }
-    
+
     // Call the refundOrder function
     return exports.refundOrder(req, res, next);
   }
@@ -1377,7 +1377,7 @@ exports.getSellerStats = catchAsync(async (req, res, next) => {
   const sellerId = req.params.id;
 
   // Find orders for this seller that are completed
-  const orders = await Orders.find({ 
+  const orders = await Orders.find({
     sellerID: sellerId,
     status: "completed"
   });
@@ -1399,8 +1399,8 @@ exports.getSellerStats = catchAsync(async (req, res, next) => {
   });
 
   // Calculate the rating percentage
-  const rating = totalReviews > 0 
-    ? Math.round((positiveReviews / totalReviews) * 100) 
+  const rating = totalReviews > 0
+    ? Math.round((positiveReviews / totalReviews) * 100)
     : 100; // Default to 100% if no reviews
 
   res.status(200).json({
@@ -1411,6 +1411,97 @@ exports.getSellerStats = catchAsync(async (req, res, next) => {
       totalReviews,
       positiveReviews
     }
+  });
+});
+
+exports.getOrderByAccountId = catchAsync(async (req, res, next) => {
+  const accountId = req.params.accountId;
+
+  // Find the order with the given account ID
+  const order = await Orders.findOne({ accountID: accountId });
+
+  if (!order) {
+    return next(new AppError("No order found with that account ID", 404));
+  }
+
+  // Check authorization - only allow access to admin, the buyer, or the seller
+  if (
+    req.user.role !== "admin" &&
+    order.sellerID.toString() !== req.user._id.toString() &&
+    order.clientID.toString() !== req.user._id.toString()
+  ) {
+    return next(new AppError("You are not authorized to view this order", 403));
+  }
+
+  // Get game type from order
+  const gameType = order.game || "Valorant"; // Default to Valorant if not specified
+
+  // Get account details based on game type
+  let accountDetails;
+  switch (gameType) {
+    case "Valorant":
+      accountDetails = await Valorant.findById(order.accountID);
+      break;
+    case "Brawl Stars":
+      accountDetails = await BrawlStars.findById(order.accountID);
+      break;
+    case "PUBG":
+      accountDetails = await PUBG.findById(order.accountID);
+      break;
+    case "Fortnite":
+      accountDetails = await Fortnite.findById(order.accountID);
+      break;
+    case "League of Legends":
+      accountDetails = await LeagueOfLegends.findById(order.accountID);
+      break;
+    case "Clash of Clans":
+      accountDetails = await ClashOfClans.findById(order.accountID);
+      break;
+    default:
+      // Default to Valorant model for now
+      accountDetails = await Valorant.findById(order.accountID);
+  }
+
+  if (!accountDetails) {
+    return next(new AppError(`Account details not found for this order`, 404));
+  }
+
+  // Get buyer and seller details
+  const [buyer, seller] = await Promise.all([
+    User.findById(order.clientID).select("username email"),
+    User.findById(order.sellerID).select("username email"),
+  ]);
+
+  // Format response
+  const formattedOrder = {
+    id: order._id,
+    status: order.status,
+    price: order.price,
+    createdAt: order.createdAt,
+    account: {
+      id: accountDetails._id,
+      title: accountDetails.title,
+      gameType: gameType,
+      credentials: accountDetails.login && accountDetails.password ?
+        `${accountDetails.login}:${accountDetails.password}` : "Protected",
+    },
+    buyer: {
+      id: buyer._id,
+      username: buyer.username,
+      email: buyer.email,
+    },
+    seller: {
+      id: seller._id,
+      username: seller.username,
+      email: seller.email,
+    },
+  };
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      order: formattedOrder,
+    },
   });
 });
 

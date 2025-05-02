@@ -52,13 +52,13 @@ const valorantSchema = new mongoose.Schema({
       default: 0
     },
     server: {
-      type : String,
-      enum: ["Europe", "North America", "Asia Pasific", "Brazil" , "Latin America"]
+      type: String,
+      enum: ["Europe", "North America", "Asia Pasific", "Brazil", "Latin America"]
     }
   },
   status: {
     type: String,
-    enum: ["draft", "active", "sold"],
+    enum: ["draft", "active", "sold", "processing"],
     default: "draft",
   },
   lastUpdated: {

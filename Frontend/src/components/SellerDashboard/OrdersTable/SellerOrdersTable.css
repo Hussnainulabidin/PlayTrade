@@ -1,0 +1,123 @@
+.pt-orders-table {
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #1a172b;
+}
+
+.pt-orders-table__header {
+    display: flex;
+    padding: 16px;
+    border-bottom: 1px solid #2d2a42;
+    background-color: #201b35;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8b8a91;
+    text-transform: uppercase;
+}
+
+.pt-orders-table__body {
+    /* Remove max-height and overflow properties to eliminate table scroll */
+}
+
+.pt-orders-table__empty {
+    padding: 24px;
+    text-align: center;
+    color: #8b8a91;
+}
+
+/* Cell widths */
+.pt-order-cell--checkbox {
+    width: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.pt-order-cell--checkbox input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.pt-order-cell--title {
+    flex: 2;
+}
+
+.pt-order-cell--order-id {
+    flex: 0.8;
+    text-align: center;
+}
+
+.pt-order-cell--buyer {
+    flex: 1;
+    text-align: center;
+}
+
+.pt-order-cell--status {
+    flex: 0.8;
+    text-align: center;
+}
+
+.pt-order-cell--price {
+    flex: 0.5;
+    text-align: center;
+}
+
+.pt-order-cell--date {
+    flex: 0.8;
+    text-align: center;
+}
+
+.pt-order-cell--actions {
+    width: 60px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Status styling */
+.pt-order-status {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.pt-order-status--processing {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.pt-order-status--completed {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.pt-order-status--refunded {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.pt-order-status--disputed {
+    background-color: rgba(124, 58, 237, 0.1);
+    color: #7c3aed;
+}
+
+/* Scrollbar styling */
+.pt-orders-table__body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.pt-orders-table__body::-webkit-scrollbar-track {
+    background: #2a2438;
+}
+
+.pt-orders-table__body::-webkit-scrollbar-thumb {
+    background-color: #4b4460;
+    border-radius: 3px;
+}
+
+.pt-orders-table__body::-webkit-scrollbar-thumb:hover {
+    background: #5a526f;
+}

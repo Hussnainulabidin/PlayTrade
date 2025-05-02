@@ -58,7 +58,7 @@ const chatSchema = new mongoose.Schema({
 });
 
 // Virtual field to get participants (for compatibility with existing code)
-chatSchema.virtual('participants').get(function() {
+chatSchema.virtual('participants').get(function () {
   return [this.sender, this.receiver];
 });
 
@@ -67,7 +67,7 @@ chatSchema.index({ sender: 1, receiver: 1, orderId: 1 });
 chatSchema.index({ sender: 1, receiver: 1, ticketId: 1 });
 
 // Update lastActivity whenever a new message is added
-chatSchema.pre('save', function(next) {
+chatSchema.pre('save', function (next) {
   if (this.isModified('messages')) {
     this.lastActivity = Date.now();
   }
@@ -75,7 +75,7 @@ chatSchema.pre('save', function(next) {
 });
 
 // Validate that either orderId or ticketId is present, but not both
-chatSchema.pre('save', function(next) {
+chatSchema.pre('save', function (next) {
   if ((!this.orderId && !this.ticketId) || (this.orderId && this.ticketId)) {
     next(new Error('Chat must have either an orderId or a ticketId, but not both'));
   }

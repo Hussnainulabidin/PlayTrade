@@ -1,0 +1,245 @@
+.order-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.order-filter-bar-search-container {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+}
+
+.order-filter-bar-search-icon {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    color: #8b8a91;
+}
+
+.order-filter-bar-search-input {
+    width: 100%;
+    height: 42px;
+    padding: 0 16px 0 42px;
+    border-radius: 8px;
+    border: 1px solid #2d2a42;
+    background-color: #1a172b;
+    color: #e0d9ff;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.order-filter-bar-search-input:focus {
+    outline: none;
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+}
+
+.order-filter-bar-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.order-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 16px;
+    border-radius: 8px;
+    border: 1px solid #2d2a42;
+    background-color: #1a172b;
+    color: #e0d9ff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.order-filter-btn-active {
+    background-color: #2d1d5a;
+    border-color: #7c3aed;
+}
+
+.order-filter-btn:hover {
+    background-color: #201b35;
+    border-color: #7c3aed;
+}
+
+.order-filter-btn-reset {
+    background-color: #34294f;
+}
+
+.order-filter-btn-reset:hover {
+    background-color: #40305a;
+}
+
+/* Modal Styles */
+.order-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.order-modal-content {
+    width: 100%;
+    max-width: 500px;
+    background-color: #1a172b;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.order-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #2d2a42;
+}
+
+.order-modal-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #e0d9ff;
+}
+
+.order-close-button {
+    background: none;
+    border: none;
+    color: #8b8a91;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.order-close-button:hover {
+    color: #e0d9ff;
+}
+
+.order-modal-body {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.order-filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.order-filter-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.order-filter-option:hover {
+    background-color: #201b35;
+}
+
+.order-filter-option-selected {
+    background-color: #201b35;
+}
+
+.order-option-checkbox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid #2d2a42;
+    background-color: #1a172b;
+}
+
+.order-filter-option-selected .order-option-checkbox {
+    background-color: #7c3aed;
+    border-color: #7c3aed;
+    color: white;
+}
+
+.order-date-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.order-date-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.order-date-field label {
+    font-size: 14px;
+    color: #e0d9ff;
+}
+
+.order-date-input {
+    height: 42px;
+    padding: 0 16px;
+    border-radius: 6px;
+    border: 1px solid #2d2a42;
+    background-color: #1a172b;
+    color: #e0d9ff;
+    font-size: 14px;
+}
+
+.order-date-input:focus {
+    outline: none;
+    border-color: #7c3aed;
+}
+
+.order-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px 20px;
+    border-top: 1px solid #2d2a42;
+    gap: 12px;
+}
+
+.order-modal-btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.order-modal-btn-reset {
+    background-color: transparent;
+    border: 1px solid #2d2a42;
+    color: #e0d9ff;
+}
+
+.order-modal-btn-reset:hover {
+    background-color: #201b35;
+}
+
+.order-modal-btn-apply {
+    background-color: #7c3aed;
+    border: 1px solid #7c3aed;
+    color: white;
+}
+
+.order-modal-btn-apply:hover {
+    background-color: #6d28d9;
+    border-color: #6d28d9;
+}

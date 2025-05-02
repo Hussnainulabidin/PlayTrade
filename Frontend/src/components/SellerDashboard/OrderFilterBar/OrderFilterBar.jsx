@@ -1,9 +1,9 @@
 "use client"
 import { useState, useEffect } from "react"
-import { Search, Gamepad, Tag, Star, Server, Award, Percent, Calendar, List, X, Check, RefreshCw } from "lucide-react"
-import "./SellerFilterbar.css"
+import { Search, Gamepad, Tag, Calendar, X, Check, RefreshCw } from "lucide-react"
+import "./OrderFilterbar.css"
 
-const FilterBar = ({ onSearch, onFilterChange, searchQuery, filters = {} }) => {
+const OrderFilterBar = ({ onSearch, onFilterChange, searchQuery, filters = {} }) => {
     const [gameModalOpen, setGameModalOpen] = useState(false)
     const [statusModalOpen, setStatusModalOpen] = useState(false)
     const [dateModalOpen, setDateModalOpen] = useState(false)
@@ -34,8 +34,8 @@ const FilterBar = ({ onSearch, onFilterChange, searchQuery, filters = {} }) => {
     ]
 
     const statuses = [
-        "Active",
-        "Draft"
+        "Processing",
+        "Completed"
     ]
 
     // Check if any filter is active
@@ -132,35 +132,35 @@ const FilterBar = ({ onSearch, onFilterChange, searchQuery, filters = {} }) => {
     }
 
     return (
-        <div className="filter-bar">
-            <div className="filter-bar-search-container">
-                <Search size={16} className="filter-bar-search-icon" />
+        <div className="order-filter-bar">
+            <div className="order-filter-bar-search-container">
+                <Search size={16} className="order-filter-bar-search-icon" />
                 <input
                     type="text"
-                    className="filter-bar-search-input"
-                    placeholder="Search..."
+                    className="order-filter-bar-search-input"
+                    placeholder="Search orders..."
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
                 />
             </div>
 
-            <div className="filter-bar-filters">
+            <div className="order-filter-bar-filters">
                 <button
-                    className={`filter-btn ${selectedGames.length > 0 ? 'filter-btn-active' : ''}`}
+                    className={`order-filter-btn ${selectedGames.length > 0 ? 'order-filter-btn-active' : ''}`}
                     onClick={() => setGameModalOpen(true)}
                 >
                     <Gamepad size={16} />
                     <span>Game {selectedGames.length > 0 && `(${selectedGames.length})`}</span>
                 </button>
                 <button
-                    className={`filter-btn ${selectedStatuses.length > 0 ? 'filter-btn-active' : ''}`}
+                    className={`order-filter-btn ${selectedStatuses.length > 0 ? 'order-filter-btn-active' : ''}`}
                     onClick={() => setStatusModalOpen(true)}
                 >
                     <Tag size={16} />
                     <span>Status {selectedStatuses.length > 0 && `(${selectedStatuses.length})`}</span>
                 </button>
                 <button
-                    className={`filter-btn ${(dateRange.startDate || dateRange.endDate) ? 'filter-btn-active' : ''}`}
+                    className={`order-filter-btn ${(dateRange.startDate || dateRange.endDate) ? 'order-filter-btn-active' : ''}`}
                     onClick={() => setDateModalOpen(true)}
                 >
                     <Calendar size={16} />
@@ -169,7 +169,7 @@ const FilterBar = ({ onSearch, onFilterChange, searchQuery, filters = {} }) => {
 
                 {hasActiveFilters() && (
                     <button
-                        className="filter-btn filter-btn-reset"
+                        className="order-filter-btn order-filter-btn-reset"
                         onClick={resetAllFilters}
                     >
                         <RefreshCw size={16} />
@@ -180,23 +180,23 @@ const FilterBar = ({ onSearch, onFilterChange, searchQuery, filters = {} }) => {
 
             {/* Game Modal */}
             {gameModalOpen && (
-                <div className="modal-overlay" onClick={() => setGameModalOpen(false)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3 className="modal-title">Filter by Game</h3>
-                            <button className="close-button" onClick={() => setGameModalOpen(false)}>
+                <div className="order-modal-overlay" onClick={() => setGameModalOpen(false)}>
+                    <div className="order-modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="order-modal-header">
+                            <h3 className="order-modal-title">Filter by Game</h3>
+                            <button className="order-close-button" onClick={() => setGameModalOpen(false)}>
                                 <X size={20} />
                             </button>
                         </div>
-                        <div className="modal-body">
-                            <div className="filter-options">
+                        <div className="order-modal-body">
+                            <div className="order-filter-options">
                                 {games.map(game => (
                                     <div
                                         key={game}
-                                        className={`filter-option ${selectedGames.includes(game) ? 'filter-option-selected' : ''}`}
+                                        className={`order-filter-option ${selectedGames.includes(game) ? 'order-filter-option-selected' : ''}`}
                                         onClick={() => toggleGameSelection(game)}
                                     >
-                                        <div className="option-checkbox">
+                                        <div className="order-option-checkbox">
                                             {selectedGames.includes(game) && <Check size={16} />}
                                         </div>
                                         <span>{game}</span>
@@ -204,11 +204,11 @@ const FilterBar = ({ onSearch, onFilterChange, searchQuery, filters = {} }) => {
                                 ))}
                             </div>
                         </div>
-                        <div className="modal-footer">
-                            <button className="modal-btn modal-btn-reset" onClick={resetGameFilter}>
+                        <div className="order-modal-footer">
+                            <button className="order-modal-btn order-modal-btn-reset" onClick={resetGameFilter}>
                                 Reset
                             </button>
-                            <button className="modal-btn modal-btn-apply" onClick={applyGameFilter}>
+                            <button className="order-modal-btn order-modal-btn-apply" onClick={applyGameFilter}>
                                 Apply
                             </button>
                         </div>
@@ -218,23 +218,23 @@ const FilterBar = ({ onSearch, onFilterChange, searchQuery, filters = {} }) => {
 
             {/* Status Modal */}
             {statusModalOpen && (
-                <div className="modal-overlay" onClick={() => setStatusModalOpen(false)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3 className="modal-title">Filter by Status</h3>
-                            <button className="close-button" onClick={() => setStatusModalOpen(false)}>
+                <div className="order-modal-overlay" onClick={() => setStatusModalOpen(false)}>
+                    <div className="order-modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="order-modal-header">
+                            <h3 className="order-modal-title">Filter by Status</h3>
+                            <button className="order-close-button" onClick={() => setStatusModalOpen(false)}>
                                 <X size={20} />
                             </button>
                         </div>
-                        <div className="modal-body">
-                            <div className="filter-options">
+                        <div className="order-modal-body">
+                            <div className="order-filter-options">
                                 {statuses.map(status => (
                                     <div
                                         key={status}
-                                        className={`filter-option ${isStatusSelected(status) ? 'filter-option-selected' : ''}`}
+                                        className={`order-filter-option ${isStatusSelected(status) ? 'order-filter-option-selected' : ''}`}
                                         onClick={() => toggleStatusSelection(status)}
                                     >
-                                        <div className="option-checkbox">
+                                        <div className="order-option-checkbox">
                                             {isStatusSelected(status) && <Check size={16} />}
                                         </div>
                                         <span>{status}</span>
@@ -242,11 +242,11 @@ const FilterBar = ({ onSearch, onFilterChange, searchQuery, filters = {} }) => {
                                 ))}
                             </div>
                         </div>
-                        <div className="modal-footer">
-                            <button className="modal-btn modal-btn-reset" onClick={resetStatusFilter}>
+                        <div className="order-modal-footer">
+                            <button className="order-modal-btn order-modal-btn-reset" onClick={resetStatusFilter}>
                                 Reset
                             </button>
-                            <button className="modal-btn modal-btn-apply" onClick={applyStatusFilter}>
+                            <button className="order-modal-btn order-modal-btn-apply" onClick={applyStatusFilter}>
                                 Apply
                             </button>
                         </div>
@@ -256,45 +256,45 @@ const FilterBar = ({ onSearch, onFilterChange, searchQuery, filters = {} }) => {
 
             {/* Date Modal */}
             {dateModalOpen && (
-                <div className="modal-overlay" onClick={() => setDateModalOpen(false)}>
-                    <div className="modal-content" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3 className="modal-title">Filter by Date</h3>
-                            <button className="close-button" onClick={() => setDateModalOpen(false)}>
+                <div className="order-modal-overlay" onClick={() => setDateModalOpen(false)}>
+                    <div className="order-modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="order-modal-header">
+                            <h3 className="order-modal-title">Filter by Date</h3>
+                            <button className="order-close-button" onClick={() => setDateModalOpen(false)}>
                                 <X size={20} />
                             </button>
                         </div>
-                        <div className="modal-body">
-                            <div className="date-range">
-                                <div className="date-field">
+                        <div className="order-modal-body">
+                            <div className="order-date-inputs">
+                                <div className="order-date-field">
                                     <label htmlFor="startDate">Start Date</label>
                                     <input
                                         type="date"
                                         id="startDate"
                                         name="startDate"
-                                        className="date-input"
                                         value={dateRange.startDate}
                                         onChange={handleDateChange}
+                                        className="order-date-input"
                                     />
                                 </div>
-                                <div className="date-field">
+                                <div className="order-date-field">
                                     <label htmlFor="endDate">End Date</label>
                                     <input
                                         type="date"
                                         id="endDate"
                                         name="endDate"
-                                        className="date-input"
                                         value={dateRange.endDate}
                                         onChange={handleDateChange}
+                                        className="order-date-input"
                                     />
                                 </div>
                             </div>
                         </div>
-                        <div className="modal-footer">
-                            <button className="modal-btn modal-btn-reset" onClick={resetDateFilter}>
+                        <div className="order-modal-footer">
+                            <button className="order-modal-btn order-modal-btn-reset" onClick={resetDateFilter}>
                                 Reset
                             </button>
-                            <button className="modal-btn modal-btn-apply" onClick={applyDateFilter}>
+                            <button className="order-modal-btn order-modal-btn-apply" onClick={applyDateFilter}>
                                 Apply
                             </button>
                         </div>
@@ -305,4 +305,4 @@ const FilterBar = ({ onSearch, onFilterChange, searchQuery, filters = {} }) => {
     )
 }
 
-export default FilterBar
+export default OrderFilterBar 
