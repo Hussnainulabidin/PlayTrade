@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import { Search, Gamepad, Tag, Star, Server, Award, Percent, Calendar, List, X, Check, RefreshCw } from "lucide-react"
-import "./SellerFilterbar.css"
+import "./SellerFilterBar.css"
 
 const FilterBar = ({ onSearch, onFilterChange, searchQuery, filters = {} }) => {
     const [gameModalOpen, setGameModalOpen] = useState(false)
