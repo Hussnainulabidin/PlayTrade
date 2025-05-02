@@ -4,6 +4,8 @@ const userApi = {
   // User authentication
   login: (credentials) => API.post('/users/login', credentials),
   signup: (userData) => API.post('/users/signup', userData),
+  verifySignup: (data) => API.post('/users/verify-signup', data),
+  resendVerification: (data) => API.post('/users/resend-verification', data),
   logout: () => API.post('/users/logout'),
   logoutAll: () => API.post('/users/logout-all'),
 
@@ -18,6 +20,7 @@ const userApi = {
 
   // 2FA
   toggle2FA: (data) => API.post('/users/toggle-2fa', data),
+  verify2FA: (data) => API.post('/users/verify-2fa', data),
 
   // Notification preferences
   updateNotificationPreferences: (preferences) => API.post('/users/update-notification-prefs', preferences),

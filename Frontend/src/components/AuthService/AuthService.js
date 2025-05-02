@@ -53,7 +53,7 @@ const login = async (email, password) => {
 
 const verifyTwoFactorCode = async (userId, verificationCode) => {
   try {
-    const response = await userApi.toggle2FA({
+    const response = await userApi.verify2FA({
       userId,
       verificationCode
     });

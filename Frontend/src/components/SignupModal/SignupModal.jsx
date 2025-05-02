@@ -1,13 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import axios from "axios"
 import { z } from "zod"
 import { Dialog, DialogContent } from "../ui/dialog"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { X } from "lucide-react"
 import { useUser } from "../userContext/UserContext"
+import { userApi } from "../../api"
 
 export function SignupModal({ isOpen, onClose, switchToLogin, onLoginSuccess }) {
   const [username, setUsername] = useState("")
@@ -21,7 +21,7 @@ export function SignupModal({ isOpen, onClose, switchToLogin, onLoginSuccess }) 
   const [verificationCode, setVerificationCode] = useState("")
   const [countdown, setCountdown] = useState(0)
   const [canResend, setCanResend] = useState(false)
-  const { initializeAuth } = useUser()
+  const { login, initializeAuth } = useUser()
 
   // Countdown for resending code
   useEffect(() => {
@@ -65,7 +65,7 @@ export function SignupModal({ isOpen, onClose, switchToLogin, onLoginSuccess }) 
     setLoading(true)
     try {
       // Send signup request to API
-      const response = await axios.post("http://localhost:3003/users/signup", {
+      const response = await userApi.signup({
         username,
         email,
         password,
@@ -84,15 +84,17 @@ export function SignupModal({ isOpen, onClose, switchToLogin, onLoginSuccess }) 
           // This branch shouldn't be reached with your current backend flow,
           // but kept for future flexibility if direct signup is enabled
           if (response.data.token) {
-            // Store token only if it exists
-            console.log("response.data.token",response.data.token)
-            localStorage.setItem("token", response.data.token)
-            localStorage.setItem("userId", response.data.data.user._id)
+            // Get user data from the response
+            const userData = response.data.data.user
             
-            // Call initializeAuth to set the user in context
-            await initializeAuth()
+            // Add token to userData
+            userData.token = response.data.token
             
-            onLoginSuccess(response.data.data.user)
+            // Login through the context (this handles setting localStorage items)
+            await login(userData)
+            
+            // Call onLoginSuccess with the user data
+            onLoginSuccess(userData)
           }
           onClose()
         }
@@ -113,7 +115,7 @@ export function SignupModal({ isOpen, onClose, switchToLogin, onLoginSuccess }) 
     setCanResend(false)
     
     try {
-      const response = await axios.post("http://localhost:3003/users/resend-verification", {
+      const response = await userApi.resendVerification({
         username,
         email,
         password
@@ -145,7 +147,7 @@ export function SignupModal({ isOpen, onClose, switchToLogin, onLoginSuccess }) 
     setLoading(true)
     try {
       // Verify the 2FA code
-      const response = await axios.post("http://localhost:3003/users/verify-signup", {
+      const response = await userApi.verifySignup({
         userId: userId,
         verificationCode: verificationCode
       })
@@ -153,7 +155,7 @@ export function SignupModal({ isOpen, onClose, switchToLogin, onLoginSuccess }) 
       console.log("Verification response:", response.data)
       
       if (response.data.status === "success") {
-        // Store essential authentication data only
+        // Get token and user data from response
         const { token, data } = response.data
         
         if (!token) {
@@ -164,17 +166,13 @@ export function SignupModal({ isOpen, onClose, switchToLogin, onLoginSuccess }) 
         
         const userData = data.user
         
-        console.log("Setting token:", token.substring(0, 10) + "...")
+        // Add token to userData
+        userData.token = token
         
-        // Only store the token and ID, not user data
-        console.log("token",token)
-        localStorage.setItem("token", token)
-        localStorage.setItem("userId", userData._id)
+        // Login through the context (this handles setting localStorage items)
+        await login(userData)
         
-        // Call initializeAuth to set the user in context
-        await initializeAuth()
-        
-        // Update authentication state via context
+        // Call onLoginSuccess with the user data
         onLoginSuccess(userData)
         
         // Close modal

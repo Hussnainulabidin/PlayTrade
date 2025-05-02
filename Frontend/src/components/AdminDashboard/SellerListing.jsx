@@ -8,6 +8,16 @@ import "./common/Common.css"
 import "./common/TableStyles.css"
 import { formatDate } from "../../lib/utils"
 
+// Add additional CSS styles
+const tableRowStyle = {
+  cursor: 'pointer',
+  transition: 'background-color 0.2s ease'
+};
+
+const tableRowHoverStyle = {
+  backgroundColor: 'rgba(124, 58, 237, 0.1)'
+};
+
 export function SellerListings() {
   const { id } = useParams()
   const location = useLocation()
@@ -20,12 +30,21 @@ export function SellerListings() {
   const [error, setError] = useState(null)
   const [updating, setUpdating] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [hoverRow, setHoverRow] = useState(null)
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
     totalAccounts: 0
   })
   const dropdownRef = useRef(null)
+
+  // Function to handle clicking on a listing row to view details
+  const handleListingClick = (listingId, gameType) => {
+    // Navigate to the appropriate game account detail page
+    // Remove spaces and convert to lowercase
+    const formattedGameType = gameType.toLowerCase().replace(/\s+/g, '');
+    navigate(`/accounts/${formattedGameType}/${listingId}`);
+  }
 
   // Get the current page from URL params or default to 1
   const getPageFromUrl = () => {
@@ -238,16 +257,24 @@ export function SellerListings() {
               </thead>
               <tbody>
                 {filteredListings.map((listing) => (
-                  <tr key={listing.id} className="table-row">
-                    <td className="table-cell listing-id">
-                      <Link to={`/accounts/valorant/${id}/listings/${listing.id}`} className="order-link">
+                  <tr 
+                    key={listing.id} 
+                    className="table-row cursor-pointer" 
+                    style={{
+                      ...tableRowStyle,
+                      ...(hoverRow === listing.id ? tableRowHoverStyle : {})
+                    }}
+                    onClick={() => handleListingClick(listing.id, listing.game)}
+                    onMouseEnter={() => setHoverRow(listing.id)}
+                    onMouseLeave={() => setHoverRow(null)}
+                  >
+                    <td className="table-cell listing-id" onClick={(e) => e.stopPropagation()}>
+                      <Link to={`/accounts/${listing.game.toLowerCase().replace(/\s+/g, '')}/${listing.id}`} className="order-link">
                         #{listing.id}
                       </Link>
                     </td>
                     <td className="table-cell">
-                      <Link to={`/admindashboard/sellers/${id}/listings/${listing.id}`} className="seller-link">
-                        {listing.title ? (listing.title.length > 50 ? listing.title.substring(0, 50) + '...' : listing.title) : ''}
-                      </Link>
+                      {listing.title ? (listing.title.length > 50 ? listing.title.substring(0, 50) + '...' : listing.title) : ''}
                     </td>
                     <td className="table-cell">{listing.game}</td>
                     <td className="table-cell">
@@ -265,15 +292,59 @@ export function SellerListings() {
                     <td className="table-cell">{listing.price}</td>
                     <td className="table-cell">{formatDate(listing.createdDate)}</td>
                     <td className="table-cell actions-cell">
-                      <button className="action-icon-button">
-                        <Edit className="action-icon" size={18} />
-                      </button>
                       <button
-                        className="action-icon-button"
+                        className="action-button"
                         onClick={(e) => handleDropdownClick(listing.id, e)}
                       >
-                        <MoreVertical className="action-icon" size={18} />
+                        <MoreVertical size={18} />
                       </button>
+                      {activeDropdownId === listing.id && (
+                        <div
+                          ref={dropdownRef}
+                          className="dropdown-menu"
+                          style={{
+                            top: `${dropdownPosition.top}px`,
+                            left: `${dropdownPosition.left}px`,
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button 
+                            className="dropdown-item"
+                            onClick={() => {
+                              const listing = listings.find(item => item.id === activeDropdownId);
+                              if (listing) {
+                                handleListingClick(listing.id, listing.game);
+                              }
+                            }}
+                          >
+                            View Listing
+                          </button>
+                          <button
+                            className="dropdown-item"
+                            onClick={(e) => {
+                              const listing = listings.find(item => item.id === activeDropdownId);
+                              if (listing) {
+                                handleStatusUpdate(listing.id, listing.game, "draft");
+                              }
+                            }}
+                            disabled={updating}
+                          >
+                            {updating ? "Updating..." : "Set to Draft"}
+                          </button>
+                          <button
+                            className="dropdown-item delete-item"
+                            onClick={(e) => {
+                              const listing = listings.find(item => item.id === activeDropdownId);
+                              if (listing) {
+                                handleDeleteAccount(listing.id, listing.game);
+                              }
+                            }}
+                            disabled={deleting}
+                          >
+                            {deleting ? "Deleting..." : "Delete Listing"}
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -303,46 +374,6 @@ export function SellerListings() {
             </div>
           )}
         </>
-      )}
-
-      {activeDropdownId && (
-        <div
-          ref={dropdownRef}
-          className="dropdown-container"
-          style={{
-            position: 'fixed', // Change to fixed positioning
-            top: `${dropdownPosition.top}px`,
-            left: `${dropdownPosition.left}px`,
-          }}
-        >
-          <div className="dropdown-menu">
-            <button className="dropdown-item">View Listing</button>
-            <button
-              className="dropdown-item"
-              onClick={() => {
-                const listing = listings.find(item => item.id === activeDropdownId);
-                if (listing) {
-                  handleStatusUpdate(listing.id, listing.game, "draft");
-                }
-              }}
-              disabled={updating}
-            >
-              {updating ? "Updating..." : "Set to Draft"}
-            </button>
-            <button
-              className="dropdown-item delete-item"
-              onClick={() => {
-                const listing = listings.find(item => item.id === activeDropdownId);
-                if (listing) {
-                  handleDeleteAccount(listing.id, listing.game);
-                }
-              }}
-              disabled={deleting}
-            >
-              {deleting ? "Deleting..." : "Delete Listing"}
-            </button>
-          </div>
-        </div>
       )}
     </div>
   )
