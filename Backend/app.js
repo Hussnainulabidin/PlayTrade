@@ -31,7 +31,20 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev")); // gets the information about the request and logs it to the console e.g GET /valorant/accounts 200 3.000 ms - 43
 }
 app.use(express.json());
-app.use(cors())
+
+// CORS configuration
+app.use(cors({
+  origin: [
+    'http://localhost:3000', 
+    'http://localhost:5173', 
+    'https://playtrade-production.up.railway.app',
+    'https://playtrade.com'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
 app.use(helmet()); // protects against well known web vulnerabilities by setting HTTP headers appropriately
 app.use(mongoSanitize()); // protects against NoSQL query injection
 
