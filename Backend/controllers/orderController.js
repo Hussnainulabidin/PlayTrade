@@ -1526,3 +1526,63 @@ exports.getOrderByAccountId = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.updateOrderStatus = catchAsync(async (req, res, next) => {
+  const orderId = req.params.id;
+  const { status } = req.body;
+  const userId = req.user._id;
+
+  // Validate status value
+  const validStatuses = ["processing", "completed", "refunded", "disputed", "paid"];
+  if (!validStatuses.includes(status)) {
+    return next(new AppError(`Invalid status value. Must be one of: ${validStatuses.join(', ')}`, 400));
+  }
+
+  // Find the order
+  const order = await Orders.findById(orderId);
+  if (!order) {
+    return next(new AppError("No order found with that ID", 404));
+  }
+
+  // Check authorization - only allow access to admin or the buyer
+  if (
+    req.user.role !== "admin" &&
+    order.clientID.toString() !== userId.toString()
+  ) {
+    return next(new AppError("You are not authorized to update this order status", 403));
+  }
+
+  // Update the order status
+  order.status = status;
+  await order.save();
+
+  // Add a system message to the chat if it exists
+  try {
+    const chat = await Chat.findOne({ orderId: order._id });
+    if (chat) {
+      const systemMessage = {
+        sender: userId,
+        content: `(System)Order status has been updated to: ${status}`,
+        timestamp: Date.now(),
+        isSystemMessage: true,
+        read: true
+      };
+
+      chat.messages.push(systemMessage);
+      chat.lastActivity = Date.now();
+      await chat.save();
+    }
+  } catch (chatError) {
+    console.error('Error adding system message to chat:', chatError);
+    // Don't fail the operation if adding a chat message fails
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: `Order status updated to ${status}`,
+    data: {
+      id: order._id,
+      status: order.status
+    }
+  });
+});
+

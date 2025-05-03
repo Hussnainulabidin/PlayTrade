@@ -49,6 +49,9 @@ import ClientChatPage from "./pages/Client/ClientChatPage"
 import AccountsSupport from "./pages/Client/AccountsSupport"
 import ClientTicketsPage from "./pages/Client/ClientTicketsPage"
 
+// Payment Page
+import PaymentPage from "./pages/Payment/PaymentPage"
+
 const App = () => {
   return (
     <UserProvider>
@@ -72,6 +75,9 @@ const App = () => {
           <Route path="/accounts/leagueoflegends/support" element={<AccountsSupport />} />
           <Route path="/accounts/clashofclans/support" element={<AccountsSupport />} />
           <Route path="/accounts/brawlstars/support" element={<AccountsSupport />} />
+
+          {/* Payment Route */}
+          <Route path="/payment" element={<PaymentPage />} />
 
           {/* Admin Dashboard Routes */}
           <Route path="/order/:id" element={<OrderDetailPage />} />

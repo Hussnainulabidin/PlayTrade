@@ -102,7 +102,7 @@ export default function LeagueOfLegendsDetail() {
     setIsLoginModalOpen(true)
   }
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = () => {
     if (!isAuthenticated) {
       setIsLoginModalOpen(true)
       return
@@ -110,23 +110,12 @@ export default function LeagueOfLegendsDetail() {
 
     try {
       setIsProcessingOrder(true)
-
-      // Create the order using orderApi
-      const response = await orderApi.createOrder({
-        accountID: id,
-        gameType: "League of Legends"
-      })
-
-      if (response.data.status === 'success') {
-        // Navigate to the order details page
-        const orderId = response.data.data._id
-        navigate(`/order/${orderId}`)
-      } else {
-        throw new Error("Failed to create order")
-      }
+      
+      // Navigate to payment page with account ID
+      navigate(`/payment?accountId=${id}&gameType=LeagueOfLegends`)
     } catch (err) {
-      console.error("Error creating order:", err)
-      alert(err.response?.data?.message || "Failed to create order. Please try again.")
+      console.error("Error:", err)
+      alert("Failed to process. Please try again.")
     } finally {
       setIsProcessingOrder(false)
     }

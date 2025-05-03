@@ -83,6 +83,13 @@ const gameAccountApi = {
   deleteAccount: (accountId, gameType) =>
     API.delete(`/gameAccounts/delete-account`, { data: { accountId, gameType } }),
 
+  // Direct methods for getting specific accounts by ID
+  getValorantAccount: (id) => API.get(`/valorant/accounts/${id}`),
+  getFortniteAccount: (id) => API.get(`/fortnite/accounts/${id}`),
+  getLeagueAccount: (id) => API.get(`/leagueoflegends/accounts/${id}`),
+  getClashOfClansAccount: (id) => API.get(`/clashofclans/accounts/${id}`),
+  getBrawlStarsAccount: (id) => API.get(`/brawlstars/accounts/${id}`),
+
   // Valorant accounts
   valorant: {
     getAccounts: (filters = {}) => {

@@ -20,6 +20,7 @@ const walletRouter = require("./routes/walletRoutes");
 const orderRouter = require("./routes/orderRoutes");
 const chatRouter = require("./routes/chatRoutes");
 const ticketRouter = require('./routes/ticketRoutes');
+const stripeRouter = require('./routes/stripeRoutes');
 
 
 const app = express();
@@ -78,6 +79,7 @@ app.use("/wallet", walletRouter);
 app.use("/orders", orderRouter);
 app.use("/chats", chatRouter);
 app.use("/tickets", ticketRouter);
+app.use("/payments", stripeRouter);
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on the server`, 404))
 });

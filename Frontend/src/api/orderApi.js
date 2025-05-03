@@ -13,6 +13,7 @@ const orderApi = {
   createOrder: (orderData) => API.post('/orders', orderData),
   markOrderAsReceived: (id) => API.post(`/orders/${id}/mark-received`),
   submitFeedback: (id, feedbackData) => API.post(`/orders/${id}/feedback`, feedbackData),
+  updateOrderStatus: (id, status) => API.post(`/orders/${id}/update-status`, { status }),
 
   // Seller statistics
   getSellerStats: (sellerId) => API.get(`/orders/seller/${sellerId}/stats`),

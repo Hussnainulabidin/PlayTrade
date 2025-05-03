@@ -70,4 +70,7 @@ router.post('/:id/feedback', orderController.submitFeedback);
 // Get order by account ID
 router.route("/account/:accountId").get(orderController.getOrderByAccountId);
 
+// Update order status - restricted to authenticated users
+router.route("/:id/update-status").post(orderController.updateOrderStatus);
+
 module.exports = router;

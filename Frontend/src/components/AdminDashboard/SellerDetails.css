@@ -300,15 +300,19 @@
   
   /* Layout */
   .seller-dashboard {
-    padding: 1rem;
-    background-color: #1a172b;
+    padding: 24px;
+    background-color: #0f0d1d;
     width: 100%;
+    box-sizing: border-box;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    min-height: 100%;
     overflow-x: hidden;
   }
   
   @media (max-width: 767px) {
     .seller-dashboard {
-      padding: 0.75rem;
+      padding: 16px;
     }
   }
   
@@ -320,7 +324,7 @@
   }
   
   .header-title {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 600;
     color: white;
   }
@@ -375,9 +379,9 @@
   
   /* Card Styles */
   .card {
-    background-color: #1f1d2e;
-    border: 1px solid #3a3448;
-    border-radius: 0.5rem;
+    background-color: #1f1b31;
+    border: 1px solid #2e2a4a;
+    border-radius: 8px;
     padding: 1.5rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
@@ -398,7 +402,7 @@
   
   .card-subtitle {
     font-size: 0.875rem;
-    color: #a7a7b5;
+    color: #9ca3af;
     margin: 0;
     margin-bottom: 1.5rem;
   }
@@ -437,7 +441,7 @@
   }
   
   .info-icon {
-    color: #6c5ce7;
+    color: #7C3AED;
     width: 1.25rem;
     height: 1.25rem;
     flex-shrink: 0;
@@ -449,7 +453,7 @@
   
   .info-label {
     font-size: 0.75rem;
-    color: #a7a7b5;
+    color: #9ca3af;
     margin: 0;
     margin-bottom: 0.125rem;
   }
@@ -479,27 +483,32 @@
   /* Status Badge */
   .status-badge {
     display: inline-flex;
-    height: 1.25rem;
+    height: 1.5rem;
     align-items: center;
     font-size: 0.75rem;
     font-weight: 500;
-    padding: 0 0.5rem;
+    padding: 0.25rem 0.75rem;
     border-radius: 9999px;
   }
   
-  .status-active {
-    background-color: rgba(16, 185, 129, 0.1);
+  .status-active, .badge-listed {
+    background-color: rgba(16, 185, 129, 0.15);
     color: #10B981;
   }
   
-  .status-suspended {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: #EF4444;
+  .status-suspended, .badge-draft {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #F59E0B;
   }
   
-  .status-inactive {
-    background-color: rgba(156, 163, 175, 0.1);
+  .status-inactive, .badge-other {
+    background-color: rgba(156, 163, 175, 0.15);
     color: #9CA3AF;
+  }
+  
+  .badge-sold {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #EF4444;
   }
   
   /* Button Styles */
@@ -530,10 +539,10 @@
   .view-button {
     width: 100%;
     padding: 0.75rem 1rem;
-    background-color: #2a263a;
+    background-color: #1f1b31;
     color: white;
-    border: 1px solid #3a3448;
-    border-radius: 0.375rem;
+    border: 1px solid #2e2a4a;
+    border-radius: 4px;
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
@@ -548,17 +557,17 @@
   }
   
   .view-button:hover {
-    background-color: #3a3448;
-    border-color: #4a4458;
+    background-color: #2e2a4a;
+    border-color: #3a3448;
   }
   
   .purple-button {
     width: 100%;
     padding: 0.75rem 1rem;
-    background-color: #6c5ce7;
+    background-color: #7C3AED;
     color: white;
     border: none;
-    border-radius: 0.375rem;
+    border-radius: 4px;
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
@@ -574,19 +583,19 @@
   }
   
   .purple-button:hover {
-    background-color: #5b4cc9;
+    background-color: #6D28D9;
   }
   
   /* Tabs */
   .tabs-container {
-    background-color: #1f1d2e;
-    border: 1px solid #3a3448;
-    border-radius: 0.5rem;
+    background-color: #1f1b31;
+    border: 1px solid #2e2a4a;
+    border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
   .tabs-header {
-    border-bottom: 1px solid #3a3448;
+    border-bottom: 1px solid #2e2a4a;
     overflow-x: auto;
   }
   
@@ -605,7 +614,7 @@
   .tab-button {
     padding: 1rem 1.25rem;
     background-color: transparent;
-    color: #a7a7b5;
+    color: #9ca3af;
     border: none;
     border-bottom: 2px solid transparent;
     font-size: 0.875rem;
@@ -628,8 +637,8 @@
   }
   
   .tab-button.active {
-    color: #6c5ce7;
-    border-bottom: 2px solid #6c5ce7;
+    color: #7C3AED;
+    border-bottom: 2px solid #7C3AED;
   }
   
   /* Activity List */
@@ -652,7 +661,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.75rem;
-    border-bottom: 1px solid #3a3448;
+    border-bottom: 1px solid #2e2a4a;
   }
   
   @media (max-width: 767px) {
@@ -683,7 +692,7 @@
   
   .activity-subtitle {
     font-size: 0.75rem;
-    color: #a7a7b5;
+    color: #9ca3af;
     margin: 0;
   }
   
@@ -703,14 +712,14 @@
   
   .activity-date {
     font-size: 0.75rem;
-    color: #a7a7b5;
+    color: #9ca3af;
   }
   
   .activity-action {
-    background-color: #2a263a;
+    background-color: #1f1b31;
     color: white;
     border: none;
-    border-radius: 0.25rem;
+    border-radius: 4px;
     width: 1.75rem;
     height: 1.75rem;
     display: flex;
@@ -720,7 +729,7 @@
   }
   
   .activity-action:hover {
-    background-color: #3a3448;
+    background-color: #2e2a4a;
   }
   
   .activity-icon {
@@ -735,9 +744,9 @@
     justify-content: center;
     padding: 3rem;
     text-align: center;
-    background-color: #1f1d2e;
-    border-radius: 0.5rem;
-    border: 1px solid #3a3448;
+    background-color: #1f1b31;
+    border-radius: 8px;
+    border: 1px solid #2e2a4a;
   }
   
   @media (max-width: 767px) {
@@ -749,11 +758,16 @@
   .loader-spinner {
     width: 2.5rem;
     height: 2.5rem;
-    border: 3px solid #3a3448;
-    border-top-color: #6c5ce7;
+    border: 3px solid rgba(124, 58, 237, 0.1);
     border-radius: 50%;
+    border-top-color: #7C3AED;
     animation: rotation 1s linear infinite;
     margin-bottom: 1rem;
+  }
+  
+  @keyframes rotation {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
   
   @media (max-width: 767px) {
@@ -765,16 +779,16 @@
   }
   
   .loader-text {
-    color: #a7a7b5;
+    color: #9ca3af;
     font-size: 0.875rem;
   }
   
   .error-state {
     padding: 2rem;
     text-align: center;
-    background-color: #1f1d2e;
-    border-radius: 0.5rem;
-    border: 1px solid #3a3448;
+    background-color: #1f1b31;
+    border-radius: 8px;
+    border: 1px solid #2e2a4a;
     color: #ef4444;
     font-size: 0.875rem;
   }
