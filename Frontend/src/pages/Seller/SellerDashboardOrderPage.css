@@ -4,7 +4,9 @@
     height: 100vh;
     background-color: #0f0b1a;
     overflow: hidden;
-    /* Prevent scrolling at this level */
+    position: relative;
+    z-index: 5;
+    /* Lower than sidebar z-index */
 }
 
 .orders-container {
@@ -17,6 +19,8 @@
     /* Subtract header height */
     overflow-y: auto;
     /* Enable vertical scrolling for the entire page */
+    position: relative;
+    z-index: 1;
 }
 
 /* Make the table container expand with content instead of scrolling */

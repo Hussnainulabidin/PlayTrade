@@ -5,6 +5,8 @@
     display: flex;
     flex-direction: column;
     color: #c9d1d9;
+    position: relative;
+    z-index: 10;
 }
 
 .pt-sidebar__logo-container {
@@ -12,6 +14,10 @@
     align-items: center;
     padding: 16px;
     border-bottom: 1px solid #30363d;
+    position: relative;
+    z-index: 20;
+    overflow: hidden;
+    background-color: #0d1117;
 }
 
 .pt-sidebar__logo {
@@ -23,11 +29,16 @@
     align-items: center;
     justify-content: center;
     margin-right: 12px;
+    position: relative;
+    z-index: 10;
 }
 
 .pt-sidebar__logo-text {
     font-size: 16px;
     font-weight: 600;
+    white-space: nowrap;
+    position: relative;
+    z-index: 10;
 }
 
 .pt-sidebar__nav {
