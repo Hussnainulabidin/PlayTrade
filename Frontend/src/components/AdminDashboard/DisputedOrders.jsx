@@ -75,12 +75,18 @@ export function DisputedOrders() {
   }, [])
 
   const handleDropdownClick = (orderId, event) => {
+    event.stopPropagation()
     const button = event.currentTarget
     const rect = button.getBoundingClientRect()
+    
+    // Calculate position relative to viewport
+    const left = rect.left - 120 // Position dropdown to the left of the button
+    
     setDropdownPosition({
-      top: rect.bottom,
-      left: rect.left - 120 // Position to the left of the button
+      top: rect.bottom + window.scrollY,
+      left: Math.max(10, left) // Ensure dropdown doesn't go off-screen to the left
     })
+    
     setActiveDropdownId(activeDropdownId === orderId ? null : orderId)
   }
 
@@ -150,7 +156,7 @@ export function DisputedOrders() {
   }
 
   return (
-    <div className="orders-container">
+    <div className="listings-container">
       <div className="listings-header">
         <h1 className="listings-title">Disputed Orders</h1>
       </div>
@@ -167,7 +173,7 @@ export function DisputedOrders() {
         </div>
       </div>
 
-      <div className="table-container">
+      <div className="listings-table">
         <table className="table">
           <thead>
             <tr>
@@ -262,8 +268,9 @@ export function DisputedOrders() {
           ref={dropdownRef}
           className="dropdown-container"
           style={{
-            top: dropdownPosition.top,
-            left: dropdownPosition.left,
+            position: 'fixed',
+            top: `${dropdownPosition.top}px`,
+            left: `${dropdownPosition.left}px`,
           }}
         >
           <div className="dropdown-menu">

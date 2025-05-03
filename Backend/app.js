@@ -3,6 +3,9 @@ const fs = require("fs");
 const { request } = require("http");
 const morgan = require("morgan");
 const cors = require("cors")
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const rateLimit = require("express-rate-limit");
 
 const AppError = require('./utils/appError')
 const globalErrorHandler = require('./controllers/errorController')
@@ -28,6 +31,26 @@ if (process.env.NODE_ENV === "development") {
 }
 app.use(express.json());
 app.use(cors())
+app.use(helmet()); // protects against well known web vulnerabilities by setting HTTP headers appropriately
+app.use(mongoSanitize()); // protects against NoSQL query injection
+
+// Sanitize data against XSS
+app.use(helmet.contentSecurityPolicy({ // prevents attackers from injecting malicious scripts into the web page
+  directives: {
+    defaultSrc: ["'self'"], // allows only the current origin to load resources
+    scriptSrc: ["'self'", "'unsafe-inline'"], // allows inline scripts and unsafe-inline to be used
+    styleSrc: ["'self'", "'unsafe-inline'"], // allows inline styles and unsafe-inline to be used
+    imgSrc: ["'self'", "data:", "*.cloudinary.com"] // allows images from the current origin and data URLs and Cloudinary images
+  }
+}));
+
+// Limit requests from same API
+const limiter = rateLimit({ 
+  max: 100,
+  windowMs: 60 * 60 * 1000, // 1 hour
+  message: 'Too many requests from this IP, please try again in an hour!'
+});
+app.use('/api', limiter);
 
 app.use((req, res, next) => {
   console.log("Hello from the middleware 👋");

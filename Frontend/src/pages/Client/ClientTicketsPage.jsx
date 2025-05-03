@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { Search, PlusCircle, TicketIcon, ExternalLink } from "lucide-react";
+import { PlusCircle, TicketIcon, ExternalLink } from "lucide-react";
 import { ticketApi } from "../../api";
 import { useUser } from "../../components/userContext/UserContext";
 import "../pages.css";
+import "../../components/AdminDashboard/common/Common.css";
+import "../../components/AdminDashboard/common/TableStyles.css";
 import "./ClientTicketsPage.css";
 
 function ClientTicketsPage() {
@@ -11,7 +13,6 @@ function ClientTicketsPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [tickets, setTickets] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(location.state?.message || "");
@@ -60,13 +61,6 @@ function ClientTicketsPage() {
     }
   }, [user]);
 
-  const filteredTickets = tickets.filter(
-    (ticket) =>
-      ticket._id?.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.ticketType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.status?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("en-US", {
@@ -77,18 +71,18 @@ function ClientTicketsPage() {
   };
 
   const getStatusClass = (status) => {
-    if (!status) return "status-open";
+    if (!status) return "badge-draft";
 
     const statusLower = status.toLowerCase();
     switch (statusLower) {
       case "open":
-        return "status-open";
+        return "badge-listed";
       case "in progress":
-        return "status-in-progress";
+        return "badge-draft";
       case "closed":
-        return "status-closed";
+        return "badge-sold";
       default:
-        return "status-open";
+        return "badge-other";
     }
   };
 
@@ -110,71 +104,63 @@ function ClientTicketsPage() {
   }
 
   return (
-    <div className="tickets-page-container">
+    <div className="listings-container">
       {successMessage && (
         <div className="success-message">
           {successMessage}
         </div>
       )}
       
-      <div className="tickets-header">
-        <div className="tickets-title-section">
-          <h1 className="tickets-title">My Support Tickets</h1>
-          <p className="tickets-subtitle">View and manage your support requests</p>
-        </div>
-        <div className="tickets-actions">
-          <div className="search-container">
-
-          </div>
-          <button
-            className="create-ticket-button"
-            onClick={handleCreateTicket}
-          >
-            <PlusCircle size={18} />
-            <span>New Ticket</span>
-          </button>
-        </div>
+      <div className="listings-header">
+        <h1 className="listings-title">My Support Tickets</h1>
+        <button
+          className="add-new-button"
+          onClick={handleCreateTicket}
+        >
+          <PlusCircle size={18} />
+          <span>New Ticket</span>
+        </button>
       </div>
 
-      <div className="tickets-table-container">
-        <table className="tickets-table">
+      <div className="listings-table">
+        <table className="table">
           <thead>
             <tr>
-              <th className="ticket-table-header">TICKET ID</th>
-              <th className="ticket-table-header">TYPE</th>
-              <th className="ticket-table-header">STATUS</th>
-              <th className="ticket-table-header">CREATED</th>
-              <th className="ticket-table-header">LAST ACTIVITY</th>
-              <th className="ticket-table-header">ACTIONS</th>
+              <th className="table-header">TICKET ID</th>
+              <th className="table-header">TYPE</th>
+              <th className="table-header">STATUS</th>
+              <th className="table-header">CREATED</th>
+              <th className="table-header">LAST ACTIVITY</th>
+              <th className="table-header"></th>
             </tr>
           </thead>
           <tbody>
-            {filteredTickets.length === 0 ? (
+            {tickets.length === 0 ? (
               <tr>
-                <td colSpan="6" className="no-tickets-message">
-                  {searchQuery ? "No tickets found matching your search." : "You haven't created any support tickets yet."}
+                <td colSpan="6" className="no-listings-message">
+                  You haven't created any support tickets yet.
                 </td>
               </tr>
             ) : (
-              filteredTickets.map((ticket) => (
-                <tr key={ticket._id} className="ticket-table-row">
-                  <td className="ticket-table-cell ticket-id">
+              tickets.map((ticket) => (
+                <tr key={ticket._id} className="table-row">
+                  <td className="table-cell">
                     <div className="ticket-id-wrapper">
                       <TicketIcon size={16} className="ticket-icon" />
                       <span>#{ticket._id.slice(-6)}</span>
                     </div>
                   </td>
-                  <td className="ticket-table-cell">{ticket.ticketType}</td>
-                  <td className="ticket-table-cell">
-                    <span className={`ticket-status-badge ${getStatusClass(ticket.status)}`}>
+                  <td className="table-cell">{ticket.ticketType}</td>
+                  <td className="table-cell">
+                    <span className={`status-badge ${getStatusClass(ticket.status)}`}>
                       {ticket.status}
                     </span>
                   </td>
-                  <td className="ticket-table-cell">{formatDate(ticket.createdAt)}</td>
-                  <td className="ticket-table-cell">{formatDate(ticket.lastActivity)}</td>
-                  <td className="ticket-table-cell actions-cell">
-                    <Link to={`/tickets/${ticket._id}`} className="ticket-action-link">
-                      <ExternalLink size={18} />
+                  <td className="table-cell">{formatDate(ticket.createdAt)}</td>
+                  <td className="table-cell">{formatDate(ticket.lastActivity)}</td>
+                  <td className="table-cell actions-cell">
+                    <Link to={`/tickets/${ticket._id}`} className="action-icon-button">
+                      <ExternalLink className="action-icon" size={18} />
                     </Link>
                   </td>
                 </tr>

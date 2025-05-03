@@ -262,7 +262,7 @@ export default function Fortnite() {
   return (
     <div className="min-h-screen bg-[#12111f] text-white">
       {/* Header */}
-      <header className="border-b border-[#2d2b3a] bg-[#1a172b]">
+      <header className="border-b border-[#2d2b3a] bg-[#1a172b] sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -279,7 +279,7 @@ export default function Fortnite() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 border border-gray-700 rounded-md px-3 py-1.5">
+            <div className="hidden sm:flex items-center gap-2 border border-gray-700 rounded-md px-3 py-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
                 <path
                   fillRule="evenodd"
@@ -315,64 +315,66 @@ export default function Fortnite() {
 
       {/* Game Navigation */}
       <div className="bg-[#1a172b] border-b border-[#2d2b3a]">
-        <div className="container mx-auto px-4 py-3 flex items-center">
-          <div className="flex items-center gap-3 mr-8">
-            <div className="bg-red-500 w-10 h-10 rounded flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                <path
-                  fillRule="evenodd"
-                  d="M3 6a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <span className="font-bold text-xl">Fortnite</span>
-          </div>
-
-          <div className="flex-1">
-            <div className="flex">
-              <button className="px-4 py-2 border-b-2 border-blue-500 flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-4 h-4 mr-2"
-                >
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex items-center gap-3 mr-0 sm:mr-8">
+              <div className="bg-red-500 w-10 h-10 rounded flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
                   <path
                     fillRule="evenodd"
-                    d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
+                    d="M3 6a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
                     clipRule="evenodd"
                   />
                 </svg>
-                Accounts
+              </div>
+              <span className="font-bold text-xl">Fortnite</span>
+            </div>
+
+            <div className="flex-1 mb-4 sm:mb-0">
+              <div className="flex">
+                <button className="px-4 py-2 border-b-2 border-blue-500 flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="w-4 h-4 mr-2"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Accounts
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4">
+              <button
+                onClick={() => navigate("/accounts/fortnite/support")}
+                className="flex-1 sm:flex-none border border-gray-700 text-gray-300 px-3 sm:px-4 py-2 rounded-md flex items-center justify-center hover:bg-gray-700 text-sm sm:text-base"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
+                  <path
+                    fillRule="evenodd"
+                    d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Support 24/7
+              </button>
+              <button className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 px-3 sm:px-4 py-2 rounded-md flex items-center justify-center text-sm sm:text-base">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
+                  <path
+                    fillRule="evenodd"
+                    d="M12 2.25c-2.429 0-4.817.178-7.152.521C2.87 3.061 1.5 4.795 1.5 6.741v6.018c0 1.946 1.37 3.68 3.348 3.97.877.129 1.761.234 2.652.316V21a.75.75 0 001.28.53l4.184-4.183a.39.39 0 01.266-.112c2.006-.05 3.982-.22 5.922-.506 1.978-.29 3.348-2.023 3.348-3.97V6.741c0-1.947-1.37-3.68-3.348-3.97A49.145 49.145 0 0012 2.25zM8.25 8.625a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25zm2.625 1.125a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.5-1.125a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Join Discord
               </button>
             </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/accounts/fortnite/support")}
-              className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center hover:bg-gray-700"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
-                <path
-                  fillRule="evenodd"
-                  d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Support 24/7
-            </button>
-            <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2">
-                <path
-                  fillRule="evenodd"
-                  d="M12 2.25c-2.429 0-4.817.178-7.152.521C2.87 3.061 1.5 4.795 1.5 6.741v6.018c0 1.946 1.37 3.68 3.348 3.97.877.129 1.761.234 2.652.316V21a.75.75 0 001.28.53l4.184-4.183a.39.39 0 01.266-.112c2.006-.05 3.982-.22 5.922-.506 1.978-.29 3.348-2.023 3.348-3.97V6.741c0-1.947-1.37-3.68-3.348-3.97A49.145 49.145 0 0012 2.25zM8.25 8.625a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25zm2.625 1.125a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zm4.5-1.125a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Join Discord
-            </button>
           </div>
         </div>
       </div>
@@ -398,8 +400,8 @@ export default function Fortnite() {
 
         {/* Search and Filters */}
         <div className="mb-6">
-          <div className="flex flex-wrap gap-4 mb-4">
-            <div className="relative w-150">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-4">
+            <div className="relative w-full sm:w-auto sm:flex-1 max-w-[500px]">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
@@ -410,32 +412,34 @@ export default function Fortnite() {
               />
             </div>
 
-            <div className="flex gap-4 ml-auto">
-              <div className="relative" ref={serverDropdownRef}>
+            <div className="flex flex-wrap gap-2 sm:gap-4 sm:ml-auto">
+              <div className="relative flex-1 sm:flex-none" ref={serverDropdownRef}>
                 <button
-                  className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
+                  className="w-full sm:w-auto border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center justify-between"
                   onClick={() => {
                     setIsServerDropdownOpen(!isServerDropdownOpen)
                     setIsPriceDropdownOpen(false)
                   }}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-4 h-4 mr-2"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM6.262 6.072a8.25 8.25 0 1010.562-.766 4.5 4.5 0 01-1.318 1.357L14.25 7.5l.165.33a.809.809 0 01-1.086 1.085l-.604-.302a1.125 1.125 0 00-1.298.21l-.132.131c-.439.44-.439 1.152 0 1.591l.296.296c.256.257.622.374.98.314l1.17-.195c.323-.054.654.036.905.245l1.33 1.108c.32.267.46.694.358 1.1a8.7 8.7 0 01-2.288 4.04l-.723.724a1.125 1.125 0 01-1.298.21l-.153-.076a1.125 1.125 0 01-.622-1.006v-1.089c0-.298-.119-.585-.33-.796l-1.347-1.347a1.125 1.125 0 01-.21-1.298L9.75 12l-1.64-1.64a6 6 0 01-1.676-3.257l-.172-1.03z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {selectedServer || "All Platforms"}
+                  <div className="flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-4 h-4 mr-2"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM6.262 6.072a8.25 8.25 0 1010.562-.766 4.5 4.5 0 01-1.318 1.357L14.25 7.5l.165.33a.809.809 0 01-1.086 1.085l-.604-.302a1.125 1.125 0 00-1.298.21l-.132.131c-.439.44-.439 1.152 0 1.591l.296.296c.256.257.622.374.98.314l1.17-.195c.323-.054.654.036.905.245l1.33 1.108c.32.267.46.694.358 1.1a8.7 8.7 0 01-2.288 4.04l-.723.724a1.125 1.125 0 01-1.298.21l-.153-.076a1.125 1.125 0 01-.622-1.006v-1.089c0-.298-.119-.585-.33-.796l-1.347-1.347a1.125 1.125 0 01-.21-1.298L9.75 12l-1.64-1.64a6 6 0 01-1.676-3.257l-.172-1.03z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="truncate">{selectedServer || "All Platforms"}</span>
+                  </div>
                   <ChevronDown className="ml-2 w-4 h-4" />
                 </button>
                 {isServerDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#211f2d] border border-[#2d2b3a] rounded-md shadow-lg z-50">
+                  <div className="absolute top-full left-0 mt-1 w-full sm:w-48 bg-[#211f2d] border border-[#2d2b3a] rounded-md shadow-lg z-50">
                     {platformOptions.map((platform) => (
                       <button
                         key={platform}
@@ -452,32 +456,34 @@ export default function Fortnite() {
                 )}
               </div>
 
-              <div className="relative" ref={priceDropdownRef}>
+              <div className="relative flex-1 sm:flex-none" ref={priceDropdownRef}>
                 <button
-                  className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center"
+                  className="w-full sm:w-auto border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center justify-between"
                   onClick={() => {
                     setIsPriceDropdownOpen(!isPriceDropdownOpen)
                     setIsServerDropdownOpen(false)
                   }}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-4 h-4 mr-2"
-                  >
-                    <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
-                    <path
-                      fillRule="evenodd"
-                      d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {selectedPrice ? priceOptions.find(opt => opt.value === selectedPrice)?.label : "All Prices"}
+                  <div className="flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-4 h-4 mr-2"
+                    >
+                      <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
+                      <path
+                        fillRule="evenodd"
+                        d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="truncate">{selectedPrice ? priceOptions.find(opt => opt.value === selectedPrice)?.label : "All Prices"}</span>
+                  </div>
                   <ChevronDown className="ml-2 w-4 h-4" />
                 </button>
                 {isPriceDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#211f2d] border border-[#2d2b3a] rounded-md shadow-lg z-50">
+                  <div className="absolute top-full left-0 mt-1 w-full sm:w-48 bg-[#211f2d] border border-[#2d2b3a] rounded-md shadow-lg z-50">
                     {priceOptions.map((option) => (
                       <button
                         key={option.value}
@@ -496,7 +502,7 @@ export default function Fortnite() {
 
               <button
                 onClick={resetFilters}
-                className="border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center hover:bg-gray-700"
+                className="flex-1 sm:flex-none border border-gray-700 text-gray-300 px-4 py-2 rounded-md flex items-center justify-center hover:bg-gray-700"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -510,14 +516,14 @@ export default function Fortnite() {
                     clipRule="evenodd"
                   />
                 </svg>
-                Reset Filters
+                Reset
               </button>
             </div>
           </div>
         </div>
 
         {/* Account Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {loading ? (
             <div className="col-span-full flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -541,14 +547,14 @@ export default function Fortnite() {
                 <div className="p-4 border-b border-gray-800">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-[#7c3aed] bg-[#211f2d] px-3 py-1 rounded-full border border-[#7c3aed]">
+                      <span className="font-bold text-[#7c3aed] bg-[#211f2d] px-3 py-1 rounded-full border border-[#7c3aed] text-xs sm:text-sm">
                         {account.account_data.mainPlatform || "N/A"} • Level {account.account_data.level || "0"}
                       </span>
                     </div>
                   </div>
                   <div className="space-y-1 text-sm">
                     <div className="flex items-center gap-1">
-                      <span>
+                      <span className="truncate">
                         {account.title || `[${account.account_data.mainPlatform || "N/A"}] ${account.description?.substring(0, 30) || "Fortnite Account"}`}
                       </span>
                       {account.verified && <span className="bg-green-600 text-xs px-1 rounded">✓</span>}
@@ -620,7 +626,7 @@ export default function Fortnite() {
                 <div className="p-3 border-t border-gray-800 grid grid-cols-2 gap-2 text-xs text-gray-400">
                   <div className="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
-                      <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                      <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                     </svg>
                     {account.account_data.SkinsCount || 0} Skins
                   </div>
@@ -715,70 +721,72 @@ export default function Fortnite() {
 
         {/* Pagination Controls */}
         {!loading && !error && accounts.length > 0 && (
-          <div className="flex justify-center items-center gap-2 mt-8">
+          <div className="flex flex-wrap justify-center items-center gap-2 mt-8">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-4 py-2 rounded-md border border-gray-700 text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700"
+              className="px-3 sm:px-4 py-2 rounded-md border border-gray-700 text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 text-sm"
             >
               Previous
             </button>
 
             {/* Display pagination numbers with ellipsis for large page counts */}
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-              // Logic to handle showing relevant page numbers
-              let pageNum;
-              if (totalPages <= 5) {
-                // Show all pages if 5 or fewer
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                // Near the start
-                pageNum = i + 1;
-                if (i === 4) pageNum = totalPages;
-              } else if (currentPage >= totalPages - 2) {
-                // Near the end
-                pageNum = totalPages - 4 + i;
-                if (i === 0) pageNum = 1;
-              } else {
-                // Middle area
-                pageNum = currentPage - 2 + i;
-                if (i === 0) pageNum = 1;
-                if (i === 4) pageNum = totalPages;
-              }
+            <div className="flex flex-wrap justify-center gap-2 my-2">
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                // Logic to handle showing relevant page numbers
+                let pageNum;
+                if (totalPages <= 5) {
+                  // Show all pages if 5 or fewer
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  // Near the start
+                  pageNum = i + 1;
+                  if (i === 4) pageNum = totalPages;
+                } else if (currentPage >= totalPages - 2) {
+                  // Near the end
+                  pageNum = totalPages - 4 + i;
+                  if (i === 0) pageNum = 1;
+                } else {
+                  // Middle area
+                  pageNum = currentPage - 2 + i;
+                  if (i === 0) pageNum = 1;
+                  if (i === 4) pageNum = totalPages;
+                }
 
-              // Add ellipsis
-              if ((i === 1 && pageNum !== 2) || (i === 3 && pageNum !== totalPages - 1)) {
+                // Add ellipsis
+                if ((i === 1 && pageNum !== 2) || (i === 3 && pageNum !== totalPages - 1)) {
+                  return (
+                    <span key={`ellipsis-${i}`} className="px-3 py-2">
+                      ...
+                    </span>
+                  );
+                }
+
                 return (
-                  <span key={`ellipsis-${i}`} className="px-4 py-2">
-                    ...
-                  </span>
+                  <button
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`w-8 h-8 sm:min-w-[2rem] sm:px-3 rounded-md border ${currentPage === pageNum
+                      ? "bg-[#7c3aed] border-[#6d28d9] text-white"
+                      : "border-gray-700 text-gray-300 hover:bg-gray-700"
+                      }`}
+                  >
+                    {pageNum}
+                  </button>
                 );
-              }
-
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => handlePageChange(pageNum)}
-                  className={`px-4 py-2 rounded-md border ${currentPage === pageNum
-                    ? "bg-[#7c3aed] border-[#6d28d9] text-white"
-                    : "border-gray-700 text-gray-300 hover:bg-gray-700"
-                    }`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
+              })}
+            </div>
 
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 rounded-md border border-gray-700 text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700"
+              className="px-3 sm:px-4 py-2 rounded-md border border-gray-700 text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 text-sm"
             >
               Next
             </button>
 
             {/* Display count information */}
-            <div className="ml-4 text-gray-400 text-sm">
+            <div className="w-full text-center sm:w-auto sm:ml-4 text-gray-400 text-sm mt-2 sm:mt-0">
               Showing {accounts.length} of {totalAccounts} accounts
             </div>
           </div>

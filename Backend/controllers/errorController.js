@@ -39,7 +39,6 @@ const sendErrorDev = (err , res) => {
 const sendErrorProd = (err , res) => {
   // Operational error : created by us on server / trusted error
   if(err.isOperational ) {
-    console.log("TYPE-------------------- " , err.message);
     res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
@@ -62,7 +61,7 @@ module.exports = (err, req, res, next) => {
   
   if(process.env.NODE_ENV === 'development') {
     sendErrorDev(err , res);
-  } else if (process.env.NODE_ENV === 'production ') {
+  } else if (process.env.NODE_ENV === 'production') {
     
     let error = Object.assign({}, err);
     error.message = err.message;

@@ -57,23 +57,23 @@ function ClientOrdersPage() {
   };
 
   const getStatusClass = (status) => {
-    if (!status) return 'status-processing';
+    if (!status) return 'badge-draft';
 
     // Convert status to lowercase for consistent matching
     const statusLower = status.toLowerCase();
 
     switch (statusLower) {
       case 'processing':
-        return 'status-processing';
+        return 'badge-draft';
       case 'completed':
-        return 'status-completed';
+        return 'badge-listed';
       case 'refunded':
       case 'cancelled':
-        return 'status-refunded';
+        return 'badge-sold';
       case 'disputed':
-        return 'status-disputed';
+        return 'badge-other';
       default:
-        return 'status-processing';
+        return 'badge-draft';
     }
   };
 
@@ -91,12 +91,9 @@ function ClientOrdersPage() {
   }
 
   return (
-    <div className="orders-page-container">
-      <div className="orders-header">
-        <div className="orders-title-section">
-          <h1 className="orders-title">My Orders</h1>
-          <p className="orders-subtitle">View and manage all your account purchases</p>
-        </div>
+    <div className="listings-container">
+      <div className="listings-header">
+        <h1 className="listings-title">My Orders</h1>
         <div className="search-container">
           <Search className="search-icon" />
           <input
@@ -109,18 +106,18 @@ function ClientOrdersPage() {
         </div>
       </div>
 
-      <div className="orders-table-container">
-        <table className="orders-table">
+      <div className="listings-table">
+        <table className="table">
           <thead>
             <tr>
-              <th className="order-table-header order-id-column">ORDER ID</th>
-              <th className="order-table-header game-type-column">GAME TYPE</th>
-              <th className="order-table-header">TITLE</th>
-              <th className="order-table-header">SELLER</th>
-              <th className="order-table-header">STATUS</th>
-              <th className="order-table-header">AMOUNT</th>
-              <th className="order-table-header">DATE</th>
-              <th className="order-table-header">ACTIONS</th>
+              <th className="table-header">ORDER ID</th>
+              <th className="table-header">GAME TYPE</th>
+              <th className="table-header">TITLE</th>
+              <th className="table-header">SELLER</th>
+              <th className="table-header">STATUS</th>
+              <th className="table-header">AMOUNT</th>
+              <th className="table-header">DATE</th>
+              <th className="table-header"></th>
             </tr>
           </thead>
           <tbody>
@@ -130,15 +127,15 @@ function ClientOrdersPage() {
               </tr>
             ) : (
               filteredOrders.map((order) => (
-                <tr key={order.id} className="order-table-row">
-                  <td className="order-table-cell order-id order-id-column">
+                <tr key={order.id} className="table-row">
+                  <td className="table-cell order-id">
                     <Link to={`/order/${order.id}`} className="order-link">
                       #{order.id}
                     </Link>
                   </td>
-                  <td className="order-table-cell game-type-column">{order.gameType}</td>
-                  <td className="order-table-cell">{order.title}</td>
-                  <td className="order-table-cell">
+                  <td className="table-cell">{order.gameType}</td>
+                  <td className="table-cell">{order.title}</td>
+                  <td className="table-cell">
                     <div className="seller-display">
                       <div className="seller-avatar">
                         {order.seller?.username?.charAt(0).toUpperCase() || 'S'}
@@ -146,16 +143,16 @@ function ClientOrdersPage() {
                       <span className="seller-name">{order.seller?.username || 'Unknown'}</span>
                     </div>
                   </td>
-                  <td className="order-table-cell">
-                    <span className={`order-status-badge ${getStatusClass(order.status)}`}>
+                  <td className="table-cell">
+                    <span className={`status-badge ${getStatusClass(order.status)}`}>
                       {order.status}
                     </span>
                   </td>
-                  <td className="order-table-cell">${typeof order.amount === 'number' ? order.amount.toFixed(2) : order.amount}</td>
-                  <td className="order-table-cell">{formatDate(order.createdAt)}</td>
-                  <td className="order-table-cell actions-cell">
-                    <Link to={`/order/${order.id}`} className="order-action-link">
-                      <ExternalLink size={18} />
+                  <td className="table-cell">${typeof order.amount === 'number' ? order.amount.toFixed(2) : order.amount}</td>
+                  <td className="table-cell">{formatDate(order.createdAt)}</td>
+                  <td className="table-cell actions-cell">
+                    <Link to={`/order/${order.id}`} className="action-icon-button">
+                      <ExternalLink className="action-icon" size={18} />
                     </Link>
                   </td>
                 </tr>

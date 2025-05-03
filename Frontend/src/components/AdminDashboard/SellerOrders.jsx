@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom"
-import { Search, ExternalLink, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, ExternalLink, MoreVertical, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react"
 import PropTypes from "prop-types"
 import { orderApi } from "../../api"
 import "./common/Common.css"
@@ -77,6 +77,7 @@ export function SellerOrders({ sellerId: propSellerId }) {
   }, [])
 
   const handleDropdownClick = (orderId, event) => {
+    event.stopPropagation()
     const button = event.currentTarget
     const rect = button.getBoundingClientRect()
     
@@ -153,13 +154,14 @@ export function SellerOrders({ sellerId: propSellerId }) {
   }
 
   return (
-    <div className="orders-container">
+    <div className="listings-container">
       <div className="listings-header">
         <h1 className="listings-title">Orders for Seller: {sellerId}</h1>
         <Link 
           to={`/admindashboard/sellers/${sellerId}`} 
           className="back-button"
         >
+          <ArrowLeft size={16} />
           Back to Seller
         </Link>
       </div>
@@ -176,7 +178,7 @@ export function SellerOrders({ sellerId: propSellerId }) {
         </div>
       </div>
 
-      <div className="table-container">
+      <div className="listings-table">
         <table className="table">
           <thead>
             <tr>
@@ -209,10 +211,10 @@ export function SellerOrders({ sellerId: propSellerId }) {
                   <td className="table-cell">
                     <span className={`status-badge ${
                       order.status === "Completed"
-                        ? "badge-completed"
+                        ? "badge-listed"
                         : order.status === "Processing"
-                          ? "badge-processing"
-                          : "badge-refunded"
+                          ? "badge-draft"
+                          : "badge-sold"
                     }`}>
                       {order.status}
                     </span>

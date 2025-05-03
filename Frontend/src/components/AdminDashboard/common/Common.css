@@ -156,20 +156,32 @@
 }
 
 .back-button {
-  background-color: #1f1b31;
-  border: none;
-  border-radius: 4px;
-  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #2a2438;
+  border: 1px solid #3a3448;
+  border-radius: 6px;
+  color: #d1d5db;
   cursor: pointer;
   font-size: 14px;
-  padding: 8px 12px;
+  font-weight: 500;
+  padding: 8px 16px;
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .back-button:hover {
-  background-color: #2e2a4a;
+  background-color: #3a3448;
   color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.back-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .loading-state {
@@ -223,6 +235,16 @@
 @media (max-width: 768px) {
   .listings-container, .orders-container {
     padding: 16px;
+  }
+  
+  .listings-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .back-button {
+    align-self: flex-start;
   }
 
   .search-container {

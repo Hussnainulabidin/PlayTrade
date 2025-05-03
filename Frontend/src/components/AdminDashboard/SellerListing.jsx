@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom"
-import { Search, MoreVertical, Edit, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, MoreVertical, Edit, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react"
 import { gameAccountApi } from "../../api"
 import "./common/Common.css"
 import "./common/TableStyles.css"
@@ -219,6 +219,7 @@ export function SellerListings() {
           to={`/admindashboard/sellers/${id}`}
           className="back-button"
         >
+          <ArrowLeft size={16} />
           Back to Seller
         </Link>
       </div>
