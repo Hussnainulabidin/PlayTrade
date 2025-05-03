@@ -4,6 +4,11 @@
     align-items: center;
     padding: 13.5px 20px;
     border-bottom: 1px solid #30363d;
+    position: relative;
+    z-index: 5;
+    /* Lower than sidebar z-index */
+    background-color: #0f0b1a;
+    /* Match background color */
 }
 
 .pt-header__title {
